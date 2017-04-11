@@ -1,0 +1,8 @@
+elasticSearch:
+  host: localhost
+  port: 9300
+  cluster: content-cluster
+
+esNewsIndex: "news"
+esEventsIndex: "event"
+esDataUseIndex: "datause"

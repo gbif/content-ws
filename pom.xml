@@ -49,6 +49,7 @@
     <mockito.version>1.10.19</mockito.version>
     <biweekly.version>0.6.1</biweekly.version>
     <elastic-search.version>5.2.2</elastic-search.version>
+    <rome.version>1.0</rome.version>
 
     <service-discovery.version>0.1-SNAPSHOT</service-discovery.version>
 
@@ -236,7 +237,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-json-provider</artifactId>
-      <version>2.7.0</version>
+      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.ws.rs</groupId>
@@ -268,7 +269,7 @@
     <dependency>
       <groupId>rome</groupId>
       <artifactId>rome</artifactId>
-      <version>1.0</version>
+      <version>${rome.version}</version>
     </dependency>
 
     <!-- For lifecycle -->
