@@ -6,3 +6,6 @@ elasticSearch:
 esNewsIndex: "news"
 esEventsIndex: "event"
 esDataUseIndex: "datause"
+service:
+      zkHost:
+      zkPath:

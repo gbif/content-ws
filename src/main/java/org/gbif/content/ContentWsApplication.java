@@ -2,6 +2,7 @@ package org.gbif.content;
 
 import org.gbif.content.conf.ContentWsConfiguration;
 import org.gbif.content.resource.EventsResource;
+import org.gbif.discovery.lifecycle.DiscoveryLifeCycle;
 
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -17,8 +18,11 @@ public class ContentWsApplication extends Application<ContentWsConfiguration> {
    */
   @Override
   public void run(ContentWsConfiguration configuration, Environment environment) throws Exception {
-    environment.jersey().register(new EventsResource(configuration.getElasticSearch().buildEsClient(),
-                                                     configuration));
+    //Can be discovered in zookeeper
+    if (configuration.getService().isDiscoverable()) {
+      environment.lifecycle().manage(new DiscoveryLifeCycle(configuration.getService()));
+    }
+    environment.jersey().register(new EventsResource(configuration.getElasticSearch().buildEsClient(), configuration));
   }
 
   /**

@@ -10,6 +10,8 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
+import org.gbif.discovery.conf.ServiceConfiguration;
+
 public class ContentWsConfiguration extends Configuration {
 
   /**
@@ -73,6 +75,8 @@ public class ContentWsConfiguration extends Configuration {
 
   private String esDataUseIndex = "datause";
 
+  private ServiceConfiguration service;
+
   @JsonProperty
   public ElasticSearch getElasticSearch() {
     return elasticSearch;
@@ -109,5 +113,12 @@ public class ContentWsConfiguration extends Configuration {
     this.esDataUseIndex = esDataUseIndex;
   }
 
+  @JsonProperty
+  public ServiceConfiguration getService() {
+    return service;
+  }
 
+  public void setService(ServiceConfiguration service) {
+    this.service = service;
+  }
 }
