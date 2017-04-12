@@ -1,6 +1,7 @@
 package org.gbif.content.utils;
 
 import java.util.Map;
+import java.util.Optional;
 
 import biweekly.component.VEvent;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -51,10 +52,10 @@ public class ConversionUtil {
     VEvent vEvent = new VEvent();
     Map<String,Object> source = searchHit.getSource();
     String locale = (String)searchHit.getSource().get("locale");
+    Optional.ofNullable(source.get("id")).map(id -> (String)id).ifPresent(vEvent::setUid);
     getField(source, "title", locale).ifPresent(vEvent::setSummary);
     getField(source, "body", locale).ifPresent(vEvent::setDescription);
     getField(source, "primaryLink", locale).ifPresent(vEvent::setUrl);
-    getField(source, "id", locale).ifPresent(vEvent::setUid);
     getField(source, "coordinates", locale).ifPresent(vEvent::setLocation);
     getDateField(source, "start", locale).ifPresent(vEvent::setDateStart);
     getDateField(source, "end", locale).ifPresent(vEvent::setDateEnd);
