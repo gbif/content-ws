@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
@@ -21,7 +20,6 @@ import javax.ws.rs.core.MediaType;
 
 import biweekly.Biweekly;
 import biweekly.ICalendar;
-import biweekly.component.VEvent;
 import com.codahale.metrics.annotation.Timed;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
