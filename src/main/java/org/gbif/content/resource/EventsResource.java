@@ -28,6 +28,7 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedOutput;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -46,8 +47,15 @@ public class EventsResource {
 
   private static final String CREATED_AT_FIELD = "createdAt";
 
+  /**
+   * Default page size for ElasticSearch
+   */
+  private static final int DEFAULT_SIZE = 10;
+
   private static final Optional<QueryBuilder> UPCOMING_EVENTS = Optional.of(QueryBuilders.rangeQuery(START_FIELD)
                                                                    .gte("now/d").includeUpper(Boolean.FALSE));
+
+  private static final QueryBuilder SEARCHABLE = QueryBuilders.termQuery("searchable.en-GB", Boolean.TRUE);
 
   private static final String MEDIA_TYPE_ICAL = "text/iCal";
 
@@ -79,6 +87,15 @@ public class EventsResource {
   @Path("events/upcoming.xml")
   public String getUpComingEvents(@QueryParam("query") String query) {
     return toXmlAtomFeed(newEventsFeed(), query, UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex());
+  }
+
+  @GET
+  @Timed
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_ATOM_XML)
+  @Path("news/rss")
+  public String getNews(@QueryParam("query") String query) {
+    return toXmlAtomFeed(newEventsFeed(), query, Optional.empty(), CREATED_AT_FIELD, configuration.getEsNewsIndex());
   }
 
   @GET
@@ -137,14 +154,15 @@ public class EventsResource {
   /**
    * Executes the default search query.
    */
-  private SearchResponse executeQuery(String query, Optional<QueryBuilder> filter, String dateSortField, String idxName) {
-    return esClient.prepareSearch(idxName)
-      .setQuery(QueryBuilders.boolQuery()
-                  .filter(filter.get())
-                  .must(query == null ? QueryBuilders.matchAllQuery() : QueryBuilders.wrapperQuery(query)))
-      .addSort(dateSortField, SortOrder.DESC)
-      .execute()
-      .actionGet();
+  private SearchResponse executeQuery(String query, Optional<QueryBuilder> filter, String dateSortField,
+                                      String idxName) {
+    BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
+                                             .filter(SEARCHABLE)
+                                             .must(query == null ?
+                                                     QueryBuilders.matchAllQuery() : QueryBuilders.wrapperQuery(query));
+    filter.ifPresent(queryBuilder::filter);
+    return esClient.prepareSearch(idxName).setQuery(queryBuilder).addSort(dateSortField, SortOrder.DESC)
+                    .setSize(DEFAULT_SIZE).execute().actionGet();
   }
 
   /**
