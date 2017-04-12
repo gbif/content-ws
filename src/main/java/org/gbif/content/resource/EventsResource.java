@@ -47,6 +47,8 @@ public class EventsResource {
 
   private static final String CREATED_AT_FIELD = "createdAt";
 
+  private static final String GBIF_REGION_FIELD = "gbifRegion";
+
   /**
    * Default page size for ElasticSearch
    */
@@ -55,7 +57,7 @@ public class EventsResource {
   private static final Optional<QueryBuilder> UPCOMING_EVENTS = Optional.of(QueryBuilders.rangeQuery(START_FIELD)
                                                                    .gte("now/d").includeUpper(Boolean.FALSE));
 
-  private static final QueryBuilder SEARCHABLE = QueryBuilders.termQuery("searchable.en-GB", Boolean.TRUE);
+  private static final QueryBuilder SEARCHABLE = QueryBuilders.termQuery("searchable", Boolean.TRUE);
 
   private static final String MEDIA_TYPE_ICAL = "text/iCal";
 
@@ -93,6 +95,18 @@ public class EventsResource {
   @Timed
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_ATOM_XML)
+  @Path("events/{eventId}")
+  public String getEvent(@PathParam("eventId") String eventId) {
+    ICalendar iCal = new ICalendar();
+    iCal.addEvent(ConversionUtil
+                    .toVEvent(esClient.prepareGet(configuration.getEsEventsIndex(), "content", eventId).get()));
+    return Biweekly.write(iCal).go();
+  }
+
+  @GET
+  @Timed
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_ATOM_XML)
   @Path("news/rss")
   public String getNews(@QueryParam("query") String query) {
     return toXmlAtomFeed(newEventsFeed(), query, Optional.empty(), CREATED_AT_FIELD, configuration.getEsNewsIndex());
@@ -102,9 +116,9 @@ public class EventsResource {
   @Timed
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_ATOM_XML)
-  @Path("news/rss/{region}")
-  public String getNewsByRegion(@QueryParam("query") String query, @PathParam("region") String region) {
-    return toXmlAtomFeed(newEventsFeed(), query, Optional.of(QueryBuilders.termQuery("region", region)),
+  @Path("news/rss/{gbifRegion}")
+  public String getNewsByRegion(@QueryParam("query") String query, @PathParam("gbifRegion") String region) {
+    return toXmlAtomFeed(newEventsFeed(), query, Optional.of(QueryBuilders.termQuery(GBIF_REGION_FIELD, region)),
                          CREATED_AT_FIELD, configuration.getEsNewsIndex());
   }
 
@@ -133,7 +147,7 @@ public class EventsResource {
   @Timed
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_ATOM_XML)
-  @Path("news/uses/rss")
+  @Path("uses/rss")
   public String getDataUses(@QueryParam("query") String query) {
     return toXmlAtomFeed(newEventsFeed(), query, Optional.empty(), CREATED_AT_FIELD, configuration.getEsDataUseIndex());
   }
