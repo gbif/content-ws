@@ -1,5 +1,6 @@
 package org.gbif.content.utils;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,15 +33,14 @@ public class ConversionUtil {
   /**
    * Transforms a SearchHit into a SyndEntry instance.
    */
-  public static SyndEntry toFeedEntry(SearchHit searchHit) {
+  public static SyndEntry toFeedEntry(SearchHit searchHit, String locale) {
     SyndEntry entry = new SyndEntryImpl();
     Map<String,Object> source = searchHit.getSource();
-    String locale = (String)searchHit.getSource().get("locale");
     getField(source, "title", locale).ifPresent(entry::setTitle);
     SyndContent description = new SyndContentImpl();
     getField(source, "body", locale).ifPresent(description::setValue);
     entry.setDescription(description);
-    //getField(source, "primaryLink", locale).ifPresent(entry::setLink);
+    getField(source, "primaryLink").ifPresent(entry::setLink);
     entry.setPublishedDate(DEFAULT_DATE_TIME_FORMATTER.parser()
                              .parseDateTime((String)source.get("createdAt")).toDate());
     return entry;
@@ -49,35 +49,37 @@ public class ConversionUtil {
   /**
    * Transforms a SearchHit into a VEvent instance.
    */
-  public static VEvent toVEvent(SearchHit searchHit) {
+  public static VEvent toVEvent(SearchHit searchHit, String locale) {
     VEvent vEvent = new VEvent();
     Map<String,Object> source = searchHit.getSource();
-    String locale = (String)searchHit.getSource().get("locale");
     Optional.ofNullable(source.get("id")).map(id -> (String)id).ifPresent(vEvent::setUid);
     getField(source, "title", locale).ifPresent(vEvent::setSummary);
     getField(source, "body", locale).ifPresent(vEvent::setDescription);
-    getField(source, "primaryLink", locale).ifPresent(vEvent::setUrl);
-    getField(source, "coordinates", locale).ifPresent(vEvent::setLocation);
-    getDateField(source, "start", locale).ifPresent(vEvent::setDateStart);
-    getDateField(source, "end", locale).ifPresent(vEvent::setDateEnd);
+    getField(source, "primaryLink").ifPresent(vEvent::setUrl);
+    getField(source, "coordinates").ifPresent(vEvent::setLocation);
+    getDateField(source, "start").ifPresent(vEvent::setDateStart);
+    getDateField(source, "end").ifPresent(vEvent::setDateEnd);
     return vEvent;
   }
 
   /**
    * Converts a ElasticSearch GetResponse into a VEvent instance to be used in an iCal feed.
    */
-  public static VEvent toVEvent(GetResponse getResponse) {
+  public static VEvent toVEvent(GetResponse getResponse, String locale) {
     VEvent vEvent = new VEvent();
     Map<String,Object> source = getResponse.getSource();
-    String locale = (String)getResponse.getSource().get("locale");
     vEvent.setUid(getResponse.getId());
     getField(source, "title", locale).ifPresent(vEvent::setSummary);
     getField(source, "body", locale).ifPresent(vEvent::setDescription);
-    getField(source, "primaryLink", locale).ifPresent(vEvent::setUrl);
-    getField(source, "coordinates", locale).ifPresent(vEvent::setLocation);
-    getDateField(source, "start", locale).ifPresent(vEvent::setDateStart);
-    getDateField(source, "end", locale).ifPresent(vEvent::setDateEnd);
+    getField(source, "primaryLink").ifPresent(vEvent::setUrl);
+    getField(source, "coordinates").ifPresent(vEvent::setLocation);
+    getDateField(source, "start").ifPresent(vEvent::setDateStart);
+    getDateField(source, "end").ifPresent(vEvent::setDateEnd);
     return vEvent;
+  }
+
+  private void a() {
+
   }
 
 }

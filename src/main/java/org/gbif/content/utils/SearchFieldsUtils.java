@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
-import org.slf4j.LoggerFactory;
-
 import static org.elasticsearch.index.mapper.DateFieldMapper.DEFAULT_DATE_TIME_FORMATTER;
 
 /**
@@ -27,12 +25,19 @@ public class SearchFieldsUtils {
     return Optional.ofNullable(source.get(field)).map(value -> ((Map<String, String>) value).get(locale));
   }
 
+  /**
+   * Extracts the field value from the source map for a specific locale.
+   */
+  public static Optional<String> getField(Map<String,Object> source, String field) {
+    return Optional.ofNullable(source.get(field)).map(value -> ((String) value));
+  }
+
 
   /**
    * Extracts the field date value from the source map for a specific locale.
    */
-  public static Optional<Date> getDateField(Map<String,Object> source, String field, String locale) {
-    return getField(source, field, locale)
+  public static Optional<Date> getDateField(Map<String,Object> source, String field) {
+    return getField(source, field)
       .map(value -> DEFAULT_DATE_TIME_FORMATTER.parser().parseDateTime(value).toDate());
   }
 }

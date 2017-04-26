@@ -12,6 +12,9 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import org.gbif.discovery.conf.ServiceConfiguration;
 
+/**
+ * Content Web Service configuration class.
+ */
 public class ContentWsConfiguration extends Configuration {
 
   /**
@@ -52,7 +55,6 @@ public class ContentWsConfiguration extends Configuration {
       this.cluster = cluster;
     }
 
-
     /**
      * Creates a new instance of a ElasticSearch client.
      */
@@ -74,6 +76,10 @@ public class ContentWsConfiguration extends Configuration {
   private String esEventsIndex = "event";
 
   private String esDataUseIndex = "datause";
+
+  private String esProgrammeIndex = "programme";
+
+  public String defaultLocale = "en-GB";
 
   private ServiceConfiguration service;
 
@@ -114,6 +120,15 @@ public class ContentWsConfiguration extends Configuration {
   }
 
   @JsonProperty
+  public String getEsProgrammeIndex() {
+    return esProgrammeIndex;
+  }
+
+  public void setEsProgrammeIndex(String esProgrammeIndex) {
+    this.esProgrammeIndex = esProgrammeIndex;
+  }
+
+  @JsonProperty
   public ServiceConfiguration getService() {
     return service;
   }
@@ -121,4 +136,14 @@ public class ContentWsConfiguration extends Configuration {
   public void setService(ServiceConfiguration service) {
     this.service = service;
   }
+
+  @JsonProperty
+  public String getDefaultLocale() {
+    return defaultLocale;
+  }
+
+  public void setDefaultLocale(String defaultLocale) {
+    this.defaultLocale = defaultLocale;
+  }
+
 }
