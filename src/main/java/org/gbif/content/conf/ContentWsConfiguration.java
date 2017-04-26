@@ -129,6 +129,15 @@ public class ContentWsConfiguration extends Configuration {
   }
 
   @JsonProperty
+  public String getDefaultLocale() {
+    return defaultLocale;
+  }
+
+  public void setDefaultLocale(String defaultLocale) {
+    this.defaultLocale = defaultLocale;
+  }
+
+  @JsonProperty
   public ServiceConfiguration getService() {
     return service;
   }
@@ -137,13 +146,6 @@ public class ContentWsConfiguration extends Configuration {
     this.service = service;
   }
 
-  @JsonProperty
-  public String getDefaultLocale() {
-    return defaultLocale;
-  }
 
-  public void setDefaultLocale(String defaultLocale) {
-    this.defaultLocale = defaultLocale;
-  }
 
 }

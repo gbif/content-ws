@@ -6,6 +6,7 @@ elasticSearch:
 esNewsIndex: "news"
 esEventsIndex: "event"
 esDataUseIndex: "datause"
+defaultLocale: "en-GB"
 service:
       zkHost:
       zkPath:

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -40,8 +39,9 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
+/**
+ * Resource class that provides RSS and iCal feeds for events and news.
+ */
 @Path("newsroom/")
 @Produces(MediaType.APPLICATION_JSON)
 public class EventsResource {
@@ -72,11 +72,45 @@ public class EventsResource {
 
   private final ContentWsConfiguration configuration;
 
+  /**
+   * Creates a new Rss Feed using the common GBIF content.
+   */
+  private static SyndFeed newEventsFeed() {
+    SyndFeed feed = new SyndFeedImpl();
+    feed.setFeedType("rss_2.0");
+    feed.setTitle("Upcoming events");
+    feed.setDescription("GBIF Upcoming News");
+    feed.setLanguage("en");
+    feed.setLink("http://www.gbif.org/newsroom/events/upcoming.xml");
+    return feed;
+  }
+
+  /**
+   * Creates a new Rss Feed using the common GBIF content.
+   */
+  private static SyndFeed newNewsFeed() {
+    SyndFeed feed = new SyndFeedImpl();
+    feed.setFeedType("rss_2.0");
+    feed.setTitle("GBIF news feed");
+    feed.setDescription("GBIF News");
+    feed.setLanguage("en");
+    feed.setLink("http://www.gbif.org/newsroom/news/rss");
+    return feed;
+  }
+
+  /**
+   * Full constructor.
+   * @param esClient ElasticSearch client
+   * @param configuration  configuration settings
+   */
   public EventsResource(Client esClient, ContentWsConfiguration configuration) {
     this.esClient = esClient;
     this.configuration = configuration;
   }
 
+  /**
+   * Upcoming events in iCal format.
+   */
   @GET
   @Timed
   @Consumes(MediaType.APPLICATION_JSON)
@@ -90,6 +124,9 @@ public class EventsResource {
     return Biweekly.write(iCal).go();
   }
 
+  /**
+   * Upcoming events RSS feed.
+   */
   @GET
   @Timed
   @Consumes(MediaType.APPLICATION_JSON)
@@ -99,6 +136,9 @@ public class EventsResource {
     return toXmlAtomFeed(newEventsFeed(), UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex());
   }
 
+  /**
+   * Single event RSS feed in Atom format.
+   */
   @GET
   @Timed
   @Consumes(MediaType.APPLICATION_JSON)
@@ -112,6 +152,9 @@ public class EventsResource {
     return Biweekly.write(iCal).go();
   }
 
+  /**
+   * News RSS feeds.
+   */
   @GET
   @Timed
   @Consumes(MediaType.APPLICATION_JSON)
@@ -121,6 +164,9 @@ public class EventsResource {
     return toXmlAtomFeed(newNewsFeed(), Optional.empty(), CREATED_AT_FIELD, configuration.getEsNewsIndex());
   }
 
+  /**
+   * New RSS feed for GBIF region.
+   */
   @GET
   @Timed
   @Consumes(MediaType.APPLICATION_JSON)
@@ -131,6 +177,9 @@ public class EventsResource {
                          CREATED_AT_FIELD, configuration.getEsNewsIndex());
   }
 
+  /**
+   * News RSS feed for a program and language.
+   */
   @GET
   @Timed
   @Consumes(MediaType.APPLICATION_JSON)
@@ -141,6 +190,9 @@ public class EventsResource {
                          configuration.getEsNewsIndex(), getLocale(language));
   }
 
+  /**
+   * JSON News for a program and language.
+   */
   @GET
   @Timed
   @Consumes(MediaType.APPLICATION_JSON)
@@ -154,7 +206,21 @@ public class EventsResource {
             .collect(Collectors.toList());
   }
 
+  /**
+   * Data uses RSS feed.
+   */
+  @GET
+  @Timed
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_ATOM_XML)
+  @Path("uses/rss")
+  public String getDataUses() {
+    return toXmlAtomFeed(newNewsFeed(), Optional.empty(), CREATED_AT_FIELD, configuration.getEsDataUseIndex());
+  }
 
+  /**
+   * Parse language into a Locale.
+   */
   private String getLocale(String language) {
     try {
       Optional<String> optLanguage = Optional.ofNullable(language);
@@ -165,6 +231,7 @@ public class EventsResource {
                                         Response.Status.BAD_REQUEST);
     }
   }
+
   /**
    * Builds a programme:id query builder.
    */
@@ -182,15 +249,6 @@ public class EventsResource {
             .map(SearchHit::getId).findFirst()
             .orElseThrow(() -> new WebApplicationException(String.format("Project acronym %s not found", acronym),
                                                            Response.status(Response.Status.BAD_REQUEST).build()));
-  }
-
-  @GET
-  @Timed
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_ATOM_XML)
-  @Path("uses/rss")
-  public String getDataUses() {
-    return toXmlAtomFeed(newNewsFeed(), Optional.empty(), CREATED_AT_FIELD, configuration.getEsDataUseIndex());
   }
 
   /**
@@ -217,7 +275,6 @@ public class EventsResource {
     }
   }
 
-
   /**
    * Executes the default search query.
    */
@@ -233,38 +290,11 @@ public class EventsResource {
                     .setSize(DEFAULT_SIZE).execute().actionGet();
   }
 
-
   /**
    * Executes the default search query.
    */
   private SearchResponse executeQuery(Optional<QueryBuilder> filter, String dateSortField, String idxName) {
     return executeQuery(null, filter, dateSortField, idxName);
-  }
-
-  /**
-   * Creates a new Rss Feed using the common GBIF content.
-   */
-  private static SyndFeed newEventsFeed() {
-    SyndFeed feed = new SyndFeedImpl();
-    feed.setFeedType("rss_2.0");
-    feed.setTitle("Upcoming events");
-    feed.setDescription("GBIF Upcoming News");
-    feed.setLanguage("en");
-    feed.setLink("http://www.gbif.org/newsroom/events/upcoming.xml");
-    return feed;
-  }
-
-  /**
-   * Creates a new Rss Feed using the common GBIF content.
-   */
-  private static SyndFeed newNewsFeed() {
-    SyndFeed feed = new SyndFeedImpl();
-    feed.setFeedType("rss_2.0");
-    feed.setTitle("GBIF news feed");
-    feed.setDescription("GBIF News");
-    feed.setLanguage("en");
-    feed.setLink("http://www.gbif.org/newsroom/news/rss");
-    return feed;
   }
 
 

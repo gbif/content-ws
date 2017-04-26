@@ -1,6 +1,5 @@
 package org.gbif.content.utils;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
