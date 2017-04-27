@@ -142,7 +142,7 @@ public class EventsResource {
   @GET
   @Timed
   @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_ATOM_XML)
+  @Produces(MEDIA_TYPE_ICAL)
   @Path("events/{eventId}")
   public String getEvent(@PathParam("eventId") String eventId) {
     ICalendar iCal = new ICalendar();
