@@ -69,6 +69,69 @@ public class ContentWsConfiguration extends Configuration {
     }
   }
 
+  /**
+   * Configuration settings to synchronize Contentful data into ElasticSearch.
+   */
+  public static class Synchronization {
+
+    private String jenkinsJobUrl = "http://builds.gbif.org/job/run-content-crawler/buildWithParameters";
+
+    private String token;
+
+    private String environment;
+
+    private String command = "contentful-crawl";
+
+    /**
+     * URL to the Jenkins job that runs a full syncronization.
+     */
+    @JsonProperty
+    public String getJenkinsJobUrl() {
+      return jenkinsJobUrl;
+    }
+
+    public void setJenkinsJobUrl(String jenkinsJobUrl) {
+      this.jenkinsJobUrl = jenkinsJobUrl;
+    }
+
+    /**
+     * Jenkins job security token.
+     * @return
+     */
+    @JsonProperty
+    public String getToken() {
+      return token;
+    }
+
+    public void setToken(String token) {
+      this.token = token;
+    }
+
+    /**
+     * Environment parameter of the Jenkins sync job.
+     */
+    @JsonProperty
+    public String getEnvironment() {
+      return environment;
+    }
+
+    public void setEnvironment(String environment) {
+      this.environment = environment;
+    }
+
+    /**
+     * Command parameter of the Jenkins sync job.
+     */
+    @JsonProperty
+    public String getCommand() {
+      return command;
+    }
+
+    public void setCommand(String command) {
+      this.command = command;
+    }
+  }
+
   private ElasticSearch elasticSearch = new ElasticSearch();
 
   private String esNewsIndex = "news";
@@ -80,6 +143,8 @@ public class ContentWsConfiguration extends Configuration {
   private String esProgrammeIndex = "programme";
 
   public String defaultLocale = "en-GB";
+
+  private Synchronization synchronization;
 
   private ServiceConfiguration service;
 
@@ -135,6 +200,15 @@ public class ContentWsConfiguration extends Configuration {
 
   public void setDefaultLocale(String defaultLocale) {
     this.defaultLocale = defaultLocale;
+  }
+
+  @JsonProperty
+  public Synchronization getSynchronization() {
+    return synchronization;
+  }
+
+  public void setSynchronization(Synchronization synchronization) {
+    this.synchronization = synchronization;
   }
 
   @JsonProperty
