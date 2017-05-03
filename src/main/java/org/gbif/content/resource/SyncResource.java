@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.Principal;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
+import io.dropwizard.auth.Auth;
 import org.apache.http.client.utils.URIBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
@@ -83,7 +85,7 @@ public class SyncResource {
   @POST
   @Timed
   @Consumes(CONTENTFUL_CONTENT_TYPE)
-  public Response sync(@Context HttpServletRequest request) {
+  public Response sync(@Context HttpServletRequest request, @Auth Principal user) {
     WebHookRequest webHookRequest = WebHookRequest.fromRequest(request);
     return Optional.ofNullable(webHookRequest.getTopic())
             .map(topic -> {
