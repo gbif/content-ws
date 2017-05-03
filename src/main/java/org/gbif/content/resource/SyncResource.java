@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Resource class that provides RSS and iCal feeds for events and news.
  */
-@Path("sync")
+@Path("/content/sync")
 @Produces(MediaType.APPLICATION_JSON)
 public class SyncResource {
 
