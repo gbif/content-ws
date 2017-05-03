@@ -1,6 +1,7 @@
 package org.gbif.content;
 
 import org.gbif.content.conf.ContentWsConfiguration;
+import org.gbif.content.health.SearchHealthCheck;
 import org.gbif.content.resource.EventsResource;
 import org.gbif.content.resource.SyncAuthenticator;
 import org.gbif.content.resource.SyncResource;
@@ -8,10 +9,8 @@ import org.gbif.discovery.lifecycle.DiscoveryLifeCycle;
 
 import java.security.Principal;
 
-import com.sun.security.auth.UserPrincipal;
 import io.dropwizard.Application;
 import io.dropwizard.auth.AuthValueFactoryProvider;
-import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.elasticsearch.client.Client;
@@ -39,7 +38,8 @@ public class ContentWsApplication extends Application<ContentWsConfiguration> {
     //If you want to use @Auth to inject a custom Principal type into your resource
     environment.jersey().register(new AuthValueFactoryProvider.Binder<>(Principal.class));
     environment.jersey().register(new EventsResource(esClient, configuration));
-    environment.jersey().register(new SyncResource(configuration.getSynchronization(), esClient));
+    environment.jersey().register(new SyncResource(configuration.getSynchronization().buildJenkinsJobUrl(), esClient));
+    environment.healthChecks().register("search", new SearchHealthCheck(esClient));
   }
 
   /**

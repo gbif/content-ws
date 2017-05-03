@@ -6,7 +6,11 @@ elasticSearch:
 esNewsIndex: "news"
 esEventsIndex: "event"
 esDataUseIndex: "datause"
-defaultLocale: "en-GB"
+synchronization:
+  token: ILoveMorten
+  environment: dev
+  command: contentful-crawl
+  jenkinsJobUrl: http://builds.gbif.org/job/run-content-crawler/buildWithParameters
 service:
       zkHost:
       zkPath:

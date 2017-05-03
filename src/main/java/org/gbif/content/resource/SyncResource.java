@@ -1,13 +1,10 @@
 package org.gbif.content.resource;
 
 
-import org.gbif.content.conf.ContentWsConfiguration;
 import org.gbif.content.resource.WebHookRequest.Topic;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.Principal;
 import java.util.Optional;
@@ -23,7 +20,6 @@ import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.auth.Auth;
-import org.apache.http.client.utils.URIBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
@@ -33,24 +29,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Resource class that provides RSS and iCal feeds for events and news.
  */
-@Path("/content/sync")
+@Path(Paths.SYNC_RESOURCE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 public class SyncResource {
 
-  /**
-   * Jenkins Job parameters.
-   */
-  public static class JenkinsJob {
-    public static final String TOKEN_PARAM = "token";
-    public static final String ENV_PARAM = "environment";
-    public static final String CMD_PARAM = "command";
-  }
-
   private static final Logger LOG = LoggerFactory.getLogger(SyncResource.class);
 
-  private static final String CONTENTFUL_CONTENT_TYPE = "application/vnd.contentful.management.v1+json";
+  public static final String CONTENTFUL_CONTENT_TYPE = "application/vnd.contentful.management.v1+json";
 
-  private static final String LOCATION_HEADER = "Location";
+  public static final String LOCATION_HEADER = "Location";
 
   //Used to map indices names
   private static final Pattern REPLACEMENTS = Pattern.compile(":\\s+|\\s+");
@@ -64,18 +51,9 @@ public class SyncResource {
   /**
    * Full constructor: requires the configuration object and an ElasticSearch client.
    */
-  public SyncResource(ContentWsConfiguration.Synchronization configuration, Client esClient) {
-    try {
-      //Builds a URL to the Jenkins sync job
-      URIBuilder builder = new URIBuilder(configuration.getJenkinsJobUrl());
-      builder.addParameter(JenkinsJob.TOKEN_PARAM, configuration.getToken());
-      builder.addParameter(JenkinsJob.ENV_PARAM, configuration.getEnvironment());
-      builder.addParameter(JenkinsJob.CMD_PARAM, configuration.getCommand());
-      jenkinsJobUrl = builder.build().toURL();
-      this.esClient = esClient;
-    } catch (MalformedURLException | URISyntaxException ex) {
-      throw new IllegalStateException(ex);
-    }
+  public SyncResource(URL jenkinsJobUrl, Client esClient) {
+    this.jenkinsJobUrl = jenkinsJobUrl;
+    this.esClient = esClient;
   }
 
   /**

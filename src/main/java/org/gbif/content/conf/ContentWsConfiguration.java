@@ -1,10 +1,14 @@
 package org.gbif.content.conf;
 
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
+import org.apache.http.client.utils.URIBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -74,6 +78,15 @@ public class ContentWsConfiguration extends Configuration {
    */
   public static class Synchronization {
 
+    /**
+     * Jenkins Job parameters.
+     */
+    public static class JenkinsJob {
+      public static final String TOKEN_PARAM = "token";
+      public static final String ENV_PARAM = "environment";
+      public static final String CMD_PARAM = "command";
+    }
+
     private String jenkinsJobUrl = "http://builds.gbif.org/job/run-content-crawler/buildWithParameters";
 
     private String token;
@@ -129,6 +142,17 @@ public class ContentWsConfiguration extends Configuration {
 
     public void setCommand(String command) {
       this.command = command;
+    }
+
+    /**
+     * Creates a Url instance to the Jenkins job.
+     */
+    public URL buildJenkinsJobUrl() throws URISyntaxException, MalformedURLException {
+      URIBuilder builder = new URIBuilder(jenkinsJobUrl);
+      builder.addParameter(JenkinsJob.TOKEN_PARAM, token);
+      builder.addParameter(JenkinsJob.ENV_PARAM, environment);
+      builder.addParameter(JenkinsJob.CMD_PARAM, command);
+      return builder.build().toURL();
     }
   }
 

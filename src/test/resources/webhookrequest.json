@@ -1,0 +1,132 @@
+{
+  "fields": {
+    "title": {
+      "en-GB": "You say tomato, I say potato"
+    },
+    "summary": {
+      "en-GB": "<p>A new approach to determining ancestral ranges and identifying biogeographical events illustrated using the&nbsp;nightshade family </p>\n"
+    },
+    "body": {
+      "en-GB": "<p>The nightshade family (Solanaceae) is a clade of 2,800 species including important crops, such as potato, tomato and peppers, distributed across all continents except Antarctica. &nbsp;Despite its economic importance, the biogeographical history of the family is relatively unknown.</p>\n\n<p>In this study, researchers pruned a recently inferred phylogeny of the clade and used data from GBIF and other sources&nbsp;to determine the current distribution of around 1,000 species. Using biogeographical stochastic mapping (BSM) they identify the most probable ancestral area for extant species of Solanaceae to be South America, and estimate that most species evolved through within-area speciation and dispersals. Movement patterns were strongly asymmetrical in all region pairs, except between Africa and Eurasia, where numbers were equal in both directions.</p>\n\n<p>The study provides new insights into the biogeographical history of the nightshade family, and acts as a proof of concept for using the BSM approach for exploring frequency and directionality of biogeographical events.</p>\n"
+    },
+    "citation": {
+      "en-GB": "<p>Dupin J, Matzke NJ, Särkinen T, Knapp S, Olmstead RG, Bohs L and Smith SD (2016) Bayesian estimation of the global biogeographical history of the Solanaceae. Journal of Biogeography. Wiley-Blackwell 44(4): 887–899. Available at: <a href=\"https://doi.org/10.1111/jbi.12898\">https://doi.org/10.1111/jbi.12898</a>.</p>\n"
+    },
+    "resourceUsed": {
+      "en-GB": "600 species"
+    },
+    "countriesOfCoverage": {
+      "en-GB": []
+    },
+    "countriesOfResearcher": {
+      "en-GB": [
+        {
+          "sys": {
+            "id": "US",
+            "linkType": "Entry",
+            "type": "Link"
+          }
+        },
+        {
+          "sys": {
+            "id": "AU",
+            "linkType": "Entry",
+            "type": "Link"
+          }
+        },
+        {
+          "sys": {
+            "id": "GB",
+            "linkType": "Entry",
+            "type": "Link"
+          }
+        }
+      ]
+    },
+    "primaryImage": {
+      "en-GB": {
+        "sys": {
+          "id": "2M3qKcCuu4oyewcii0GOiQ",
+          "linkType": "Asset",
+          "type": "Link"
+        }
+      }
+    },
+    "primaryLink": {
+      "en-GB": {
+        "sys": {
+          "id": "23gCqGvhNGGSuumECAwu8E",
+          "linkType": "Entry",
+          "type": "Link"
+        }
+      }
+    },
+    "secondaryLinks": {
+      "en-GB": []
+    },
+    "purposes": {
+      "en-GB": []
+    },
+    "topics": {
+      "en-GB": [
+        {
+          "sys": {
+            "id": "vocab_term_891",
+            "linkType": "Entry",
+            "type": "Link"
+          }
+        },
+        {
+          "sys": {
+            "id": "vocab_term_1038",
+            "linkType": "Entry",
+            "type": "Link"
+          }
+        }
+      ]
+    },
+    "searchable": {
+      "en-GB": true
+    },
+    "homepage": {
+      "en-GB": true
+    },
+    "meta": {
+      "en-GB": {
+        "drupal": {
+          "nodeId": 83217,
+          "user": "dnoesgaard",
+          "created": "2017-04-28T11:43:39.914Z",
+          "modified": "2017-04-28T11:47:51.914Z",
+          "aliases": [
+            {
+              "alias": "newsroom/uses/2016-dupin-et-al",
+              "language": "en"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "sys": {
+    "space": {
+      "sys": {
+        "type": "Link",
+        "linkType": "Space",
+        "id": "q553fnlofhvs"
+      }
+    },
+    "type": "Entry",
+    "contentType": {
+      "sys": {
+        "type": "Link",
+        "linkType": "ContentType",
+        "id": "DataUse"
+      }
+    },
+    "id": "83217",
+    "revision": 4,
+    "createdAt": "2017-05-02T12:11:24.152Z",
+    "updatedAt": "2017-05-03T08:02:20.146Z"
+  }
+}
