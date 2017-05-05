@@ -34,8 +34,8 @@ public class ContentWsConfigurationTest {
    */
   @Test
   public void testContentWsConfiguration() {
-    ContentWsConfiguration testConfiguraiton = getTestConfiguration();
-    assertNotNull(testConfiguraiton);
-    assertNotNull(testConfiguraiton.getSynchronization().getToken());
+    ContentWsConfiguration testConfiguration = getTestConfiguration();
+    assertNotNull(testConfiguration);
+    assertNotNull(testConfiguration.getSynchronization().getToken());
   }
 }

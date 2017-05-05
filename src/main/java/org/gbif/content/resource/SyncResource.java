@@ -15,6 +15,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -36,8 +37,6 @@ public class SyncResource {
   private static final Logger LOG = LoggerFactory.getLogger(SyncResource.class);
 
   public static final String CONTENTFUL_CONTENT_TYPE = "application/vnd.contentful.management.v1+json";
-
-  public static final String LOCATION_HEADER = "Location";
 
   //Used to map indices names
   private static final Pattern REPLACEMENTS = Pattern.compile(":\\s+|\\s+");
@@ -109,7 +108,8 @@ public class SyncResource {
       if(Response.Status.Family.INFORMATIONAL == jenkinsJobStatus.getFamily()
          || Response.Status.Family.SUCCESSFUL == jenkinsJobStatus.getFamily()) {
         return Response.status(Response.Status.ACCEPTED)
-                .header(LOCATION_HEADER, Optional.ofNullable(connection.getHeaderField(LOCATION_HEADER)).orElse(""))
+                .header(HttpHeaders.LOCATION, Optional
+                                                .ofNullable(connection.getHeaderField(HttpHeaders.LOCATION)).orElse(""))
                 .build();
       }
       return Response.status(jenkinsJobStatus).build();

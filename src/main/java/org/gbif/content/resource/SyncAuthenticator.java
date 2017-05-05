@@ -62,12 +62,12 @@ public class SyncAuthenticator implements Authenticator<String, Principal> {
 
   /**
    * Factory method that creates a new instances of this authenticator.
-   * @param syncToken security token
+   * @param token security token
    * @return an instance of a OAuthFilter that uses this authenticator
    */
-  public static AuthFilter<String,Principal> buildAuthFilter(String syncToken) {
-    return new OAuthCredentialAuthFilter.Builder<Principal>()
-      .setAuthenticator(new SyncAuthenticator(syncToken))
+  public static AuthFilter<String,Principal> buildAuthFilter(String token) {
+    return new OAuthCredentialAuthFilter.Builder<>()
+      .setAuthenticator(new SyncAuthenticator(token))
       .setRealm(GBIF_REALM)
       .setPrefix(BEARER_PREFIX)
       .setAuthorizer(new SyncAuthorizer())

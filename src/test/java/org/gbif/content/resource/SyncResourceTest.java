@@ -11,6 +11,7 @@ import java.net.URLStreamHandler;
 import java.security.Principal;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import com.google.common.base.Charsets;
@@ -74,7 +75,7 @@ public class SyncResourceTest {
       HttpURLConnection mockConnection = mock(HttpURLConnection.class);
       when(mockConnection.getResponseCode()).thenReturn(Response.Status.ACCEPTED.getStatusCode());
 
-      when(mockConnection.getHeaderField(SyncResource.LOCATION_HEADER)).thenReturn(LOCATION_TEST);
+      when(mockConnection.getHeaderField(HttpHeaders.LOCATION)).thenReturn(LOCATION_TEST);
       //mocking httpconnection by URLStreamHandler since we can not mock URL class.
       URLStreamHandler stubURLStreamHandler = new URLStreamHandler() {
         @Override
