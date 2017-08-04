@@ -15,6 +15,7 @@ import static org.elasticsearch.index.mapper.DateFieldMapper.DEFAULT_DATE_TIME_F
 
 import static org.gbif.content.utils.SearchFieldsUtils.getDateField;
 import static org.gbif.content.utils.SearchFieldsUtils.getField;
+import static org.gbif.content.utils.SearchFieldsUtils.getNestedField;
 
 /**
  * Utility class to convert search results into RSS feed and iCal entries.
@@ -39,7 +40,7 @@ public class ConversionUtil {
     SyndContent description = new SyndContentImpl();
     getField(source, "body", locale).ifPresent(description::setValue);
     entry.setDescription(description);
-    getField(source, "primaryLink").ifPresent(entry::setLink);
+    getNestedField(source, "primaryLink", "url", locale).ifPresent(entry::setLink);
     entry.setPublishedDate(DEFAULT_DATE_TIME_FORMATTER.parser()
                              .parseDateTime((String)source.get("createdAt")).toDate());
     return entry;
