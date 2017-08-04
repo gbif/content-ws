@@ -1,6 +1,9 @@
 package org.gbif.content.resource;
 
+import java.io.IOException;
 import java.security.Principal;
+
+import javax.ws.rs.container.ContainerRequestContext;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -66,11 +69,30 @@ public class SyncAuthenticator implements Authenticator<String, Principal> {
    * @return an instance of a OAuthFilter that uses this authenticator
    */
   public static AuthFilter<String,Principal> buildAuthFilter(String token) {
-    return new OAuthCredentialAuthFilter.Builder<>()
+    return new ContentAuth(new OAuthCredentialAuthFilter.Builder<>()
       .setAuthenticator(new SyncAuthenticator(token))
       .setRealm(GBIF_REALM)
       .setPrefix(BEARER_PREFIX)
       .setAuthorizer(new SyncAuthorizer())
-      .buildAuthFilter();
+      .buildAuthFilter());
+  }
+
+  /**
+   * AuthFilter that authenticates the sync resource only.
+   */
+  private static class ContentAuth extends AuthFilter<String, Principal> {
+
+    private final OAuthCredentialAuthFilter<?> oAuthFilter;
+
+    public ContentAuth(OAuthCredentialAuthFilter<?> oAuthFilter) {
+      this.oAuthFilter = oAuthFilter;
+    }
+
+    @Override
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+      if (requestContext.getUriInfo().getRequestUri().getPath().contains(Paths.SYNC_RESOURCE_PATH)) {
+        oAuthFilter.filter(requestContext);
+      }
+    }
   }
 }

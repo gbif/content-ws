@@ -32,7 +32,6 @@ public class ContentWsApplication extends Application<ContentWsConfiguration> {
     }
     Client esClient = configuration.getElasticSearch().buildEsClient();
 
-
     environment.jersey().register(SyncAuthenticator.buildAuthFilter(configuration.getSynchronization().getToken()));
     environment.jersey().register(RolesAllowedDynamicFeature.class);
     //If you want to use @Auth to inject a custom Principal type into your resource
