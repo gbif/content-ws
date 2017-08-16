@@ -51,7 +51,7 @@
     <elastic-search.version>5.2.2</elastic-search.version>
     <rome.version>1.0</rome.version>
 
-    <service-discovery.version>0.1-SNAPSHOT</service-discovery.version>
+    <service-discovery.version>0.1</service-discovery.version>
 
     <!-- fixed to the version coming with Dropwizard -->
     <jackson.dropwizard.version>2.6.3</jackson.dropwizard.version>
