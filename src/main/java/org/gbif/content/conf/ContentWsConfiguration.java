@@ -85,6 +85,7 @@ public class ContentWsConfiguration extends Configuration {
       public static final String TOKEN_PARAM = "token";
       public static final String ENV_PARAM = "environment";
       public static final String CMD_PARAM = "command";
+      public static final String REPOSITORY_PARAM = "repository";
     }
 
     private String jenkinsJobUrl = "http://builds.gbif.org/job/run-content-crawler/buildWithParameters";
@@ -94,6 +95,8 @@ public class ContentWsConfiguration extends Configuration {
     private String environment;
 
     private String command = "contentful-crawl";
+
+    private String repository = "snapshots";
 
     /**
      * URL to the Jenkins job that runs a full syncronization.
@@ -109,7 +112,6 @@ public class ContentWsConfiguration extends Configuration {
 
     /**
      * Jenkins job security token.
-     * @return
      */
     @JsonProperty
     public String getToken() {
@@ -145,6 +147,18 @@ public class ContentWsConfiguration extends Configuration {
     }
 
     /**
+     * Command parameter to set the Nexus repository.
+     */
+    @JsonProperty
+    public String getRepository() {
+      return repository;
+    }
+
+    public void setRepository(String repository) {
+      this.repository = repository;
+    }
+
+    /**
      * Creates a Url instance to the Jenkins job.
      */
     public URL buildJenkinsJobUrl() throws URISyntaxException, MalformedURLException {
@@ -152,6 +166,7 @@ public class ContentWsConfiguration extends Configuration {
       builder.addParameter(JenkinsJob.TOKEN_PARAM, token);
       builder.addParameter(JenkinsJob.ENV_PARAM, environment);
       builder.addParameter(JenkinsJob.CMD_PARAM, command);
+      builder.addParameter(JenkinsJob.REPOSITORY_PARAM, repository);
       return builder.build().toURL();
     }
   }
