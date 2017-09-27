@@ -1,12 +1,14 @@
 package org.gbif.content.resource;
 
 
+import org.gbif.content.conf.ContentWsConfiguration;
 import org.gbif.content.resource.WebHookRequest.Topic;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.Principal;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +23,7 @@ import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.auth.Auth;
+import org.apache.http.client.utils.URIBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
@@ -43,16 +46,16 @@ public class SyncResource {
 
   private static final String ES_TYPE = "content";
 
-  private final URL jenkinsJobUrl;
+  private final JenkinsJobClient jenkinsJobClient;
 
-  private final Client esClient;
+  private final Map<String,Client> esClients;
 
   /**
    * Full constructor: requires the configuration object and an ElasticSearch client.
    */
-  public SyncResource(URL jenkinsJobUrl, Client esClient) {
-    this.jenkinsJobUrl = jenkinsJobUrl;
-    this.esClient = esClient;
+  public SyncResource(JenkinsJobClient jenkinsJobClient, Map<String,Client> esClients) {
+    this.jenkinsJobClient = jenkinsJobClient;
+    this.esClients = esClients;
   }
 
   /**
@@ -72,7 +75,7 @@ public class SyncResource {
                 return deleteDocument(webHookRequest);
               }
               //Rest of recognised topics/commands trigger a full crawl
-              return runFullCrawl();
+              return runFullCrawl(webHookRequest.getEnv());
             }).orElseGet(() -> {
               LOG.warn("Unsupported operation {}", request.getHeader(WebHookRequest.CONTENTFUL_TOPIC_HEADER));
               return Response.status(Response.Status.BAD_REQUEST).build();
@@ -83,8 +86,9 @@ public class SyncResource {
    * Deletes a document from ElasticSearch.
    */
   private Response deleteDocument(WebHookRequest webHookRequest) {
-    DeleteResponse deleteResponse = esClient.prepareDelete(getEsIdxName(webHookRequest.getContentTypeId()),
-                                                           ES_TYPE, webHookRequest.getId()).get();
+    DeleteResponse deleteResponse = esClients.get(webHookRequest.getEnv())
+                                      .prepareDelete(getEsIdxName(webHookRequest.getContentTypeId()),
+                                                     ES_TYPE, webHookRequest.getId()).get();
     LOG.info("Entry deleted");
     return Response.status(deleteResponse.status().getStatus()).build();
   }
@@ -100,24 +104,14 @@ public class SyncResource {
   /**
    * Sends a full crawl request to the Jenkins sync job.
    */
-  private Response runFullCrawl() {
-    HttpURLConnection connection=  null;
+  private Response runFullCrawl(String environment) {
     try {
-      connection = (HttpURLConnection)jenkinsJobUrl.openConnection();
-      Response.Status jenkinsJobStatus = Response.Status.fromStatusCode(connection.getResponseCode());
-      if(Response.Status.Family.INFORMATIONAL == jenkinsJobStatus.getFamily()
-         || Response.Status.Family.SUCCESSFUL == jenkinsJobStatus.getFamily()) {
-        return Response.status(Response.Status.ACCEPTED)
-                .header(HttpHeaders.LOCATION, Optional
-                                                .ofNullable(connection.getHeaderField(HttpHeaders.LOCATION)).orElse(""))
-                .build();
-      }
-      return Response.status(jenkinsJobStatus).build();
+      return jenkinsJobClient.execute(environment);
     } catch (IOException ex) {
       LOG.error("Error sending request to Jenkins", ex);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-    } finally {
-      Optional.ofNullable(connection).ifPresent(HttpURLConnection::disconnect);
     }
   }
+
+
 }

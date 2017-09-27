@@ -5,6 +5,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
@@ -59,6 +61,21 @@ public class ContentWsConfiguration extends Configuration {
       this.cluster = cluster;
     }
 
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      ElasticSearch that = (ElasticSearch) o;
+      return port == that.port &&
+             Objects.equals(host, that.host) &&
+             Objects.equals(cluster, that.cluster);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(host, port, cluster);
+    }
+
     /**
      * Creates a new instance of a ElasticSearch client.
      */
@@ -92,11 +109,24 @@ public class ContentWsConfiguration extends Configuration {
 
     private String token;
 
-    private String environment;
-
     private String command = "contentful-crawl";
 
     private String repository = "snapshots";
+
+    private Map<String, ElasticSearch> indexes;
+
+    @JsonProperty
+    public  Map<String, ElasticSearch> getIndexes() {
+      return indexes;
+    }
+
+    public void setIndexes( Map<String, ElasticSearch> indexes) {
+      this.indexes = indexes;
+    }
+
+    public ElasticSearch getIndex(String env){
+      return indexes.get(env);
+    }
 
     /**
      * URL to the Jenkins job that runs a full syncronization.
@@ -120,18 +150,6 @@ public class ContentWsConfiguration extends Configuration {
 
     public void setToken(String token) {
       this.token = token;
-    }
-
-    /**
-     * Environment parameter of the Jenkins sync job.
-     */
-    @JsonProperty
-    public String getEnvironment() {
-      return environment;
-    }
-
-    public void setEnvironment(String environment) {
-      this.environment = environment;
     }
 
     /**
@@ -164,14 +182,11 @@ public class ContentWsConfiguration extends Configuration {
     public URL buildJenkinsJobUrl() throws URISyntaxException, MalformedURLException {
       URIBuilder builder = new URIBuilder(jenkinsJobUrl);
       builder.addParameter(JenkinsJob.TOKEN_PARAM, token);
-      builder.addParameter(JenkinsJob.ENV_PARAM, environment);
       builder.addParameter(JenkinsJob.CMD_PARAM, command);
       builder.addParameter(JenkinsJob.REPOSITORY_PARAM, repository);
       return builder.build().toURL();
     }
   }
-
-  private ElasticSearch elasticSearch = new ElasticSearch();
 
   private String esNewsIndex = "news";
 
@@ -187,14 +202,8 @@ public class ContentWsConfiguration extends Configuration {
 
   private ServiceConfiguration service;
 
-  @JsonProperty
-  public ElasticSearch getElasticSearch() {
-    return elasticSearch;
-  }
+  private ElasticSearch elasticSearch;
 
-  public void setElasticSearch(ElasticSearch elasticSearch) {
-    this.elasticSearch = elasticSearch;
-  }
 
   @JsonProperty
   public String getEsNewsIndex() {
@@ -259,6 +268,12 @@ public class ContentWsConfiguration extends Configuration {
     this.service = service;
   }
 
+  @JsonProperty
+  public ElasticSearch getElasticSearch() {
+    return elasticSearch;
+  }
 
-
+  public void setElasticSearch(ElasticSearch elasticSearch) {
+    this.elasticSearch = elasticSearch;
+  }
 }

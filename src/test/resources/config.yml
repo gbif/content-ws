@@ -8,10 +8,19 @@ esEventsIndex: "event"
 esDataUseIndex: "datause"
 synchronization:
   token: ILoveMorten
-  environment: dev
   command: contentful-crawl
   jenkinsJobUrl: http://builds.gbif.org/job/run-content-crawler/buildWithParameters
   repository: snapshots
+  indexes:
+    env:
+        host: localhost
+        port: 9300
+        cluster: content-cluster
+
+    env2:
+        host: localhost
+        port: 9300
+        cluster: content-cluster
 service:
       zkHost:
       zkPath:

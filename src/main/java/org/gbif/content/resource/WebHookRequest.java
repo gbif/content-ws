@@ -56,6 +56,8 @@ public class WebHookRequest {
 
   private Topic topic;
 
+  private String env =  "dev'";
+
   /**
    * Element type to be modified.
    */
@@ -98,6 +100,17 @@ public class WebHookRequest {
   }
 
   /**
+   * Environment, used to distinguish the elastic search idx to be used.
+   */
+  public String getEnv() {
+    return env;
+  }
+
+  public void setEnv(String env) {
+    this.env = env;
+  }
+
+  /**
    * This method read the WebHook data from a servlet request.
    * The interpreted pieces of data are taken from the JSON fragment:
    * ...
@@ -123,6 +136,7 @@ public class WebHookRequest {
       webHookRequest.setType(jsonWebHook.at("/sys/type").asText());
       webHookRequest.setId(jsonWebHook.at("/sys/id").asText());
       webHookRequest.setContentTypeId(jsonWebHook.at("/sys/contentType/sys/id").asText());
+      webHookRequest.setEnv(Optional.ofNullable(request.getParameter("env")).orElse("dev"));
       return webHookRequest;
     } catch(IOException ex) {
       throw new IllegalArgumentException(ex);

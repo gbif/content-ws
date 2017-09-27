@@ -1,5 +1,7 @@
 package org.gbif.content.health;
 
+import java.util.Map;
+
 import com.codahale.metrics.health.HealthCheck;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -14,14 +16,14 @@ public class SearchHealthCheck extends HealthCheck {
   private static final String CONTENT_IDX = "content";
 
   //ElasticSearch client
-  private final Client esClient;
+  private final Map<String, Client> esClients;
 
   /**
    *
-   * @param esClient ElasticSearch client
+   * @param esClients ElasticSearch client
    */
-  public SearchHealthCheck(Client esClient) {
-    this.esClient = esClient;
+  public SearchHealthCheck(Map<String, Client> esClients) {
+    this.esClients = esClients;
   }
 
   /**
@@ -29,15 +31,17 @@ public class SearchHealthCheck extends HealthCheck {
    */
   @Override
   protected Result check() throws Exception {
-    if (esClient == null) {
+    if (esClients == null) {
       return Result.unhealthy("ElasticSearch has not being initialized");
     }
-    SearchResponse response = esClient.prepareSearch(CONTENT_IDX)
-                                .setQuery(QueryBuilders.matchAllQuery()).setSize(0).get();
-    if (response.getFailedShards() > 0) {
-      Result.unhealthy("Some shards reported errors performing a search all operation %s",
-                       response.getShardFailures());
-    }
+    esClients.values().forEach(esClient -> {
+      SearchResponse response = esClient.prepareSearch(CONTENT_IDX)
+        .setQuery(QueryBuilders.matchAllQuery()).setSize(0).get();
+      if (response.getFailedShards() > 0) {
+        Result.unhealthy("Some shards reported errors performing a search all operation %s",
+                         response.getShardFailures());
+      }
+    });
     return Result.healthy();
   }
 }
