@@ -10,7 +10,6 @@ import org.gbif.discovery.lifecycle.DiscoveryLifeCycle;
 
 import java.security.Principal;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import io.dropwizard.Application;
@@ -53,7 +52,7 @@ public class ContentWsApplication extends Application<ContentWsConfiguration> {
     //If you want to use @Auth to inject a custom Principal type into your resource
     environment.jersey().register(new AuthValueFactoryProvider.Binder<>(Principal.class));
     environment.jersey().register(new EventsResource(searchIndex, configuration));
-    JenkinsJobClient jenkinsJobClient = new JenkinsJobClient(configuration.getSynchronization().getJenkinsJobUrl());
+    JenkinsJobClient jenkinsJobClient = new JenkinsJobClient(configuration.getSynchronization());
     environment.jersey().register(new SyncResource(jenkinsJobClient, esClients));
     environment.healthChecks().register("search", new SearchHealthCheck(esClients));
   }

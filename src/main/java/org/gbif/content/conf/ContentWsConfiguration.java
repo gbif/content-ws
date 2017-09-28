@@ -176,16 +176,6 @@ public class ContentWsConfiguration extends Configuration {
       this.repository = repository;
     }
 
-    /**
-     * Creates a Url instance to the Jenkins job.
-     */
-    public URL buildJenkinsJobUrl() throws URISyntaxException, MalformedURLException {
-      URIBuilder builder = new URIBuilder(jenkinsJobUrl);
-      builder.addParameter(JenkinsJob.TOKEN_PARAM, token);
-      builder.addParameter(JenkinsJob.CMD_PARAM, command);
-      builder.addParameter(JenkinsJob.REPOSITORY_PARAM, repository);
-      return builder.build().toURL();
-    }
   }
 
   private String esNewsIndex = "news";

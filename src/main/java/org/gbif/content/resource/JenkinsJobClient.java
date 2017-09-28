@@ -1,9 +1,13 @@
 package org.gbif.content.resource;
 
 import org.gbif.content.conf.ContentWsConfiguration;
+import org.gbif.content.conf.ContentWsConfiguration.Synchronization;
+import org.gbif.content.conf.ContentWsConfiguration.Synchronization.JenkinsJob;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 import javax.ws.rs.core.HttpHeaders;
@@ -16,13 +20,13 @@ import org.apache.http.client.utils.URIBuilder;
  */
 public class JenkinsJobClient {
 
-  private final String jenkinsJobUrl;
+  private final Synchronization syncConfig;
 
   /**
-   * @param jenkinsJobUrl url to the Jenkins job
+   * @param syncConfig url to the Jenkins job
    */
-  public JenkinsJobClient(String jenkinsJobUrl) {
-    this.jenkinsJobUrl = jenkinsJobUrl;
+  public JenkinsJobClient(Synchronization syncConfig) {
+    this.syncConfig = syncConfig;
   }
 
   /**
@@ -31,7 +35,7 @@ public class JenkinsJobClient {
   public Response execute(String environment) throws IOException {
     HttpURLConnection connection=  null;
     try {
-      connection = (HttpURLConnection)jobUrl(environment).openConnection();
+      connection = (HttpURLConnection)buildJenkinsJobUrl(environment).openConnection();
       Response.Status jenkinsJobStatus = Response.Status.fromStatusCode(connection.getResponseCode());
       if(Response.Status.Family.INFORMATIONAL == jenkinsJobStatus.getFamily()
          || Response.Status.Family.SUCCESSFUL == jenkinsJobStatus.getFamily()) {
@@ -41,22 +45,22 @@ public class JenkinsJobClient {
           .build();
       }
       return Response.status(jenkinsJobStatus).build();
+    } catch (Exception ex){
+      return Response.serverError().entity(ex).build();
     } finally {
       Optional.ofNullable(connection).ifPresent(HttpURLConnection::disconnect);
     }
   }
 
   /**
-   * Builds an URL to connect against the Jenkins job.
+   * Creates a Url instance to the Jenkins job.
    */
-  private URL jobUrl(String environment) {
-    try {
-      URIBuilder builder = new URIBuilder(jenkinsJobUrl);
-      builder.addParameter(ContentWsConfiguration.Synchronization.JenkinsJob.ENV_PARAM, environment);
-      return builder.build().toURL();
-    } catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
+  public URL buildJenkinsJobUrl(String environment) throws URISyntaxException, MalformedURLException {
+    return new URIBuilder(syncConfig.getJenkinsJobUrl())
+                .addParameter(JenkinsJob.TOKEN_PARAM, syncConfig.getToken())
+                .addParameter(JenkinsJob.CMD_PARAM, syncConfig.getCommand())
+                .addParameter(JenkinsJob.REPOSITORY_PARAM, syncConfig.getRepository())
+                .addParameter(JenkinsJob.ENV_PARAM, environment).build().toURL();
   }
 
 }
