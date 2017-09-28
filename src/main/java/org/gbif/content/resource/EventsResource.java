@@ -256,7 +256,7 @@ public class EventsResource {
    * Executes a query and translates the results into XML Atom Feeds.
    */
   private String toXmlAtomFeed(SyndFeed feed, Optional<QueryBuilder> filter, String dateSortField, String idxName) {
-    return toXmlAtomFeed(feed, filter, dateSortField, idxName, configuration.defaultLocale);
+    return toXmlAtomFeed(feed, filter, dateSortField, idxName, configuration.getDefaultLocale());
   }
 
   /**
