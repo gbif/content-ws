@@ -1,6 +1,5 @@
 package org.gbif.content.resource;
 
-import org.gbif.content.conf.ContentWsConfiguration;
 import org.gbif.content.conf.ContentWsConfiguration.Synchronization;
 import org.gbif.content.conf.ContentWsConfiguration.Synchronization.JenkinsJob;
 
@@ -33,19 +32,19 @@ public class JenkinsJobClient {
    * Executes the Jenkins Job.
    */
   public Response execute(String environment) throws IOException {
-    HttpURLConnection connection=  null;
+    HttpURLConnection connection = null;
     try {
       connection = (HttpURLConnection)buildJenkinsJobUrl(environment).openConnection();
       Response.Status jenkinsJobStatus = Response.Status.fromStatusCode(connection.getResponseCode());
-      if(Response.Status.Family.INFORMATIONAL == jenkinsJobStatus.getFamily()
-         || Response.Status.Family.SUCCESSFUL == jenkinsJobStatus.getFamily()) {
+      if (Response.Status.Family.INFORMATIONAL == jenkinsJobStatus.getFamily()
+          || Response.Status.Family.SUCCESSFUL == jenkinsJobStatus.getFamily()) {
         return Response.status(Response.Status.ACCEPTED)
           .header(HttpHeaders.LOCATION, Optional
             .ofNullable(connection.getHeaderField(HttpHeaders.LOCATION)).orElse(""))
           .build();
       }
       return Response.status(jenkinsJobStatus).build();
-    } catch (Exception ex){
+    } catch (Exception ex) {
       return Response.serverError().entity(ex).build();
     } finally {
       Optional.ofNullable(connection).ifPresent(HttpURLConnection::disconnect);

@@ -66,9 +66,9 @@ public class ContentWsConfiguration extends Configuration {
         return false;
       }
       ElasticSearch that = (ElasticSearch) o;
-      return port == that.port &&
-             Objects.equals(host, that.host) &&
-             Objects.equals(cluster, that.cluster);
+      return port == that.port
+             && Objects.equals(host, that.host)
+             && Objects.equals(cluster, that.cluster);
     }
 
     @Override

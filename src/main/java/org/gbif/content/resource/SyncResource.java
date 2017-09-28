@@ -1,12 +1,8 @@
 package org.gbif.content.resource;
 
-
-import org.gbif.content.conf.ContentWsConfiguration;
 import org.gbif.content.resource.WebHookRequest.Topic;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.Principal;
 import java.util.Map;
 import java.util.Optional;
@@ -17,13 +13,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.auth.Auth;
-import org.apache.http.client.utils.URIBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;

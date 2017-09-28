@@ -22,21 +22,21 @@ public class SearchFieldsUtils {
    * Extracts the field value from the source map for a specific locale.
    */
   public static Optional<String> getField(Map<String,Object> source, String field, String locale) {
-    return Optional.ofNullable(source.get(field)).map(value -> ((Map<String, String>) value).get(locale));
+    return Optional.ofNullable(source.get(field)).map(value -> ((Map<String, String>)value).get(locale));
   }
 
   /**
    * Extracts the field value from the source map for a specific locale.
    */
   public static Optional<String> getField(Map<String,Object> source, String field) {
-    return Optional.ofNullable(source.get(field)).map(value -> ((String) value));
+    return Optional.ofNullable(source.get(field)).map(value -> (String)value);
   }
 
   /**
    * Extracts the field value from the source map for a specific locale.
    */
   public static Optional<String> getNestedField(Map<String,Object> source, String...field) {
-    Optional<Map<String, ?>> value = Optional.ofNullable((Map<String,?>)source.get(field[0]));
+    Optional<Map<String,?>> value = Optional.ofNullable((Map<String,?>)source.get(field[0]));
     for (int i = 1; i < field.length - 1; i++) {
       if (value.isPresent()) {
         value = Optional.ofNullable((Map<String,?>)value.get().get(field[i]));

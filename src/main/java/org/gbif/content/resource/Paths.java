@@ -5,13 +5,13 @@ package org.gbif.content.resource;
  */
 public class Paths {
 
+  public static final String SYNC_RESOURCE_PATH = "/content/sync";
+
   /**
    * Making constructor private.
    */
   private Paths() {
     //NOP
   }
-
-  public static final String SYNC_RESOURCE_PATH = "/content/sync";
 
 }
