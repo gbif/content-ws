@@ -1,16 +1,12 @@
 package org.gbif.content.conf;
 
 import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
-import org.apache.http.client.utils.URIBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -28,11 +24,11 @@ public class ContentWsConfiguration extends Configuration {
    */
   public static class ElasticSearch {
 
-    public String host = "localhost";
+    private String host = "localhost";
 
-    public int port = 9300;
+    private int port = 9300;
 
-    public String cluster = "content-cluster";
+    private String cluster = "content-cluster";
 
     @JsonProperty
     public String getHost() {
@@ -63,8 +59,12 @@ public class ContentWsConfiguration extends Configuration {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
       ElasticSearch that = (ElasticSearch) o;
       return port == that.port &&
              Objects.equals(host, that.host) &&
@@ -103,6 +103,13 @@ public class ContentWsConfiguration extends Configuration {
       public static final String ENV_PARAM = "environment";
       public static final String CMD_PARAM = "command";
       public static final String REPOSITORY_PARAM = "repository";
+
+      /**
+       * Private constructor.
+       */
+      private JenkinsJob() {
+        //do nothing
+      }
     }
 
     private String jenkinsJobUrl = "http://builds.gbif.org/job/run-content-crawler/buildWithParameters";
@@ -120,11 +127,11 @@ public class ContentWsConfiguration extends Configuration {
       return indexes;
     }
 
-    public void setIndexes( Map<String, ElasticSearch> indexes) {
+    public void setIndexes(Map<String, ElasticSearch> indexes) {
       this.indexes = indexes;
     }
 
-    public ElasticSearch getIndex(String env){
+    public ElasticSearch getIndex(String env) {
       return indexes.get(env);
     }
 
@@ -186,7 +193,7 @@ public class ContentWsConfiguration extends Configuration {
 
   private String esProgrammeIndex = "programme";
 
-  public String defaultLocale = "en-GB";
+  private String defaultLocale = "en-GB";
 
   private Synchronization synchronization;
 

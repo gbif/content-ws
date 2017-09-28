@@ -31,8 +31,8 @@ public class ContentWsApplication extends Application<ContentWsConfiguration> {
     return configuration.getSynchronization().getIndexes()
             .entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getKey,
-                                      e -> e.getValue().equals(configuration.getElasticSearch())?
-                                      defaultClient: e.getValue().buildEsClient()));
+                                      e -> e.getValue().equals(configuration.getElasticSearch())
+                                           ? defaultClient: e.getValue().buildEsClient()));
   }
 
   /**

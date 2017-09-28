@@ -227,6 +227,7 @@ public class EventsResource {
       optLanguage.ifPresent(languageLocale -> LocaleUtils.parse(HYPHEN.matcher(language).replaceAll("_")));
       return optLanguage.orElse(configuration.getDefaultLocale());
     } catch (IllegalArgumentException ex) {
+      LOG.error("Error generating locale", ex);
       throw new WebApplicationException(String.format("Language %s is not supported", language),
                                         Response.Status.BAD_REQUEST);
     }
@@ -261,7 +262,8 @@ public class EventsResource {
   /**
    * Executes a query and translates the results into XML Atom Feeds.
    */
-  private String toXmlAtomFeed(SyndFeed feed, Optional<QueryBuilder> filter, String dateSortField, String idxName, String locale) {
+  private String toXmlAtomFeed(SyndFeed feed, Optional<QueryBuilder> filter, String dateSortField, String idxName,
+                               String locale) {
     try {
       feed.setEntries(Arrays.stream(executeQuery(filter, dateSortField, idxName).getHits().hits())
                         .map(searchHit -> ConversionUtil.toFeedEntry(searchHit, locale))
