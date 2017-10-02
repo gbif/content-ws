@@ -30,7 +30,7 @@ public class SearchHealthCheck extends HealthCheck {
    * Validates that the ElasticSearch client can perform queries against the content alias.
    */
   @Override
-  protected Result check() throws Exception {
+  protected Result check() {
     if (esClients == null) {
       return Result.unhealthy("ElasticSearch has not being initialized");
     }
