@@ -9,6 +9,7 @@ import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.vladsch.flexmark.ast.util.TextCollectingVisitor;
+import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.search.SearchHit;
@@ -42,9 +43,10 @@ public class ConversionUtil {
     Map<String,Object> source = searchHit.getSource();
     getField(source, "title", locale).ifPresent(entry::setTitle);
     SyndContent description = new SyndContentImpl();
+    description.setType("text/html");
     getField(source, "body", locale)
       .ifPresent(body ->
-                   description.setValue(new TextCollectingVisitor().collectAndGetText(MARKDOWN_PARSER.parse(body))));
+                   description.setValue(HtmlRenderer.builder().build().render(MARKDOWN_PARSER.parse(body))));
     entry.setDescription(description);
     entry.setLink(getNestedField(source, "primaryLink", "url", locale)
                     .orElseGet(() -> altBaseLink + '/' + searchHit.id()));
