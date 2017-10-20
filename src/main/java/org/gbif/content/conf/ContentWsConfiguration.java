@@ -203,7 +203,6 @@ public class ContentWsConfiguration extends Configuration {
 
   private String gbifPortalUrl = "http://www.gbif.org/";
 
-
   @JsonProperty
   public String getEsNewsIndex() {
     return esNewsIndex;

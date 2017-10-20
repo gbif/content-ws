@@ -63,6 +63,7 @@
     <curator.version>2.9.1</curator.version>
     <maven-core.version>3.3.9</maven-core.version>
     <maven-model.version>3.3.9</maven-model.version>
+    <flexmark-all.version>0.27.0</flexmark-all.version>
 
     <!-- Plugins -->
     <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
@@ -308,6 +309,13 @@
           <artifactId>slf4j-log4j12</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <!-- Markdown to HTML converter -->
+    <dependency>
+      <groupId>com.vladsch.flexmark</groupId>
+      <artifactId>flexmark-all</artifactId>
+      <version>${flexmark-all.version}</version>
     </dependency>
 
     <!-- Test -->
