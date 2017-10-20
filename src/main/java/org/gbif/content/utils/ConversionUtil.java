@@ -33,14 +33,15 @@ public class ConversionUtil {
   /**
    * Transforms a SearchHit into a SyndEntry instance.
    */
-  public static SyndEntry toFeedEntry(SearchHit searchHit, String locale) {
+  public static SyndEntry toFeedEntry(SearchHit searchHit, String locale, String altBaseLink) {
     SyndEntry entry = new SyndEntryImpl();
     Map<String,Object> source = searchHit.getSource();
     getField(source, "title", locale).ifPresent(entry::setTitle);
     SyndContent description = new SyndContentImpl();
     getField(source, "body", locale).ifPresent(description::setValue);
     entry.setDescription(description);
-    getNestedField(source, "primaryLink", "url", locale).ifPresent(entry::setLink);
+    entry.setLink(getNestedField(source, "primaryLink", "url", locale)
+                    .orElseGet(() -> altBaseLink + '/' + searchHit.id()));
     entry.setPublishedDate(DEFAULT_DATE_TIME_FORMATTER.parser()
                              .parseDateTime((String)source.get("createdAt")).toDate());
     return entry;

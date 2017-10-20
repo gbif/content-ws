@@ -201,6 +201,8 @@ public class ContentWsConfiguration extends Configuration {
 
   private ElasticSearch elasticSearch;
 
+  private String gbifPortalUrl = "http://www.gbif.org/";
+
 
   @JsonProperty
   public String getEsNewsIndex() {
@@ -272,5 +274,14 @@ public class ContentWsConfiguration extends Configuration {
 
   public void setElasticSearch(ElasticSearch elasticSearch) {
     this.elasticSearch = elasticSearch;
+  }
+
+  public String getGbifPortalUrl() {
+    return gbifPortalUrl;
+  }
+
+  @JsonProperty
+  public void setGbifPortalUrl(String gbifPortalUrl) {
+    this.gbifPortalUrl = gbifPortalUrl;
   }
 }

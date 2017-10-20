@@ -202,7 +202,8 @@ public class EventsResource {
                                               @PathParam("language") String language) {
     return Arrays.stream(executeQuery(Optional.of(programmeQuery(acronym)),
                                       CREATED_AT_FIELD, configuration.getEsNewsIndex()).getHits().hits())
-            .map(searchHit -> ConversionUtil.toFeedEntry(searchHit, getLocale(language)))
+            .map(searchHit -> ConversionUtil.toFeedEntry(searchHit, getLocale(language),
+                                                         configuration.getGbifPortalUrl() + configuration.getEsNewsIndex()))
             .collect(Collectors.toList());
   }
 
@@ -266,7 +267,8 @@ public class EventsResource {
                                String locale) {
     try {
       feed.setEntries(Arrays.stream(executeQuery(filter, dateSortField, idxName).getHits().hits())
-                        .map(searchHit -> ConversionUtil.toFeedEntry(searchHit, locale))
+                        .map(searchHit -> ConversionUtil.toFeedEntry(searchHit, locale,
+                                                                     configuration.getGbifPortalUrl() + idxName))
                         .collect(Collectors.toList()));
       StringWriter writer = new StringWriter();
       new SyndFeedOutput().output(feed, writer);
