@@ -245,7 +245,7 @@ public class EventsResource {
    * Finds the programme id by its acronym.
    */
   private String findProgrammeId(String acronym) {
-    SearchResponse response = executeQuery(Optional.of(QueryBuilders.termQuery("acronym.keyword", acronym)),
+    SearchResponse response = executeQuery(Optional.of(QueryBuilders.termQuery("acronym", acronym)),
                                                   CREATED_AT_FIELD, configuration.getEsProgrammeIndex());
     return Arrays.stream(response.getHits().getHits())
             .map(SearchHit::getId).findFirst()
