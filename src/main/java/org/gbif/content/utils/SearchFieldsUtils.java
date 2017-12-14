@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
+import org.elasticsearch.node.Node;
+
 import static org.elasticsearch.index.mapper.DateFieldMapper.DEFAULT_DATE_TIME_FORMATTER;
 
 /**
@@ -30,6 +32,17 @@ public class SearchFieldsUtils {
    */
   public static Optional<String> getField(Map<String,Object> source, String field) {
     return Optional.ofNullable(source.get(field)).map(value -> (String)value);
+  }
+
+  /**
+   * Extracts the a location latn/log field value from the source map.
+   * The output is formatted according to https://tools.ietf.org/html/rfc5545#page-87.
+   */
+  public static Optional<String> getLocationField(Map<String,Object> source, String field) {
+    return Optional.ofNullable(source.get(field)).map(value -> {
+      Map<String,Double> coordinates = (Map<String,Double>)value;
+      return coordinates.get("lat").toString() + ';' + coordinates.get("lon").toString();
+    });
   }
 
   /**
