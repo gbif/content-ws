@@ -37,6 +37,7 @@
     <slf4j.version>1.7.18</slf4j.version>
     <logback.version>1.1.6</logback.version>
     <log4j.version>2.8</log4j.version>
+    <logstash-encoder.version>4.11</logstash-encoder.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <guava.version>19.0</guava.version>
     <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
@@ -165,6 +166,12 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>${logback.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.logstash.logback</groupId>
+      <artifactId>logstash-logback-encoder</artifactId>
+      <version>${logstash-encoder.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>io.dropwizard</groupId>
