@@ -68,4 +68,14 @@ public class SearchFieldsUtils {
     return getField(source, field)
       .map(value -> DEFAULT_DATE_TIME_FORMATTER.parser().parseDateTime(value).toDate());
   }
+
+  /**
+   * Gets the url of Link element.
+   */
+  public static Optional<String> getLinkUrl(Map<String,Object> source,  String field, String locale) {
+    return Optional.ofNullable(source.get(field))
+      .map(link -> (Map<String,Object>)link)
+      .map(link -> (Map<String,Object>)link.get("url"))
+      .map(url -> (String)url.get(locale));
+  }
 }

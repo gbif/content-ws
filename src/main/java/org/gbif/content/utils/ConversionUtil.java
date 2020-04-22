@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import biweekly.component.VEvent;
-import biweekly.property.Location;
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -21,6 +20,7 @@ import static org.gbif.content.utils.SearchFieldsUtils.getDateField;
 import static org.gbif.content.utils.SearchFieldsUtils.getField;
 import static org.gbif.content.utils.SearchFieldsUtils.getNestedField;
 import static org.gbif.content.utils.SearchFieldsUtils.getLocationField;
+import static org.gbif.content.utils.SearchFieldsUtils.getLinkUrl;
 
 /**
  * Utility class to convert search results into RSS feed and iCal entries.
@@ -75,6 +75,8 @@ public class ConversionUtil {
     return vEvent;
   }
 
+
+
   /**
    * Converts a ElasticSearch GetResponse into a VEvent instance to be used in an iCal feed.
    */
@@ -84,7 +86,7 @@ public class ConversionUtil {
     vEvent.setUid(getResponse.getId());
     getField(source, "title", locale).ifPresent(vEvent::setSummary);
     getField(source, "body", locale).ifPresent(vEvent::setDescription);
-    getField(source, "primaryLink").ifPresent(vEvent::setUrl);
+    getLinkUrl(source, "primaryLink", locale).ifPresent(vEvent::setUrl);
     getLocationField(source, "coordinates").ifPresent(vEvent::setLocation);
     getDateField(source, "start").ifPresent(vEvent::setDateStart);
     getDateField(source, "end").ifPresent(vEvent::setDateEnd);
