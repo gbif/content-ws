@@ -61,29 +61,21 @@ public class ConversionUtil {
    * Transforms a SearchHit into a VEvent instance.
    */
   public static VEvent toVEvent(SearchHit searchHit, String locale) {
-    VEvent vEvent = new VEvent();
     Map<String,Object> source = searchHit.getSource();
-    Optional.ofNullable(source.get("id")).map(id -> (String)id).ifPresent(vEvent::setUid);
-    getField(source, "title", locale).ifPresent(vEvent::setSummary);
-    getField(source, "body", locale)
-      .ifPresent(body ->
-                   vEvent.setDescription(new TextCollectingVisitor().collectAndGetText(MARKDOWN_PARSER.parse(body))));
-    getField(source, "primaryLink").ifPresent(vEvent::setUrl);
-    getField(source, "coordinates").ifPresent(vEvent::setLocation);
-    getDateField(source, "start").ifPresent(vEvent::setDateStart);
-    getDateField(source, "end").ifPresent(vEvent::setDateEnd);
-    return vEvent;
+    return toVEvent(Optional.ofNullable(source.get("id")).map(id -> (String)id).orElse(""), searchHit.getSource(), locale);
   }
-
 
 
   /**
    * Converts a ElasticSearch GetResponse into a VEvent instance to be used in an iCal feed.
    */
   public static VEvent toVEvent(GetResponse getResponse, String locale) {
+    return toVEvent(getResponse.getId(), getResponse.getSource(), locale);
+  }
+
+  private static VEvent toVEvent(String id, Map<String, Object> source, String locale) {
     VEvent vEvent = new VEvent();
-    Map<String,Object> source = getResponse.getSource();
-    vEvent.setUid(getResponse.getId());
+    vEvent.setUid(id);
     getField(source, "title", locale).ifPresent(vEvent::setSummary);
     getField(source, "body", locale).ifPresent(vEvent::setDescription);
     getLinkUrl(source, "primaryLink", locale).ifPresent(vEvent::setUrl);
