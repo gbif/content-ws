@@ -42,7 +42,7 @@
     <guava.version>19.0</guava.version>
     <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
     <validation-api.version>1.1.0.Final</validation-api.version>
-    <jackson.version>2.7.0</jackson.version>
+    <jackson.version>2.10.3</jackson.version>
     <guice.version>4.0</guice.version>
     <junit.version>4.12</junit.version>
     <mockito.version>1.10.19</mockito.version>
