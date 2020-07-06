@@ -2,7 +2,6 @@ package org.gbif.content.resource;
 
 import org.gbif.content.resource.WebHookRequest.Topic;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -13,7 +12,6 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -96,11 +94,6 @@ public class SyncResource {
    * Sends a full crawl request to the Jenkins sync job.
    */
   private ResponseEntity<?> runFullCrawl(String environment) {
-    try {
-      return jenkinsJobClient.execute(environment);
-    } catch (IOException ex) {
-      LOG.error("Error sending request to Jenkins", ex);
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
+    return jenkinsJobClient.execute(environment);
   }
 }
