@@ -34,7 +34,7 @@ public class WebHookRequest {
     AssetUnPublish("ContentManagement.Asset.unpublish"),
     AssetDelete("ContentManagement.Asset.delete");
 
-    private String value;
+    private final String value;
 
     Topic(String value) {
       this.value = value;

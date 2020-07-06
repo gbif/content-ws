@@ -3,16 +3,16 @@ package org.gbif.content.resource;
 import org.gbif.content.conf.ContentWsConfiguration.Synchronization;
 import org.gbif.content.conf.ContentWsConfiguration.Synchronization.JenkinsJob;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
 
 import org.apache.http.client.utils.URIBuilder;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 /**
  * Utility class that wraps the connection and interaction against  a Jenkins job.
@@ -31,21 +31,21 @@ public class JenkinsJobClient {
   /**
    * Executes the Jenkins Job.
    */
-  public Response execute(String environment) throws IOException {
+  public ResponseEntity<?> execute(String environment) {
     HttpURLConnection connection = null;
     try {
       connection = (HttpURLConnection)buildJenkinsJobUrl(environment).openConnection();
-      Response.Status jenkinsJobStatus = Response.Status.fromStatusCode(connection.getResponseCode());
-      if (Response.Status.Family.INFORMATIONAL == jenkinsJobStatus.getFamily()
-          || Response.Status.Family.SUCCESSFUL == jenkinsJobStatus.getFamily()) {
-        return Response.status(Response.Status.ACCEPTED)
-          .header(HttpHeaders.LOCATION, Optional
-            .ofNullable(connection.getHeaderField(HttpHeaders.LOCATION)).orElse(""))
+      HttpStatus jenkinsJobStatus = HttpStatus.resolve(connection.getResponseCode());
+      if (jenkinsJobStatus != null && (jenkinsJobStatus.is1xxInformational() || jenkinsJobStatus.is2xxSuccessful())) {
+        return ResponseEntity
+            .status(HttpStatus.ACCEPTED)
+            .header(HttpHeaders.LOCATION,
+                Optional.ofNullable(connection.getHeaderField(HttpHeaders.LOCATION)).orElse(""))
           .build();
       }
-      return Response.status(jenkinsJobStatus).build();
+      return ResponseEntity.status(jenkinsJobStatus).build();
     } catch (Exception ex) {
-      return Response.serverError().entity(ex).build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex);
     } finally {
       Optional.ofNullable(connection).ifPresent(HttpURLConnection::disconnect);
     }
@@ -61,5 +61,4 @@ public class JenkinsJobClient {
                 .addParameter(JenkinsJob.REPOSITORY_PARAM, syncConfig.getRepository())
                 .addParameter(JenkinsJob.ENV_PARAM, environment).build().toURL();
   }
-
 }

@@ -3,32 +3,28 @@ package org.gbif.content.resource;
 import org.gbif.content.resource.WebHookRequest.Topic;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
-import io.dropwizard.auth.Auth;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Resource class that provides RSS and iCal feeds for events and news.
  */
-@Path(Paths.SYNC_RESOURCE_PATH)
-@Produces(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping(path = Paths.SYNC_RESOURCE_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class SyncResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(SyncResource.class);
@@ -56,10 +52,9 @@ public class SyncResource {
    * Synchronization WebHook.
    * This service listens notification from Contentful WebHooks to syncronize the content of ElasticSearch indices.
    */
-  @POST
   @Timed
-  @Consumes(CONTENTFUL_CONTENT_TYPE)
-  public Response sync(@Context HttpServletRequest request, @Auth Principal user) {
+  @PostMapping(consumes = CONTENTFUL_CONTENT_TYPE)
+  public ResponseEntity<?> sync(HttpServletRequest request) {
     WebHookRequest webHookRequest = WebHookRequest.fromRequest(request);
     return Optional.ofNullable(webHookRequest.getTopic())
             .map(topic -> {
@@ -72,19 +67,21 @@ public class SyncResource {
               return runFullCrawl(webHookRequest.getEnv());
             }).orElseGet(() -> {
               LOG.warn("Unsupported operation {}", request.getHeader(WebHookRequest.CONTENTFUL_TOPIC_HEADER));
-              return Response.status(Response.Status.BAD_REQUEST).build();
+
+              return ResponseEntity.badRequest().build();
             });
   }
 
   /**
    * Deletes a document from ElasticSearch.
    */
-  private Response deleteDocument(WebHookRequest webHookRequest) {
+  private ResponseEntity<?> deleteDocument(WebHookRequest webHookRequest) {
     DeleteResponse deleteResponse = esClients.get(webHookRequest.getEnv())
                                       .prepareDelete(getEsIdxName(webHookRequest.getContentTypeId()),
                                                      ES_TYPE, webHookRequest.getId()).get();
     LOG.info("Entry deleted");
-    return Response.status(deleteResponse.status().getStatus()).build();
+
+    return ResponseEntity.status(deleteResponse.status().getStatus()).build();
   }
 
   /**
@@ -98,14 +95,12 @@ public class SyncResource {
   /**
    * Sends a full crawl request to the Jenkins sync job.
    */
-  private Response runFullCrawl(String environment) {
+  private ResponseEntity<?> runFullCrawl(String environment) {
     try {
       return jenkinsJobClient.execute(environment);
     } catch (IOException ex) {
       LOG.error("Error sending request to Jenkins", ex);
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
-
-
 }

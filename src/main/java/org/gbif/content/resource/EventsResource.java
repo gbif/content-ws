@@ -10,18 +10,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import biweekly.Biweekly;
 import biweekly.ICalendar;
-import ch.qos.logback.core.status.Status;
 import com.codahale.metrics.annotation.Timed;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
@@ -36,14 +27,21 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
+import org.gbif.ws.WebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Resource class that provides RSS and iCal feeds for events and news.
  */
-@Path("newsroom/")
-@Produces(MediaType.APPLICATION_JSON)
+@RequestMapping(value = "newsroom", produces = MediaType.APPLICATION_JSON_VALUE)
+@RestController
 public class EventsResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(EventsResource.class);
@@ -61,8 +59,11 @@ public class EventsResource {
    */
   private static final int DEFAULT_SIZE = 10;
 
-  private static final Optional<QueryBuilder> UPCOMING_EVENTS = Optional.of(QueryBuilders.rangeQuery(START_FIELD)
-                                                                   .gte("now/d").includeUpper(Boolean.FALSE));
+  private static final QueryBuilder UPCOMING_EVENTS =
+      QueryBuilders
+          .rangeQuery(START_FIELD)
+          .gte("now/d")
+          .includeUpper(Boolean.FALSE);
 
   private static final QueryBuilder SEARCHABLE = QueryBuilders.termQuery("searchable", Boolean.TRUE);
 
@@ -100,38 +101,44 @@ public class EventsResource {
 
   /**
    * Full constructor.
-   * @param esClient ElasticSearch client
-   * @param configuration  configuration settings
+   *
+   * @param esClient      ElasticSearch client
+   * @param configuration configuration settings
    */
   public EventsResource(Client esClient, ContentWsConfiguration configuration) {
     this.esClient = esClient;
     this.configuration = configuration;
   }
 
+  // TODO: 06/07/2020 produces ical only (or both ical and json)
+  // TODO: 06/07/2020 path with extension
+  // TODO: 06/07/2020 Timed
+  // TODO: 06/07/2020 application/atom+xml
+
   /**
    * Upcoming events in iCal format.
    */
-  @GET
   @Timed
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MEDIA_TYPE_ICAL)
-  @Path("events/calendar/upcoming.ics")
+  @GetMapping(
+      path = "events/calendar/upcoming.ics",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MEDIA_TYPE_ICAL)
   public String getUpcomingEventsICal() {
     ICalendar iCal = new ICalendar();
     executeQuery(UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex())
-      .getHits().forEach(searchHit -> iCal.addEvent(ConversionUtil.toVEvent(searchHit,
-                                                                            configuration.getDefaultLocale())));
+        .getHits().forEach(searchHit -> iCal.addEvent(ConversionUtil.toVEvent(searchHit,
+        configuration.getDefaultLocale())));
     return Biweekly.write(iCal).go();
   }
 
   /**
    * Upcoming events RSS feed.
    */
-  @GET
   @Timed
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_ATOM_XML)
-  @Path("events/upcoming.xml")
+  @GetMapping(
+      path = "events/upcoming.xml",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getUpComingEvents() {
     return toXmlAtomFeed(newEventsFeed(), UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex());
   }
@@ -139,84 +146,82 @@ public class EventsResource {
   /**
    * Single event RSS feed in Atom format.
    */
-  @GET
   @Timed
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MEDIA_TYPE_ICAL)
-  @Path("events/{eventId}")
-  public String getEvent(@PathParam("eventId") String eventId) {
+  @GetMapping(
+      path = "events/{eventId}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MEDIA_TYPE_ICAL)
+  public String getEvent(@PathVariable("eventId") String eventId) {
     ICalendar iCal = new ICalendar();
     iCal.addEvent(ConversionUtil
-                    .toVEvent(esClient.prepareGet(configuration.getEsEventsIndex(), "content", eventId).get(),
-                              configuration.getDefaultLocale()));
+        .toVEvent(esClient.prepareGet(configuration.getEsEventsIndex(), "content", eventId).get(),
+            configuration.getDefaultLocale()));
     return Biweekly.write(iCal).go();
   }
 
   /**
    * News RSS feeds.
    */
-  @GET
   @Timed
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_ATOM_XML)
-  @Path("news/rss")
+  @GetMapping(
+      path = "news/rss",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getNews() {
-    return toXmlAtomFeed(newNewsFeed(), Optional.empty(), CREATED_AT_FIELD, configuration.getEsNewsIndex());
+    return toXmlAtomFeed(newNewsFeed(), null, CREATED_AT_FIELD, configuration.getEsNewsIndex());
   }
 
   /**
    * New RSS feed for GBIF region.
    */
-  @GET
   @Timed
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_ATOM_XML)
-  @Path("news/rss/{gbifRegion}")
-  public String getNewsByRegion(@PathParam("gbifRegion") String region) {
-    return toXmlAtomFeed(newNewsFeed(), Optional.of(QueryBuilders.termQuery(GBIF_REGION_FIELD, region)),
-                         CREATED_AT_FIELD, configuration.getEsNewsIndex());
+  @GetMapping(
+      path = "news/rss/{gbifRegion}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_ATOM_XML_VALUE)
+  public String getNewsByRegion(@PathVariable("gbifRegion") String region) {
+    return toXmlAtomFeed(newNewsFeed(), QueryBuilders.termQuery(GBIF_REGION_FIELD, region), CREATED_AT_FIELD, configuration.getEsNewsIndex());
   }
 
   /**
    * News RSS feed for a program and language.
    */
-  @GET
   @Timed
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_ATOM_XML)
-  @Path("news/rss/{acronym}/{language}")
-  public String getProgramNews(@PathParam("acronym") String acronym, @PathParam("language") String language) {
-    return toXmlAtomFeed(newNewsFeed(), Optional.of(programmeQuery(acronym)), CREATED_AT_FIELD,
-                         configuration.getEsNewsIndex(), getLocale(language));
+  @GetMapping(
+      path = "news/rss/{acronym}/{language}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_ATOM_XML_VALUE)
+  public String getProgramNews(@PathVariable("acronym") String acronym, @PathVariable("language") String language) {
+    return toXmlAtomFeed(newNewsFeed(), programmeQuery(acronym), CREATED_AT_FIELD, configuration.getEsNewsIndex(), getLocale(language));
   }
 
   /**
    * JSON News for a program and language.
    */
-  @GET
   @Timed
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  @Path("news/json/{acronym}/{language}")
-  public List<SyndEntry> getProgrammeNewsJson(@PathParam("acronym") String acronym,
-                                              @PathParam("language") String language) {
-    return Arrays.stream(executeQuery(Optional.of(programmeQuery(acronym)),
-                                      CREATED_AT_FIELD, configuration.getEsNewsIndex()).getHits().hits())
-            .map(searchHit -> ConversionUtil.toFeedEntry(searchHit, getLocale(language),
-                                                         configuration.getGbifPortalUrl() + configuration.getEsNewsIndex()))
-            .collect(Collectors.toList());
+  @GetMapping(
+      path = "news/json/{acronym}/{language}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public List<SyndEntry> getProgrammeNewsJson(@PathVariable("acronym") String acronym,
+                                              @PathVariable("language") String language) {
+    return Arrays.stream(executeQuery(programmeQuery(acronym),
+        CREATED_AT_FIELD, configuration.getEsNewsIndex()).getHits().hits())
+        .map(searchHit -> ConversionUtil.toFeedEntry(searchHit, getLocale(language),
+            configuration.getGbifPortalUrl() + configuration.getEsNewsIndex()))
+        .collect(Collectors.toList());
   }
 
   /**
    * Data uses RSS feed.
    */
-  @GET
   @Timed
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_ATOM_XML)
-  @Path("uses/rss")
+  @GetMapping(
+      path = "uses/rss",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getDataUses() {
-    return toXmlAtomFeed(newNewsFeed(), Optional.empty(), CREATED_AT_FIELD, configuration.getEsDataUseIndex());
+    return toXmlAtomFeed(newNewsFeed(), null, CREATED_AT_FIELD, configuration.getEsDataUseIndex());
   }
 
   /**
@@ -230,7 +235,7 @@ public class EventsResource {
     } catch (IllegalArgumentException ex) {
       LOG.error("Error generating locale", ex);
       throw new WebApplicationException(String.format("Language %s is not supported", language),
-                                        Response.Status.BAD_REQUEST);
+          HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -245,61 +250,69 @@ public class EventsResource {
    * Finds the programme id by its acronym.
    */
   private String findProgrammeId(String acronym) {
-    SearchResponse response = executeQuery(Optional.of(QueryBuilders.termQuery("acronym", acronym)),
-                                                  CREATED_AT_FIELD, configuration.getEsProgrammeIndex());
+    SearchResponse response = executeQuery(QueryBuilders.termQuery("acronym", acronym),
+        CREATED_AT_FIELD, configuration.getEsProgrammeIndex());
     return Arrays.stream(response.getHits().getHits())
-            .map(SearchHit::getId).findFirst()
-            .orElseThrow(() -> new WebApplicationException(String.format("Project acronym %s not found", acronym),
-                                                           Response.status(Response.Status.BAD_REQUEST).build()));
+        .map(SearchHit::getId).findFirst()
+        .orElseThrow(() -> new WebApplicationException(
+                String.format("Project acronym %s not found", acronym),
+                HttpStatus.BAD_REQUEST));
   }
 
   /**
    * Executes a query and translates the results into XML Atom Feeds.
    */
-  private String toXmlAtomFeed(SyndFeed feed, Optional<QueryBuilder> filter, String dateSortField, String idxName) {
+  private String toXmlAtomFeed(SyndFeed feed, QueryBuilder filter, String dateSortField, String idxName) {
     return toXmlAtomFeed(feed, filter, dateSortField, idxName, configuration.getDefaultLocale());
   }
 
   /**
    * Executes a query and translates the results into XML Atom Feeds.
    */
-  private String toXmlAtomFeed(SyndFeed feed, Optional<QueryBuilder> filter, String dateSortField, String idxName,
+  private String toXmlAtomFeed(SyndFeed feed, QueryBuilder filter, String dateSortField, String idxName,
                                String locale) {
     try {
       feed.setEntries(Arrays.stream(executeQuery(filter, dateSortField, idxName).getHits().hits())
-                        .map(searchHit -> ConversionUtil.toFeedEntry(searchHit, locale,
-                                                                     configuration.getGbifPortalUrl() + idxName))
-                        .collect(Collectors.toList()));
+          .map(searchHit -> ConversionUtil.toFeedEntry(searchHit, locale,
+              configuration.getGbifPortalUrl() + idxName))
+          .collect(Collectors.toList()));
       StringWriter writer = new StringWriter();
       new SyndFeedOutput().output(feed, writer);
       return writer.toString();
     } catch (IOException | FeedException ex) {
       LOG.error("Error generating events RSS feed", ex);
-      throw new WebApplicationException(Status.ERROR);
+
+      // TODO: 06/07/2020 WebApplicationException(Status.ERROR) ???
+      throw new WebApplicationException("Error generating events RSS feed", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   /**
    * Executes the default search query.
    */
-  private SearchResponse executeQuery(String query, Optional<QueryBuilder> filter, String dateSortField,
+  private SearchResponse executeQuery(String query, QueryBuilder filter, String dateSortField,
                                       String idxName) {
     BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
-                                             .filter(SEARCHABLE)
-                                             .must(query == null ?
-                                                     QueryBuilders.matchAllQuery() :
-                                                     QueryBuilders.wrapperQuery(query));
-    filter.ifPresent(queryBuilder::filter);
-    return esClient.prepareSearch(idxName).setQuery(queryBuilder).addSort(dateSortField, SortOrder.DESC)
-                    .setSize(DEFAULT_SIZE).execute().actionGet();
+        .filter(SEARCHABLE)
+        .must(query == null ?
+            QueryBuilders.matchAllQuery() :
+            QueryBuilders.wrapperQuery(query));
+    Optional.ofNullable(filter)
+        .ifPresent(queryBuilder::filter);
+
+    return esClient
+        .prepareSearch(idxName)
+        .setQuery(queryBuilder)
+        .addSort(dateSortField, SortOrder.DESC)
+        .setSize(DEFAULT_SIZE)
+        .execute()
+        .actionGet();
   }
 
   /**
    * Executes the default search query.
    */
-  private SearchResponse executeQuery(Optional<QueryBuilder> filter, String dateSortField, String idxName) {
+  private SearchResponse executeQuery(QueryBuilder filter, String dateSortField, String idxName) {
     return executeQuery(null, filter, dateSortField, idxName);
   }
-
-
 }
