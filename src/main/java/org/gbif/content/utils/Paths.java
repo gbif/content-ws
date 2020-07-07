@@ -1,4 +1,4 @@
-package org.gbif.content.resource;
+package org.gbif.content.utils;
 
 /**
  * Paths to resources and services.

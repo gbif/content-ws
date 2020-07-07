@@ -1,4 +1,4 @@
-package org.gbif.content.resource;
+package org.gbif.content.service;
 
 import java.io.IOException;
 import java.util.Arrays;

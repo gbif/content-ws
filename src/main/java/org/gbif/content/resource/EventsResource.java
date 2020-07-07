@@ -1,6 +1,6 @@
 package org.gbif.content.resource;
 
-import org.gbif.content.conf.ContentWsConfiguration;
+import org.gbif.content.config.ContentWsConfigurationProperties;
 import org.gbif.content.utils.ConversionUtil;
 
 import java.io.IOException;
@@ -71,7 +71,7 @@ public class EventsResource {
 
   private final Client esClient;
 
-  private final ContentWsConfiguration configuration;
+  private final ContentWsConfigurationProperties configuration;
 
   /**
    * Creates a new Rss Feed using the common GBIF content.
@@ -105,7 +105,7 @@ public class EventsResource {
    * @param esClient      ElasticSearch client
    * @param configuration configuration settings
    */
-  public EventsResource(Client esClient, ContentWsConfiguration configuration) {
+  public EventsResource(Client esClient, ContentWsConfigurationProperties configuration) {
     this.esClient = esClient;
     this.configuration = configuration;
   }

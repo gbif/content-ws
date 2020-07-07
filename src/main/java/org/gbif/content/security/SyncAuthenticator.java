@@ -1,4 +1,4 @@
-package org.gbif.content.resource;
+package org.gbif.content.security;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -13,6 +13,7 @@ import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.Authorizer;
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
+import org.gbif.content.utils.Paths;
 
 /**
  * Provides a basic authenticator against security token.

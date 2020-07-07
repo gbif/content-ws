@@ -51,8 +51,6 @@
     <elastic-search.version>5.2.2</elastic-search.version>
     <rome.version>1.0</rome.version>
 
-    <service-discovery.version>0.1</service-discovery.version>
-
     <!-- fixed to the version coming with Dropwizard -->
     <jackson.dropwizard.version>2.6.3</jackson.dropwizard.version>
     <jersey.version>2.22.1</jersey.version>
@@ -158,6 +156,11 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
 
     <!-- GBIF dependencies -->
     <dependency>
@@ -166,17 +169,6 @@
       <version>${gbif-common-ws.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>service-discovery</artifactId>
-      <version>${service-discovery.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.codehaus.jackson</groupId>
-          <artifactId>jackson-core-asl</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
     <dependency>
       <groupId>net.sf.biweekly</groupId>
       <artifactId>biweekly</artifactId>

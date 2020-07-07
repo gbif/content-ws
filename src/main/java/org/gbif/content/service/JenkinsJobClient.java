@@ -1,7 +1,11 @@
-package org.gbif.content.resource;
+package org.gbif.content.service;
 
-import org.gbif.content.conf.ContentWsConfiguration.Synchronization;
-import org.gbif.content.conf.ContentWsConfiguration.Synchronization.JenkinsJob;
+import org.apache.http.client.utils.URIBuilder;
+import org.gbif.content.config.JenkinsJob;
+import org.gbif.content.config.SynchronizationProperties;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -9,22 +13,17 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
-import org.apache.http.client.utils.URIBuilder;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
 /**
  * Utility class that wraps the connection and interaction against  a Jenkins job.
  */
 public class JenkinsJobClient {
 
-  private final Synchronization syncConfig;
+  private final SynchronizationProperties syncConfig;
 
   /**
    * @param syncConfig url to the Jenkins job
    */
-  public JenkinsJobClient(Synchronization syncConfig) {
+  public JenkinsJobClient(SynchronizationProperties syncConfig) {
     this.syncConfig = syncConfig;
   }
 

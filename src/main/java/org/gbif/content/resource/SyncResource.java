@@ -1,6 +1,8 @@
 package org.gbif.content.resource;
 
-import org.gbif.content.resource.WebHookRequest.Topic;
+import org.gbif.content.service.JenkinsJobClient;
+import org.gbif.content.service.WebHookRequest;
+import org.gbif.content.service.WebHookRequest.Topic;
 
 import java.util.Map;
 import java.util.Optional;
@@ -10,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.codahale.metrics.annotation.Timed;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
+import org.gbif.content.utils.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -53,6 +56,7 @@ public class SyncResource {
   @Timed
   @PostMapping(consumes = CONTENTFUL_CONTENT_TYPE)
   public ResponseEntity<?> sync(HttpServletRequest request) {
+    // TODO: 07/07/2020  get auth header, check and return 401 if wrong ?
     WebHookRequest webHookRequest = WebHookRequest.fromRequest(request);
     return Optional.ofNullable(webHookRequest.getTopic())
             .map(topic -> {
