@@ -22,7 +22,7 @@ public class ContentWsConfigurationProperties {
 
   private String gbifPortalUrl = "http://www.gbif.org/";
 
-  private SynchronizationProperties synchronization;
+  private SynchronizationConfigurationProperties synchronization;
 
   private ElasticSearchProperties elasticSearch;
 
@@ -66,11 +66,11 @@ public class ContentWsConfigurationProperties {
     this.defaultLocale = defaultLocale;
   }
 
-  public SynchronizationProperties getSynchronization() {
+  public SynchronizationConfigurationProperties getSynchronization() {
     return synchronization;
   }
 
-  public void setSynchronization(SynchronizationProperties synchronization) {
+  public void setSynchronization(SynchronizationConfigurationProperties synchronization) {
     this.synchronization = synchronization;
   }
 

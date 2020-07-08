@@ -21,6 +21,4 @@ synchronization:
         host: localhost
         port: 9300
         cluster: content-cluster
-service:
-      zkHost:
-      zkPath:
+

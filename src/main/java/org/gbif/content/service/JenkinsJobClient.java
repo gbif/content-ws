@@ -1,11 +1,11 @@
 package org.gbif.content.service;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.gbif.content.config.JenkinsJob;
-import org.gbif.content.config.SynchronizationProperties;
+import org.gbif.content.config.SynchronizationConfigurationProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -16,14 +16,20 @@ import java.util.Optional;
 /**
  * Utility class that wraps the connection and interaction against  a Jenkins job.
  */
+@Component
 public class JenkinsJobClient {
 
-  private final SynchronizationProperties syncConfig;
+  public static final String TOKEN_PARAM = "token";
+  public static final String ENV_PARAM = "environment";
+  public static final String CMD_PARAM = "command";
+  public static final String REPOSITORY_PARAM = "repository";
+
+  private final SynchronizationConfigurationProperties syncConfig;
 
   /**
    * @param syncConfig url to the Jenkins job
    */
-  public JenkinsJobClient(SynchronizationProperties syncConfig) {
+  public JenkinsJobClient(SynchronizationConfigurationProperties syncConfig) {
     this.syncConfig = syncConfig;
   }
 
@@ -33,14 +39,14 @@ public class JenkinsJobClient {
   public ResponseEntity<?> execute(String environment) {
     HttpURLConnection connection = null;
     try {
-      connection = (HttpURLConnection)buildJenkinsJobUrl(environment).openConnection();
+      connection = (HttpURLConnection) buildJenkinsJobUrl(environment).openConnection();
       HttpStatus jenkinsJobStatus = HttpStatus.resolve(connection.getResponseCode());
       if (jenkinsJobStatus != null && (jenkinsJobStatus.is1xxInformational() || jenkinsJobStatus.is2xxSuccessful())) {
         return ResponseEntity
             .status(HttpStatus.ACCEPTED)
             .header(HttpHeaders.LOCATION,
                 Optional.ofNullable(connection.getHeaderField(HttpHeaders.LOCATION)).orElse(""))
-          .build();
+            .build();
       }
       return ResponseEntity.status(jenkinsJobStatus).build();
     } catch (Exception ex) {
@@ -55,9 +61,9 @@ public class JenkinsJobClient {
    */
   public URL buildJenkinsJobUrl(String environment) throws URISyntaxException, MalformedURLException {
     return new URIBuilder(syncConfig.getJenkinsJobUrl())
-                .addParameter(JenkinsJob.TOKEN_PARAM, syncConfig.getToken())
-                .addParameter(JenkinsJob.CMD_PARAM, syncConfig.getCommand())
-                .addParameter(JenkinsJob.REPOSITORY_PARAM, syncConfig.getRepository())
-                .addParameter(JenkinsJob.ENV_PARAM, environment).build().toURL();
+        .addParameter(TOKEN_PARAM, syncConfig.getToken())
+        .addParameter(CMD_PARAM, syncConfig.getCommand())
+        .addParameter(REPOSITORY_PARAM, syncConfig.getRepository())
+        .addParameter(ENV_PARAM, environment).build().toURL();
   }
 }

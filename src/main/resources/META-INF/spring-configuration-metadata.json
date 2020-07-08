@@ -14,7 +14,7 @@
     {
       "name": "content.synchronization",
       "type": "org.gbif.content.config.ContentWsConfigurationProperties",
-      "sourceType": "org.gbif.content.config.SynchronizationProperties",
+      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties",
       "sourceMethod": "getSynchronization()"
     },
 
@@ -90,27 +90,27 @@
     {
       "name": "content.synchronization.jenkinsJobUrl",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.SynchronizationProperties"
+      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties"
     },
     {
       "name": "content.synchronization.token",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.SynchronizationProperties"
+      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties"
     },
     {
       "name": "content.synchronization.command",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.SynchronizationProperties"
+      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties"
     },
     {
       "name": "content.synchronization.repository",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.SynchronizationProperties"
+      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties"
     },
     {
       "name": "content.synchronization.indexes",
       "type": "java.util.Map",
-      "sourceType": "org.gbif.content.config.SynchronizationProperties"
+      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties"
     }
   ]
 }

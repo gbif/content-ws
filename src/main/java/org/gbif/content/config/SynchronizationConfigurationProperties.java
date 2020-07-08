@@ -1,11 +1,16 @@
 package org.gbif.content.config;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
 import java.util.Map;
 
 /**
  * Configuration settings to synchronize Contentful data into ElasticSearch.
  */
-public class SynchronizationProperties {
+@Component
+@ConfigurationProperties(prefix = "content.synchronization")
+public class SynchronizationConfigurationProperties {
 
   private String jenkinsJobUrl = "http://builds.gbif.org/job/run-content-crawler/buildWithParameters";
 

@@ -8,7 +8,6 @@ import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
-import com.vladsch.flexmark.ast.util.TextCollectingVisitor;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import org.elasticsearch.action.get.GetResponse;
@@ -35,7 +34,6 @@ public class ConversionUtil {
   private ConversionUtil() {
     // NOP
   }
-
 
   /**
    * Transforms a SearchHit into a SyndEntry instance.

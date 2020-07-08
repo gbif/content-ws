@@ -1,6 +1,6 @@
 package org.gbif.content.resource;
 
-import org.gbif.content.conf.ContentWsConfiguration;
+import org.gbif.content.config.ContentWsConfigurationProperties;
 
 import java.io.IOException;
 
@@ -13,17 +13,17 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Test cases for the ContentWsConfiguration class.
  */
-public class ContentWsConfigurationTest {
+public class ContentWsConfigurationPropertiesTest {
 
   private static final String CONFIG_FILE = "config.yml";
 
   /**
    * Loads configuration from test file.
    */
-  public static ContentWsConfiguration getTestConfiguration() {
+  public static ContentWsConfigurationProperties getTestConfiguration() {
     try {
       Yaml yaml = new Yaml();
-      return yaml.loadAs(Resources.getResource(CONFIG_FILE).openStream(), ContentWsConfiguration.class);
+      return yaml.loadAs(Resources.getResource(CONFIG_FILE).openStream(), ContentWsConfigurationProperties.class);
     } catch (IOException ex) {
       throw new IllegalStateException(ex);
     }
@@ -34,7 +34,7 @@ public class ContentWsConfigurationTest {
    */
   @Test
   public void testContentWsConfiguration() {
-    ContentWsConfiguration testConfiguration = getTestConfiguration();
+    ContentWsConfigurationProperties testConfiguration = getTestConfiguration();
     assertNotNull(testConfiguration);
     assertNotNull(testConfiguration.getSynchronization().getToken());
   }

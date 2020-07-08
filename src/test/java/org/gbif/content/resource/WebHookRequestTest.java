@@ -4,6 +4,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.io.Resources;
+import org.gbif.content.service.WebHookRequest;
 import org.junit.Test;
 
 import static  org.junit.Assert.assertEquals;

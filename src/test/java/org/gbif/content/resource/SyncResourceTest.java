@@ -1,113 +1,98 @@
 package org.gbif.content.resource;
 
-import org.gbif.content.conf.ContentWsConfiguration;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
-import java.security.Principal;
-import java.util.Collections;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.CharStreams;
-import com.google.common.io.Resources;
-import io.dropwizard.auth.AuthDynamicFeature;
-import io.dropwizard.auth.AuthValueFactoryProvider;
-import io.dropwizard.testing.junit.ResourceTestRule;
 import org.elasticsearch.client.Client;
-import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
-import org.junit.ClassRule;
+import org.gbif.content.ContentWsApplication;
+import org.gbif.content.config.ContentWsConfigurationProperties;
+import org.gbif.content.security.SyncAuthenticationFilter;
+import org.gbif.content.service.JenkinsJobClient;
+import org.gbif.content.service.WebHookRequest;
+import org.gbif.content.utils.Paths;
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Unit tests for the SyncResource.
  */
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(
+    classes = ContentWsApplication.class,
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+@AutoConfigureMockMvc
+@EnableAutoConfiguration(exclude = ElasticsearchAutoConfiguration.class)
 public class SyncResourceTest {
 
-  private static final String AUTH_HEADER = "Authorization";
-
   //Mock values of Jenkins URLs, both are not really contacted, they can point to nonexistent urls.
-  private static final String JENKINS_TEST_URL  = "http://builds.gbif.org/job/run-content-crawler-fake/";
+  private static final String JENKINS_TEST_URL = "http://builds.gbif.org/job/run-content-crawler-fake/";
   private static final String LOCATION_TEST = JENKINS_TEST_URL + "80/";
 
-  //Static instance of the configuration settings loaded from the test file
-  private static ContentWsConfiguration configuration;
+  private MockMvc mockMvc;
 
-  /**
-   * Lazy loading of configuration test file.
-   */
-  private static ContentWsConfiguration getConfiguration() {
-    if (configuration == null) {
-      configuration = ContentWsConfigurationTest.getTestConfiguration();
-    }
-    return configuration;
+  @MockBean
+  private JenkinsJobClient jenkinsJobClientMock;
+
+  @Autowired
+  private Client searchIndex;
+
+  @Autowired
+  private ContentWsConfigurationProperties properties;
+
+  @Before
+  public void setup() {
+    MockitoAnnotations.initMocks(this);
+    this.mockMvc = MockMvcBuilders.standaloneSetup(
+        new SyncResource(jenkinsJobClientMock, searchIndex, properties))
+        .addFilters(new SyncAuthenticationFilter(properties.getSynchronization().getToken()))
+        .build();
   }
-
-  //Grizzly is required since the in-memory Jersey test container does not support all features,
-  // such as the @Context injection used by BasicAuthFactory and OAuthFactory.
-  @ClassRule
-  public static ResourceTestRule resource = ResourceTestRule.builder()
-    .setTestContainerFactory(new GrizzlyWebTestContainerFactory())
-    //Authentication
-    .addProvider(new AuthDynamicFeature(SyncAuthenticator
-                                          .buildAuthFilter(getConfiguration().getSynchronization().getToken())))
-    .addProvider(new AuthValueFactoryProvider.Binder<>(Principal.class))
-    //Test resource
-    .addResource(new SyncResource(jenkinsJobMock(), Collections.singletonMap("env", mock(Client.class))))
-    .build();
 
   /**
    * Creates a mock instance of URL that doesn't trigger any remote call.
    */
   private static JenkinsJobClient jenkinsJobMock() {
-    try {
-      JenkinsJobClient jenkinsJobClient = mock(JenkinsJobClient.class);
-      when(jenkinsJobClient.execute("dev")).thenReturn(Response.accepted().build());
-      return jenkinsJobClient;
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
+    JenkinsJobClient jenkinsJobClient = mock(JenkinsJobClient.class);
+    when(jenkinsJobClient.execute("dev")).thenReturn(ResponseEntity.accepted().build());
+    return jenkinsJobClient;
   }
 
   /**
    * Builds the test credentials.
    */
-  private static String getAuthCredentials() {
-    return SyncAuthenticator.BEARER_PREFIX + " " + getConfiguration().getSynchronization().getToken();
-  }
-
-  /**
-   * Reads the content of the test file into a String.
-   */
-  private static String getTestContent() throws IOException {
-    return CharStreams.toString(new InputStreamReader(Resources.getResource(WebHookRequestTest.REQUEST_TEST_FILE)
-                                                        .openStream(), Charsets.UTF_8));
+  private String getAuthCredentials() {
+    return "Bearer " + properties.getSynchronization().getToken();
   }
 
   /**
    * Test a synchronization call.
    */
   @Test
-  public void testSync() throws IOException {
-   Response response = resource.getJerseyTest().target(Paths.SYNC_RESOURCE_PATH)
-                        .queryParam("env","dev")
-                        .request()
-                        .header(AUTH_HEADER, getAuthCredentials())
-                        .header(WebHookRequest.CONTENTFUL_TOPIC_HEADER, WebHookRequest.Topic.EntryPublish.getValue())
-                        .post(Entity.entity(getTestContent(), SyncResource.CONTENTFUL_CONTENT_TYPE));
-   assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
+  public void testSync() throws Exception {
+    mockMvc.perform(
+        post(Paths.SYNC_RESOURCE_PATH)
+            .param("env", "dev")
+            .content("content")
+            .contentType(SyncResource.CONTENTFUL_CONTENT_TYPE)
+            .header(HttpHeaders.AUTHORIZATION, getAuthCredentials())
+            .header(WebHookRequest.CONTENTFUL_TOPIC_HEADER, WebHookRequest.Topic.EntryPublish.getValue())
+    ).andExpect(status().isAccepted());
   }
-
 }
