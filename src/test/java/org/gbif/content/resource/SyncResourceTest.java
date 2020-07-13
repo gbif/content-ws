@@ -7,16 +7,16 @@ import org.gbif.content.security.SyncAuthenticationFilter;
 import org.gbif.content.service.JenkinsJobClient;
 import org.gbif.content.service.WebHookRequest;
 import org.gbif.content.utils.Paths;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -41,26 +41,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @EnableAutoConfiguration(exclude = ElasticsearchAutoConfiguration.class)
 public class SyncResourceTest {
 
-  //Mock values of Jenkins URLs, both are not really contacted, they can point to nonexistent urls.
-  private static final String JENKINS_TEST_URL = "http://builds.gbif.org/job/run-content-crawler-fake/";
-  private static final String LOCATION_TEST = JENKINS_TEST_URL + "80/";
-
   private MockMvc mockMvc;
 
-  @MockBean
-  private JenkinsJobClient jenkinsJobClientMock;
-
   @Autowired
+  @Qualifier("searchClient")
   private Client searchIndex;
 
   @Autowired
   private ContentWsConfigurationProperties properties;
 
-  @Before
+  @BeforeEach
   public void setup() {
     MockitoAnnotations.initMocks(this);
     this.mockMvc = MockMvcBuilders.standaloneSetup(
-        new SyncResource(jenkinsJobClientMock, searchIndex, properties))
+        new SyncResource(jenkinsJobMock(), searchIndex, properties))
         .addFilters(new SyncAuthenticationFilter(properties.getSynchronization().getToken()))
         .build();
   }
@@ -89,7 +83,19 @@ public class SyncResourceTest {
     mockMvc.perform(
         post(Paths.SYNC_RESOURCE_PATH)
             .param("env", "dev")
-            .content("content")
+            .content("{" +
+                "\"sys\": {\n" +
+                "      \"type\": \"Entry\",\n" +
+                "     \"contentType\": {\n" +
+                "        \"sys\": {\n" +
+                "           \"type\": \"Link\",\n" +
+                "            \"linkType\": \"ContentType\",\n" +
+                "           \"id\": \"DataUse\"\n" +
+                "        }\n" +
+                "      },\n" +
+                "      \"id\": \"82531\"\n" +
+                "   }" +
+                "}")
             .contentType(SyncResource.CONTENTFUL_CONTENT_TYPE)
             .header(HttpHeaders.AUTHORIZATION, getAuthCredentials())
             .header(WebHookRequest.CONTENTFUL_TOPIC_HEADER, WebHookRequest.Topic.EntryPublish.getValue())

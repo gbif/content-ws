@@ -1,14 +1,13 @@
 package org.gbif.content.resource;
 
-import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-
 import com.google.common.io.Resources;
 import org.gbif.content.service.WebHookRequest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static  org.junit.Assert.assertEquals;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

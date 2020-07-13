@@ -6,7 +6,7 @@ import java.io.InputStream;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 
-import org.junit.Assert;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Utility class to be used in test cases.
@@ -20,7 +20,7 @@ class DelegatingServletInputStream extends ServletInputStream {
    * @param sourceStream the source stream (never {@code null}
    */
   DelegatingServletInputStream(InputStream sourceStream) {
-    Assert.assertNotNull("Source InputStream must not be null", sourceStream);
+    assertNotNull(sourceStream, "Source InputStream must not be null");
     this.sourceStream = sourceStream;
   }
 
