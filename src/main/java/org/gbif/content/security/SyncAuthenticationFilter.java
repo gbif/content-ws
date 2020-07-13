@@ -42,10 +42,10 @@ public class SyncAuthenticationFilter extends OncePerRequestFilter {
       if (header != null && header.startsWith(BEARER_PREFIX)) {
         requestSyncToken = header.replace(BEARER_PREFIX, "");
       }
-    }
 
-    if (!syncToken.equals(requestSyncToken)) {
-      throw new WebApplicationException("Token does not match", HttpStatus.UNAUTHORIZED);
+      if (!syncToken.equals(requestSyncToken)) {
+        throw new WebApplicationException("Token does not match", HttpStatus.UNAUTHORIZED);
+      }
     }
 
     filterChain.doFilter(request, response);

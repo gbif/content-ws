@@ -110,10 +110,9 @@ public class EventsResource {
     this.configuration = configuration;
   }
 
-  // TODO: 06/07/2020 produces ical only (or both ical and json)
   // TODO: 06/07/2020 path with extension
   // TODO: 06/07/2020 Timed
-  // TODO: 06/07/2020 application/atom+xml
+  // TODO: 06/07/2020 produce application/atom+xml and text/iCal
 
   /**
    * Upcoming events in iCal format.
@@ -121,7 +120,6 @@ public class EventsResource {
   @Timed
   @GetMapping(
       path = "events/calendar/upcoming.ics",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MEDIA_TYPE_ICAL)
   public String getUpcomingEventsICal() {
     ICalendar iCal = new ICalendar();
@@ -137,7 +135,6 @@ public class EventsResource {
   @Timed
   @GetMapping(
       path = "events/upcoming.xml",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getUpComingEvents() {
     return toXmlAtomFeed(newEventsFeed(), UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex());
@@ -149,7 +146,6 @@ public class EventsResource {
   @Timed
   @GetMapping(
       path = "events/{eventId}",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MEDIA_TYPE_ICAL)
   public String getEvent(@PathVariable("eventId") String eventId) {
     ICalendar iCal = new ICalendar();
@@ -165,7 +161,6 @@ public class EventsResource {
   @Timed
   @GetMapping(
       path = "news/rss",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getNews() {
     return toXmlAtomFeed(newNewsFeed(), null, CREATED_AT_FIELD, configuration.getEsNewsIndex());
@@ -177,7 +172,6 @@ public class EventsResource {
   @Timed
   @GetMapping(
       path = "news/rss/{gbifRegion}",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getNewsByRegion(@PathVariable("gbifRegion") String region) {
     return toXmlAtomFeed(newNewsFeed(), QueryBuilders.termQuery(GBIF_REGION_FIELD, region), CREATED_AT_FIELD, configuration.getEsNewsIndex());
@@ -189,7 +183,6 @@ public class EventsResource {
   @Timed
   @GetMapping(
       path = "news/rss/{acronym}/{language}",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getProgramNews(@PathVariable("acronym") String acronym, @PathVariable("language") String language) {
     return toXmlAtomFeed(newNewsFeed(), programmeQuery(acronym), CREATED_AT_FIELD, configuration.getEsNewsIndex(), getLocale(language));
@@ -201,7 +194,6 @@ public class EventsResource {
   @Timed
   @GetMapping(
       path = "news/json/{acronym}/{language}",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public List<SyndEntry> getProgrammeNewsJson(@PathVariable("acronym") String acronym,
                                               @PathVariable("language") String language) {
@@ -218,7 +210,6 @@ public class EventsResource {
   @Timed
   @GetMapping(
       path = "uses/rss",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getDataUses() {
     return toXmlAtomFeed(newNewsFeed(), null, CREATED_AT_FIELD, configuration.getEsDataUseIndex());
