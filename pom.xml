@@ -34,8 +34,12 @@
     <jdkLevel>1.8</jdkLevel>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
     <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
+    <spring-cloud-zookeeper.version>2.2.0.RELEASE</spring-cloud-zookeeper.version>
+    <zookeeper.version>3.4.14</zookeeper.version>
     <slf4j.version>1.7.18</slf4j.version>
-    <logback.version>1.1.6</logback.version>
+    <logback.version>1.2.3</logback.version>
+    <janino-logback.version>2.5.10</janino-logback.version>
+    <logstash-logback-encoder.version>4.11</logstash-logback-encoder.version>
     <log4j.version>2.8</log4j.version>
     <logstash-encoder.version>4.11</logstash-encoder.version>
     <guava.version>19.0</guava.version>
@@ -189,8 +193,38 @@
       <artifactId>spring-boot-configuration-processor</artifactId>
       <optional>true</optional>
     </dependency>
-
-    <!-- GBIF dependencies -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+      <version>${spring-cloud-zookeeper.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.zookeeper</groupId>
+          <artifactId>zookeeper</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-starter-netflix-archaius</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-netflix-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
+      <version>${spring-cloud-zookeeper.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>net.sf.biweekly</groupId>
@@ -211,17 +245,6 @@
       <groupId>io.dropwizard</groupId>
       <artifactId>dropwizard-lifecycle</artifactId>
       <version>${dropwizard.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logback.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.logstash.logback</groupId>
-      <artifactId>logstash-logback-encoder</artifactId>
-      <version>${logstash-encoder.version}</version>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>io.dropwizard</groupId>
@@ -261,6 +284,28 @@
     </dependency>
 
     <dependency>
+      <groupId>janino</groupId>
+      <artifactId>janino</artifactId>
+      <version>${janino-logback.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.logstash.logback</groupId>
+      <artifactId>logstash-logback-encoder</artifactId>
+      <version>${logstash-logback-encoder.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
@@ -278,19 +323,18 @@
       <version>${rome.version}</version>
     </dependency>
 
-    <!-- For lifecycle -->
-<!--    <dependency>-->
-<!--      <groupId>org.apache.maven</groupId>-->
-<!--      <artifactId>maven-core</artifactId>-->
-<!--      <version>${maven-core.version}</version>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>org.apache.maven</groupId>-->
-<!--      <artifactId>maven-model</artifactId>-->
-<!--      <version>${maven-model.version}</version>-->
-<!--    </dependency>-->
-
     <!-- Curator for talking to Zookeeper, for lifecycle -->
+    <dependency>
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>${zookeeper.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
     <dependency>
       <groupId>org.apache.curator</groupId>
       <artifactId>curator-client</artifactId>
