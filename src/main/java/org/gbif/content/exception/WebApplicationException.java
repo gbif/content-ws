@@ -1,4 +1,4 @@
-package org.gbif.content.utils;
+package org.gbif.content.exception;
 
 import org.springframework.http.HttpStatus;
 

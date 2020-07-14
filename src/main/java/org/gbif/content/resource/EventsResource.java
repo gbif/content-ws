@@ -27,7 +27,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
-import org.gbif.content.utils.WebApplicationException;
+import org.gbif.content.exception.WebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -108,15 +108,6 @@ public class EventsResource {
   public EventsResource(Client esClient, ContentWsProperties configuration) {
     this.esClient = esClient;
     this.configuration = configuration;
-  }
-
-  // TODO: 06/07/2020 path with extension
-  // TODO: 06/07/2020 Timed
-  // TODO: 06/07/2020 produce application/atom+xml and text/iCal
-
-  @GetMapping("properties")
-  public ContentWsProperties getConfigurationProperties() {
-    return configuration;
   }
 
   /**
@@ -278,7 +269,6 @@ public class EventsResource {
     } catch (IOException | FeedException ex) {
       LOG.error("Error generating events RSS feed", ex);
 
-      // TODO: 06/07/2020 WebApplicationException(Status.ERROR) ???
       throw new WebApplicationException("Error generating events RSS feed", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
