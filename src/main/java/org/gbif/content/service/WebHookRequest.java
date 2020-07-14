@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 Global Biodiversity Information Facility (GBIF)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.content.service;
 
 import java.io.IOException;
@@ -17,8 +32,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class WebHookRequest {
 
-  private static final Map<String,Topic> TOPICS = Arrays.stream(Topic.values())
-    .collect(Collectors.toMap(Topic::getValue, Function.identity()));
+  private static final Map<String, Topic> TOPICS =
+      Arrays.stream(Topic.values()).collect(Collectors.toMap(Topic::getValue, Function.identity()));
 
   public static final String CONTENTFUL_TOPIC_HEADER = "X-Contentful-Topic";
 
@@ -26,7 +41,6 @@ public class WebHookRequest {
    * Recognized topics in the Webhook request.
    */
   public enum Topic {
-
     EntryPublish("ContentManagement.Entry.publish"),
     EntryUnPublish("ContentManagement.Entry.unpublish"),
     EntryDelete("ContentManagement.Entry.delete"),
@@ -45,7 +59,7 @@ public class WebHookRequest {
     }
   }
 
-  //Jackson mapper
+  // Jackson mapper
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   private String type;
@@ -56,7 +70,7 @@ public class WebHookRequest {
 
   private Topic topic;
 
-  private String env =  "dev'";
+  private String env = "dev'";
 
   /**
    * Element type to be modified.
@@ -131,14 +145,15 @@ public class WebHookRequest {
     try {
       WebHookRequest webHookRequest = new WebHookRequest();
       Optional.ofNullable(request.getHeader(CONTENTFUL_TOPIC_HEADER))
-        .map(TOPICS::get).ifPresent(webHookRequest::setTopic);
+          .map(TOPICS::get)
+          .ifPresent(webHookRequest::setTopic);
       JsonNode jsonWebHook = MAPPER.readTree(request.getInputStream());
       webHookRequest.setType(jsonWebHook.at("/sys/type").asText());
       webHookRequest.setId(jsonWebHook.at("/sys/id").asText());
       webHookRequest.setContentTypeId(jsonWebHook.at("/sys/contentType/sys/id").asText());
       webHookRequest.setEnv(Optional.ofNullable(request.getParameter("env")).orElse("dev"));
       return webHookRequest;
-    } catch(IOException ex) {
+    } catch (IOException ex) {
       throw new IllegalArgumentException(ex);
     }
   }

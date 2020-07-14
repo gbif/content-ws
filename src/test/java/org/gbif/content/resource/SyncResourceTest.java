@@ -1,12 +1,28 @@
+/*
+ * Copyright 2020 Global Biodiversity Information Facility (GBIF)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.content.resource;
 
-import org.elasticsearch.client.Client;
 import org.gbif.content.ContentWsApplication;
 import org.gbif.content.config.ContentWsProperties;
 import org.gbif.content.security.SyncAuthenticationFilter;
 import org.gbif.content.service.JenkinsJobClient;
 import org.gbif.content.service.WebHookRequest;
 import org.gbif.content.utils.Paths;
+
+import org.elasticsearch.client.Client;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,16 +63,15 @@ public class SyncResourceTest {
   @Qualifier("searchClient")
   private Client searchIndex;
 
-  @Autowired
-  private ContentWsProperties properties;
+  @Autowired private ContentWsProperties properties;
 
   @BeforeEach
   public void setup() {
     MockitoAnnotations.initMocks(this);
-    this.mockMvc = MockMvcBuilders.standaloneSetup(
-        new SyncResource(jenkinsJobMock(), searchIndex, properties))
-        .addFilters(new SyncAuthenticationFilter(properties.getSynchronization().getToken()))
-        .build();
+    this.mockMvc =
+        MockMvcBuilders.standaloneSetup(new SyncResource(jenkinsJobMock(), searchIndex, properties))
+            .addFilters(new SyncAuthenticationFilter(properties.getSynchronization().getToken()))
+            .build();
   }
 
   /**
@@ -80,25 +95,29 @@ public class SyncResourceTest {
    */
   @Test
   public void testSync() throws Exception {
-    mockMvc.perform(
-        post(Paths.SYNC_RESOURCE_PATH)
-            .param("env", "dev")
-            .content("{" +
-                "\"sys\": {\n" +
-                "      \"type\": \"Entry\",\n" +
-                "     \"contentType\": {\n" +
-                "        \"sys\": {\n" +
-                "           \"type\": \"Link\",\n" +
-                "            \"linkType\": \"ContentType\",\n" +
-                "           \"id\": \"DataUse\"\n" +
-                "        }\n" +
-                "      },\n" +
-                "      \"id\": \"82531\"\n" +
-                "   }" +
-                "}")
-            .contentType(SyncResource.CONTENTFUL_CONTENT_TYPE)
-            .header(HttpHeaders.AUTHORIZATION, getAuthCredentials())
-            .header(WebHookRequest.CONTENTFUL_TOPIC_HEADER, WebHookRequest.Topic.EntryPublish.getValue())
-    ).andExpect(status().isAccepted());
+    mockMvc
+        .perform(
+            post(Paths.SYNC_RESOURCE_PATH)
+                .param("env", "dev")
+                .content(
+                    "{"
+                        + "\"sys\": {\n"
+                        + "      \"type\": \"Entry\",\n"
+                        + "     \"contentType\": {\n"
+                        + "        \"sys\": {\n"
+                        + "           \"type\": \"Link\",\n"
+                        + "            \"linkType\": \"ContentType\",\n"
+                        + "           \"id\": \"DataUse\"\n"
+                        + "        }\n"
+                        + "      },\n"
+                        + "      \"id\": \"82531\"\n"
+                        + "   }"
+                        + "}")
+                .contentType(SyncResource.CONTENTFUL_CONTENT_TYPE)
+                .header(HttpHeaders.AUTHORIZATION, getAuthCredentials())
+                .header(
+                    WebHookRequest.CONTENTFUL_TOPIC_HEADER,
+                    WebHookRequest.Topic.EntryPublish.getValue()))
+        .andExpect(status().isAccepted());
   }
 }
