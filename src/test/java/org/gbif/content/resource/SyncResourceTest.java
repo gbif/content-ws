@@ -2,7 +2,7 @@ package org.gbif.content.resource;
 
 import org.elasticsearch.client.Client;
 import org.gbif.content.ContentWsApplication;
-import org.gbif.content.config.ContentWsConfigurationProperties;
+import org.gbif.content.config.ContentWsProperties;
 import org.gbif.content.security.SyncAuthenticationFilter;
 import org.gbif.content.service.JenkinsJobClient;
 import org.gbif.content.service.WebHookRequest;
@@ -48,7 +48,7 @@ public class SyncResourceTest {
   private Client searchIndex;
 
   @Autowired
-  private ContentWsConfigurationProperties properties;
+  private ContentWsProperties properties;
 
   @BeforeEach
   public void setup() {

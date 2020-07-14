@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class EsConfiguration {
 
-  private final ContentWsConfigurationProperties properties;
+  private final ContentWsProperties properties;
 
-  public EsConfiguration(ContentWsConfigurationProperties properties) {
+  public EsConfiguration(ContentWsProperties properties) {
     this.properties = properties;
   }
 

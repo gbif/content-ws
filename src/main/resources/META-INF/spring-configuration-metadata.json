@@ -2,75 +2,52 @@
   "groups": [
     {
       "name": "content",
-      "type": "org.gbif.content.config.ContentWsConfigurationProperties",
-      "sourceType": "org.gbif.content.config.ContentWsConfigurationProperties"
+      "type": "org.gbif.content.config.ContentWsProperties",
+      "sourceType": "org.gbif.content.config.ContentWsProperties"
     },
     {
       "name": "content.elasticSearch",
-      "type": "org.gbif.content.config.ContentWsConfigurationProperties",
+      "type": "org.gbif.content.config.ContentWsProperties",
       "sourceType": "org.gbif.content.config.ElasticSearchProperties",
       "sourceMethod": "getElasticSearch()"
     },
     {
       "name": "content.synchronization",
-      "type": "org.gbif.content.config.ContentWsConfigurationProperties",
-      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties",
+      "type": "org.gbif.content.config.ContentWsProperties",
+      "sourceType": "org.gbif.content.config.SynchronizationProperties",
       "sourceMethod": "getSynchronization()"
-    },
-
-    {
-      "name": "organization.surety.mail",
-      "type": "org.gbif.registry.mail.config.OrganizationSuretyMailConfigurationProperties",
-      "sourceType": "org.gbif.registry.mail.config.OrganizationSuretyMailConfigurationProperties"
-    },
-    {
-      "name": "organization.surety.mail.urlTemplate",
-      "type": "org.gbif.registry.mail.config.OrganizationSuretyMailConfigurationProperties",
-      "sourceType": "org.gbif.registry.mail.config.OrganizationSuretyMailConfigurationProperties$UrlTemplateProperties",
-      "sourceMethod": "getUrlTemplate()"
-    },
-    {
-      "name": "identity.surety.mail",
-      "type": "org.gbif.registry.mail.config.IdentitySuretyMailConfigurationProperties",
-      "sourceType": "org.gbif.registry.mail.config.IdentitySuretyMailConfigurationProperties"
-    },
-    {
-      "name": "identity.surety.mail.urlTemplate",
-      "type": "org.gbif.registry.mail.config.IdentitySuretyMailConfigurationProperties",
-      "sourceType": "org.gbif.registry.mail.config.IdentitySuretyMailConfigurationProperties$UrlTemplateProperties",
-      "sourceMethod": "getUrlTemplate()"
     }
   ],
   "properties": [
     {
       "name": "content.esNewsIndex",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.ContentWsConfigurationProperties"
+      "sourceType": "org.gbif.content.config.ContentWsProperties"
     },
     {
       "name": "content.esEventsIndex",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.ContentWsConfigurationProperties"
+      "sourceType": "org.gbif.content.config.ContentWsProperties"
     },
     {
       "name": "content.esDataUseIndex",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.ContentWsConfigurationProperties"
+      "sourceType": "org.gbif.content.config.ContentWsProperties"
     },
     {
       "name": "content.gbifPortalUrl",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.ContentWsConfigurationProperties"
+      "sourceType": "org.gbif.content.config.ContentWsProperties"
     },
     {
       "name": "content.esProgrammeIndex",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.ContentWsConfigurationProperties"
+      "sourceType": "org.gbif.content.config.ContentWsProperties"
     },
     {
       "name": "content.defaultLocale",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.ContentWsConfigurationProperties"
+      "sourceType": "org.gbif.content.config.ContentWsProperties"
     },
     {
       "name": "content.elasticSearch.host",
@@ -90,27 +67,27 @@
     {
       "name": "content.synchronization.jenkinsJobUrl",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties"
+      "sourceType": "org.gbif.content.config.SynchronizationProperties"
     },
     {
       "name": "content.synchronization.token",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties"
+      "sourceType": "org.gbif.content.config.SynchronizationProperties"
     },
     {
       "name": "content.synchronization.command",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties"
+      "sourceType": "org.gbif.content.config.SynchronizationProperties"
     },
     {
       "name": "content.synchronization.repository",
       "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties"
+      "sourceType": "org.gbif.content.config.SynchronizationProperties"
     },
     {
       "name": "content.synchronization.indexes",
       "type": "java.util.Map",
-      "sourceType": "org.gbif.content.config.SynchronizationConfigurationProperties"
+      "sourceType": "org.gbif.content.config.SynchronizationProperties"
     }
   ]
 }

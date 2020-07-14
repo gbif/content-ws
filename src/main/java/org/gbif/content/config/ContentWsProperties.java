@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConfigurationProperties(prefix = "content")
-public class ContentWsConfigurationProperties {
+public class ContentWsProperties {
 
   private String esNewsIndex = "news";
 
@@ -22,7 +22,7 @@ public class ContentWsConfigurationProperties {
 
   private String gbifPortalUrl = "http://www.gbif.org/";
 
-  private SynchronizationConfigurationProperties synchronization;
+  private SynchronizationProperties synchronization;
 
   private ElasticSearchProperties elasticSearch;
 
@@ -66,11 +66,11 @@ public class ContentWsConfigurationProperties {
     this.defaultLocale = defaultLocale;
   }
 
-  public SynchronizationConfigurationProperties getSynchronization() {
+  public SynchronizationProperties getSynchronization() {
     return synchronization;
   }
 
-  public void setSynchronization(SynchronizationConfigurationProperties synchronization) {
+  public void setSynchronization(SynchronizationProperties synchronization) {
     this.synchronization = synchronization;
   }
 

@@ -1,6 +1,6 @@
 package org.gbif.content.resource;
 
-import org.gbif.content.config.ContentWsConfigurationProperties;
+import org.gbif.content.config.ContentWsProperties;
 import org.gbif.content.service.JenkinsJobClient;
 import org.gbif.content.service.WebHookRequest;
 import org.gbif.content.service.WebHookRequest.Topic;
@@ -46,7 +46,7 @@ public class SyncResource {
   public SyncResource(
       JenkinsJobClient jenkinsJobClient,
       Client searchIndex,
-      ContentWsConfigurationProperties properties) {
+      ContentWsProperties properties) {
     this.jenkinsJobClient = jenkinsJobClient;
     this.esClients = buildEsClients(properties, searchIndex);
   }
@@ -55,7 +55,7 @@ public class SyncResource {
    * Builds the ElasticSearch clients used for the synchronization service.
    * The default client if the same ElasticSearch server is configured as a sync index
    */
-  private static Map<String, Client> buildEsClients(ContentWsConfigurationProperties properties, Client defaultClient) {
+  private static Map<String, Client> buildEsClients(ContentWsProperties properties, Client defaultClient) {
     return properties.getSynchronization().getIndexes()
         .entrySet().stream()
         .collect(Collectors.toMap(Map.Entry::getKey,

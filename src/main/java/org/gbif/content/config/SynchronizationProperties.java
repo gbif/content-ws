@@ -10,7 +10,7 @@ import java.util.Map;
  */
 @Component
 @ConfigurationProperties(prefix = "content.synchronization")
-public class SynchronizationConfigurationProperties {
+public class SynchronizationProperties {
 
   private String jenkinsJobUrl = "http://builds.gbif.org/job/run-content-crawler/buildWithParameters";
 

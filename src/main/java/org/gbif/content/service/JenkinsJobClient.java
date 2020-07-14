@@ -1,7 +1,7 @@
 package org.gbif.content.service;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.gbif.content.config.SynchronizationConfigurationProperties;
+import org.gbif.content.config.SynchronizationProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +24,13 @@ public class JenkinsJobClient {
   public static final String CMD_PARAM = "command";
   public static final String REPOSITORY_PARAM = "repository";
 
-  private final SynchronizationConfigurationProperties syncConfig;
+  private final SynchronizationProperties syncProperties;
 
   /**
-   * @param syncConfig url to the Jenkins job
+   * @param syncProperties url to the Jenkins job
    */
-  public JenkinsJobClient(SynchronizationConfigurationProperties syncConfig) {
-    this.syncConfig = syncConfig;
+  public JenkinsJobClient(SynchronizationProperties syncProperties) {
+    this.syncProperties = syncProperties;
   }
 
   /**
@@ -60,10 +60,10 @@ public class JenkinsJobClient {
    * Creates a Url instance to the Jenkins job.
    */
   public URL buildJenkinsJobUrl(String environment) throws URISyntaxException, MalformedURLException {
-    return new URIBuilder(syncConfig.getJenkinsJobUrl())
-        .addParameter(TOKEN_PARAM, syncConfig.getToken())
-        .addParameter(CMD_PARAM, syncConfig.getCommand())
-        .addParameter(REPOSITORY_PARAM, syncConfig.getRepository())
+    return new URIBuilder(syncProperties.getJenkinsJobUrl())
+        .addParameter(TOKEN_PARAM, syncProperties.getToken())
+        .addParameter(CMD_PARAM, syncProperties.getCommand())
+        .addParameter(REPOSITORY_PARAM, syncProperties.getRepository())
         .addParameter(ENV_PARAM, environment).build().toURL();
   }
 }
