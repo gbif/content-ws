@@ -114,6 +114,11 @@ public class EventsResource {
   // TODO: 06/07/2020 Timed
   // TODO: 06/07/2020 produce application/atom+xml and text/iCal
 
+  @GetMapping("properties")
+  public ContentWsProperties getConfigurationProperties() {
+    return configuration;
+  }
+
   /**
    * Upcoming events in iCal format.
    */
