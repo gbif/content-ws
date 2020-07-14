@@ -14,6 +14,9 @@ public class WebApplicationExceptionMapper {
 
   @ExceptionHandler({WebApplicationException.class})
   public ResponseEntity<?> handleWebApplicationException(WebApplicationException e) {
-    return ResponseEntity.status(e.getStatus()).contentType(MediaType.TEXT_PLAIN).body(e.getMessage());
+    return ResponseEntity
+        .status(e.getStatus())
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(new ErrorResponse(e.getStatus(), e.getMessage()));
   }
 }
