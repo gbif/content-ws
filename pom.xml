@@ -44,8 +44,6 @@
     <logstash-encoder.version>4.11</logstash-encoder.version>
     <guava.version>19.0</guava.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
-    <junit.version>4.12</junit.version>
-    <mockito.version>1.10.19</mockito.version>
     <biweekly.version>0.6.1</biweekly.version>
     <elasticsearch.version>5.2.2</elasticsearch.version>
     <rome.version>1.0</rome.version>
@@ -390,9 +388,18 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
