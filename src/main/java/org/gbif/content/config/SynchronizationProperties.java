@@ -15,10 +15,10 @@
  */
 package org.gbif.content.config;
 
+import java.util.Map;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 /**
  * Configuration settings to synchronize Contentful data into ElasticSearch.
