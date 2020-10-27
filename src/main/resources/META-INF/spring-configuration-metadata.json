@@ -8,8 +8,8 @@
     {
       "name": "content.elasticSearch",
       "type": "org.gbif.content.config.ContentWsProperties",
-      "sourceType": "org.gbif.content.config.ElasticSearchProperties",
-      "sourceMethod": "getElasticSearch()"
+      "sourceType": "org.gbif.content.config.ElasticsearchProperties",
+      "sourceMethod": "getElasticsearch()"
     },
     {
       "name": "content.synchronization",

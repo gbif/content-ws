@@ -15,9 +15,12 @@
  */
 package org.gbif.content.config;
 
+import lombok.Data;
+
 /**
  * Content Web Service configuration class.
  */
+@Data
 public class ContentWsProperties {
 
   private String esNewsIndex = "news";
@@ -36,67 +39,4 @@ public class ContentWsProperties {
 
   private ElasticsearchProperties elasticsearch;
 
-  public String getEsNewsIndex() {
-    return esNewsIndex;
-  }
-
-  public void setEsNewsIndex(String esNewsIndex) {
-    this.esNewsIndex = esNewsIndex;
-  }
-
-  public String getEsEventsIndex() {
-    return esEventsIndex;
-  }
-
-  public void setEsEventsIndex(String esEventsIndex) {
-    this.esEventsIndex = esEventsIndex;
-  }
-
-  public String getEsDataUseIndex() {
-    return esDataUseIndex;
-  }
-
-  public void setEsDataUseIndex(String esDataUseIndex) {
-    this.esDataUseIndex = esDataUseIndex;
-  }
-
-  public String getEsProgrammeIndex() {
-    return esProgrammeIndex;
-  }
-
-  public void setEsProgrammeIndex(String esProgrammeIndex) {
-    this.esProgrammeIndex = esProgrammeIndex;
-  }
-
-  public String getDefaultLocale() {
-    return defaultLocale;
-  }
-
-  public void setDefaultLocale(String defaultLocale) {
-    this.defaultLocale = defaultLocale;
-  }
-
-  public SynchronizationProperties getSynchronization() {
-    return synchronization;
-  }
-
-  public void setSynchronization(SynchronizationProperties synchronization) {
-    this.synchronization = synchronization;
-  }
-
-  public ElasticsearchProperties getElasticsearch() {
-    return elasticsearch;
-  }
-
-  public void setElasticsearch(ElasticsearchProperties elasticsearch) {
-    this.elasticsearch = elasticsearch;
-  }
-
-  public String getGbifPortalUrl() {
-    return gbifPortalUrl;
-  }
-
-  public void setGbifPortalUrl(String gbifPortalUrl) {
-    this.gbifPortalUrl = gbifPortalUrl;
-  }
 }

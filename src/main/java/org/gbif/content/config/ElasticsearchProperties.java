@@ -23,7 +23,7 @@ import lombok.Data;
 @Data
 public class ElasticsearchProperties {
 
-  private String host = "localhost";
+  private String host = "http://localhost:9200";
 
   private int connectionTimeOut = 180_000;
 

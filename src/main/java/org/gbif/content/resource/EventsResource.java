@@ -167,7 +167,8 @@ public class EventsResource {
                                             configuration.getDefaultLocale()));
       return Biweekly.write(iCal).go();
     } catch (IOException ex) {
-      throw new RuntimeException(ex);
+      LOG.error("Error getting event detail", ex);
+      throw new WebApplicationException("Error getting EventDetail", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -316,7 +317,7 @@ public class EventsResource {
   /**
    * Executes the default search query.
    */
-  private SearchResponse executeQuery(String query, QueryBuilder filter, String dateSortField, String idxName){
+  private SearchResponse executeQuery(String query, QueryBuilder filter, String dateSortField, String idxName) {
     try {
       BoolQueryBuilder queryBuilder =
         QueryBuilders.boolQuery().filter(SEARCHABLE).must(query == null ? QueryBuilders.matchAllQuery() : QueryBuilders.wrapperQuery(query));
@@ -329,6 +330,7 @@ public class EventsResource {
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
+
   }
 
   /**

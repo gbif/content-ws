@@ -17,6 +17,7 @@ package org.gbif.content.config;
 
 import java.util.Map;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -25,72 +26,34 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConfigurationProperties(prefix = "content.synchronization")
+@Data
 public class SynchronizationProperties {
 
+  /**
+   * URL to the Jenkins job that runs a full syncronization.
+   */
   private String jenkinsJobUrl =
       "https://builds.gbif.org/job/run-content-crawler/buildWithParameters";
 
+  /**
+   * Jenkins job security token.
+   */
   private String token;
 
+  /**
+   * Command parameter of the Jenkins sync job.
+   */
   private String command = "contentful-crawl";
 
+  /**
+   * Command parameter to set the Nexus repository.
+   */
   private String repository = "snapshots";
 
   private Map<String, ElasticsearchProperties> indexes;
-
-  public Map<String, ElasticsearchProperties> getIndexes() {
-    return indexes;
-  }
-
-  public void setIndexes(Map<String, ElasticsearchProperties> indexes) {
-    this.indexes = indexes;
-  }
 
   public ElasticsearchProperties getIndex(String env) {
     return indexes.get(env);
   }
 
-  /**
-   * URL to the Jenkins job that runs a full syncronization.
-   */
-  public String getJenkinsJobUrl() {
-    return jenkinsJobUrl;
-  }
-
-  public void setJenkinsJobUrl(String jenkinsJobUrl) {
-    this.jenkinsJobUrl = jenkinsJobUrl;
-  }
-
-  /**
-   * Jenkins job security token.
-   */
-  public String getToken() {
-    return token;
-  }
-
-  public void setToken(String token) {
-    this.token = token;
-  }
-
-  /**
-   * Command parameter of the Jenkins sync job.
-   */
-  public String getCommand() {
-    return command;
-  }
-
-  public void setCommand(String command) {
-    this.command = command;
-  }
-
-  /**
-   * Command parameter to set the Nexus repository.
-   */
-  public String getRepository() {
-    return repository;
-  }
-
-  public void setRepository(String repository) {
-    this.repository = repository;
-  }
 }
