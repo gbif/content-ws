@@ -56,7 +56,7 @@ public class ConversionUtil {
    */
   public static SyndEntry toFeedEntry(SearchHit searchHit, String locale, String altBaseLink) {
     SyndEntry entry = new SyndEntryImpl();
-    Map<String, Object> source = searchHit.getSource();
+    Map<String, Object> source = searchHit.getSourceAsMap();
     getField(source, "title", locale).ifPresent(entry::setTitle);
     SyndContent description = new SyndContentImpl();
     description.setType("text/html");
@@ -68,11 +68,10 @@ public class ConversionUtil {
     entry.setDescription(description);
     entry.setLink(
         getNestedField(source, "primaryLink", "url", locale)
-            .orElseGet(() -> altBaseLink + '/' + searchHit.id()));
+            .orElseGet(() -> altBaseLink + '/' + searchHit.getId()));
     entry.setPublishedDate(
         DEFAULT_DATE_TIME_FORMATTER
-            .parser()
-            .parseDateTime((String) source.get("createdAt"))
+            .parseJoda((String) source.get("createdAt"))
             .toDate());
     return entry;
   }
@@ -81,10 +80,10 @@ public class ConversionUtil {
    * Transforms a SearchHit into a VEvent instance.
    */
   public static VEvent toVEvent(SearchHit searchHit, String locale) {
-    Map<String, Object> source = searchHit.getSource();
+    Map<String, Object> source = searchHit.getSourceAsMap();
     return toVEvent(
         Optional.ofNullable(source.get("id")).map(id -> (String) id).orElse(""),
-        searchHit.getSource(),
+        searchHit.getSourceAsMap(),
         locale);
   }
 

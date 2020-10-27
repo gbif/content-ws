@@ -22,7 +22,7 @@ import org.gbif.content.service.JenkinsJobClient;
 import org.gbif.content.service.WebHookRequest;
 import org.gbif.content.utils.Paths;
 
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,7 +61,7 @@ public class SyncResourceTest {
 
   @Autowired
   @Qualifier("searchClient")
-  private Client searchIndex;
+  private RestHighLevelClient searchIndex;
 
   @Autowired private ContentWsProperties properties;
 

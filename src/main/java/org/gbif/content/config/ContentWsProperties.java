@@ -15,14 +15,9 @@
  */
 package org.gbif.content.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
-
 /**
  * Content Web Service configuration class.
  */
-@Component
-@ConfigurationProperties(prefix = "content")
 public class ContentWsProperties {
 
   private String esNewsIndex = "news";
@@ -39,7 +34,7 @@ public class ContentWsProperties {
 
   private SynchronizationProperties synchronization;
 
-  private ElasticSearchProperties elasticSearch;
+  private ElasticsearchProperties elasticsearch;
 
   public String getEsNewsIndex() {
     return esNewsIndex;
@@ -89,12 +84,12 @@ public class ContentWsProperties {
     this.synchronization = synchronization;
   }
 
-  public ElasticSearchProperties getElasticSearch() {
-    return elasticSearch;
+  public ElasticsearchProperties getElasticsearch() {
+    return elasticsearch;
   }
 
-  public void setElasticSearch(ElasticSearchProperties elasticSearch) {
-    this.elasticSearch = elasticSearch;
+  public void setElasticsearch(ElasticsearchProperties elasticsearch) {
+    this.elasticsearch = elasticsearch;
   }
 
   public String getGbifPortalUrl() {

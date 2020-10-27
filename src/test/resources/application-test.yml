@@ -1,12 +1,9 @@
 content:
-  elasticSearch:
-    host: localhost
-    port: 9300
-    cluster: content-cluster
-
   esNewsIndex: "news"
   esEventsIndex: "event"
   esDataUseIndex: "datause"
+  elasticsearch:
+    host: http://localhost:9200
   synchronization:
     token: ILoveMorten
     command: contentful-crawl
@@ -14,11 +11,7 @@ content:
     repository: snapshots
     indexes:
       env:
-        host: localhost
-        port: 9300
-        cluster: content-cluster
+        host: http://localhost:9200
 
       env2:
-        host: localhost
-        port: 9300
-        cluster: content-cluster
+        host: http://localhost:9200

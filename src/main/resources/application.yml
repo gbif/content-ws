@@ -1,15 +1,13 @@
+spring:
+  application.name: content-ws
 content:
-
-  defaultLocale: "en-GB"
   esNewsIndex: "news"
   esEventsIndex: "event"
   esDataUseIndex: "datause"
-  esProgrammeIndex:
+  esProgrammeIndex: "program"
 
-  elasticSearch:
-    host: localhost
-    port: 9300
-    cluster: content-cluster
+  elasticsearch:
+    host: http://cms-search.gbif-dev.org:9200
 
   synchronization:
     token: ILoveMorten

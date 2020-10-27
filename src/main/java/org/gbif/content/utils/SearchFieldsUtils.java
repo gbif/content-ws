@@ -81,7 +81,7 @@ public class SearchFieldsUtils {
    */
   public static Optional<Date> getDateField(Map<String, Object> source, String field) {
     return getField(source, field)
-        .map(value -> DEFAULT_DATE_TIME_FORMATTER.parser().parseDateTime(value).toDate());
+        .map(value -> DEFAULT_DATE_TIME_FORMATTER.parseJoda(value).toDate());
   }
 
   /**

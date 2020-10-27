@@ -15,13 +15,17 @@
  */
 package org.gbif.content.health;
 
+import java.io.IOException;
 import java.util.Map;
 
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 
 import com.codahale.metrics.health.HealthCheck;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /**
  * Checks that the ElasticSearch cluster is healthy and responding.
@@ -32,13 +36,13 @@ public class SearchHealthCheck extends HealthCheck {
   private static final String CONTENT_IDX = "content";
 
   // ElasticSearch client
-  private final Map<String, Client> esClients;
+  private final Map<String, RestHighLevelClient> esClients;
 
   /**
    *
    * @param esClients ElasticSearch client
    */
-  public SearchHealthCheck(Map<String, Client> esClients) {
+  public SearchHealthCheck(Map<String, RestHighLevelClient> esClients) {
     this.esClients = esClients;
   }
 
@@ -54,16 +58,15 @@ public class SearchHealthCheck extends HealthCheck {
         .values()
         .forEach(
             esClient -> {
-              SearchResponse response =
-                  esClient
-                      .prepareSearch(CONTENT_IDX)
-                      .setQuery(QueryBuilders.matchAllQuery())
-                      .setSize(0)
-                      .get();
-              if (response.getFailedShards() > 0) {
-                Result.unhealthy(
-                    "Some shards reported errors performing a search all operation %s",
-                    response.getShardFailures());
+              try {
+                SearchResponse response =
+                  esClient.search(new SearchRequest().indices(CONTENT_IDX).source(new SearchSourceBuilder().size(0).query(QueryBuilders.matchAllQuery())),
+                                  RequestOptions.DEFAULT);
+                if (response.getFailedShards() > 0) {
+                  Result.unhealthy("Some shards reported errors performing a search all operation %s", response.getShardFailures());
+                }
+              } catch (IOException ex) {
+                Result.unhealthy(ex);
               }
             });
     return Result.healthy();

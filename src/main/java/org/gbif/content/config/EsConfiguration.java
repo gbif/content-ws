@@ -15,21 +15,43 @@
  */
 package org.gbif.content.config;
 
-import org.elasticsearch.client.Client;
+import java.net.URL;
+
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.NodeSelector;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class EsConfiguration {
 
-  private final ContentWsProperties properties;
-
-  public EsConfiguration(ContentWsProperties properties) {
-    this.properties = properties;
+  @Bean
+  public RestHighLevelClient searchClient(ContentWsProperties properties) {
+    return searchClient(properties.getElasticsearch());
   }
 
+  @ConfigurationProperties(prefix = "content")
   @Bean
-  public Client searchClient() {
-    return properties.getElasticSearch().buildEsClient();
+  public ContentWsProperties contentWsProperties() {
+    return new ContentWsProperties();
+  }
+
+  public static RestHighLevelClient searchClient(ElasticsearchProperties properties) {
+    try {
+      URL urlHost = new URL(properties.getHost());
+      HttpHost host = new HttpHost(urlHost.getHost(), urlHost.getPort(), urlHost.getProtocol());
+      return new RestHighLevelClient(RestClient.builder(host)
+                                       .setRequestConfigCallback(requestConfigBuilder ->
+                                                                   requestConfigBuilder
+                                                                     .setConnectTimeout(properties.getConnectionTimeOut())
+                                                                     .setSocketTimeout(properties.getSocketTimeOut())
+                                                                     .setConnectionRequestTimeout(properties.getConnectionRequestTimeOut()))
+                                       .setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS));
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
   }
 }

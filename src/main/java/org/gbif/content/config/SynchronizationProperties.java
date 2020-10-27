@@ -36,17 +36,17 @@ public class SynchronizationProperties {
 
   private String repository = "snapshots";
 
-  private Map<String, ElasticSearchProperties> indexes;
+  private Map<String, ElasticsearchProperties> indexes;
 
-  public Map<String, ElasticSearchProperties> getIndexes() {
+  public Map<String, ElasticsearchProperties> getIndexes() {
     return indexes;
   }
 
-  public void setIndexes(Map<String, ElasticSearchProperties> indexes) {
+  public void setIndexes(Map<String, ElasticsearchProperties> indexes) {
     this.indexes = indexes;
   }
 
-  public ElasticSearchProperties getIndex(String env) {
+  public ElasticsearchProperties getIndex(String env) {
     return indexes.get(env);
   }
 

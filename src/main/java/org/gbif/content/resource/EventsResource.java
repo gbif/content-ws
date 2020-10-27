@@ -27,13 +27,17 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.util.LocaleUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +88,7 @@ public class EventsResource {
 
   private static final String MEDIA_TYPE_ICAL = "text/iCal";
 
-  private final Client esClient;
+  private final RestHighLevelClient esClient;
 
   private final ContentWsProperties configuration;
 
@@ -120,7 +124,7 @@ public class EventsResource {
    * @param esClient      ElasticSearch client
    * @param configuration configuration settings
    */
-  public EventsResource(Client esClient, ContentWsProperties configuration) {
+  public EventsResource(RestHighLevelClient esClient, ContentWsProperties configuration) {
     this.esClient = esClient;
     this.configuration = configuration;
   }
@@ -157,12 +161,14 @@ public class EventsResource {
   @Timed
   @GetMapping(path = "events/{eventId}", produces = MEDIA_TYPE_ICAL)
   public String getEvent(@PathVariable("eventId") String eventId) {
-    ICalendar iCal = new ICalendar();
-    iCal.addEvent(
-        ConversionUtil.toVEvent(
-            esClient.prepareGet(configuration.getEsEventsIndex(), "content", eventId).get(),
-            configuration.getDefaultLocale()));
-    return Biweekly.write(iCal).go();
+    try {
+      ICalendar iCal = new ICalendar();
+      iCal.addEvent(ConversionUtil.toVEvent(esClient.get(new GetRequest().index(configuration.getEsEventsIndex()).id(eventId), RequestOptions.DEFAULT),
+                                            configuration.getDefaultLocale()));
+      return Biweekly.write(iCal).go();
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   /**
@@ -214,7 +220,7 @@ public class EventsResource {
     return Arrays.stream(
             executeQuery(programmeQuery(acronym), CREATED_AT_FIELD, configuration.getEsNewsIndex())
                 .getHits()
-                .hits())
+                .getHits())
         .map(
             searchHit ->
                 ConversionUtil.toFeedEntry(
@@ -290,7 +296,7 @@ public class EventsResource {
       SyndFeed feed, QueryBuilder filter, String dateSortField, String idxName, String locale) {
     try {
       feed.setEntries(
-          Arrays.stream(executeQuery(filter, dateSortField, idxName).getHits().hits())
+          Arrays.stream(executeQuery(filter, dateSortField, idxName).getHits().getHits())
               .map(
                   searchHit ->
                       ConversionUtil.toFeedEntry(
@@ -310,22 +316,19 @@ public class EventsResource {
   /**
    * Executes the default search query.
    */
-  private SearchResponse executeQuery(
-      String query, QueryBuilder filter, String dateSortField, String idxName) {
-    BoolQueryBuilder queryBuilder =
-        QueryBuilders.boolQuery()
-            .filter(SEARCHABLE)
-            .must(
-                query == null ? QueryBuilders.matchAllQuery() : QueryBuilders.wrapperQuery(query));
-    Optional.ofNullable(filter).ifPresent(queryBuilder::filter);
+  private SearchResponse executeQuery(String query, QueryBuilder filter, String dateSortField, String idxName){
+    try {
+      BoolQueryBuilder queryBuilder =
+        QueryBuilders.boolQuery().filter(SEARCHABLE).must(query == null ? QueryBuilders.matchAllQuery() : QueryBuilders.wrapperQuery(query));
+      Optional.ofNullable(filter).ifPresent(queryBuilder::filter);
 
-    return esClient
-        .prepareSearch(idxName)
-        .setQuery(queryBuilder)
-        .addSort(dateSortField, SortOrder.DESC)
-        .setSize(DEFAULT_SIZE)
-        .execute()
-        .actionGet();
+      return esClient.search(new SearchRequest().indices(idxName)
+                               .source(new SearchSourceBuilder().query(queryBuilder)
+                                         .sort(dateSortField, SortOrder.DESC)
+                                         .size(DEFAULT_SIZE)), RequestOptions.DEFAULT);
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   /**
