@@ -30,5 +30,4 @@ public class ElasticsearchProperties {
   private int socketTimeOut = 180_000;
 
   private int connectionRequestTimeOut = 180_000;
-
 }

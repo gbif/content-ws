@@ -23,9 +23,9 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import com.codahale.metrics.health.HealthCheck;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /**
  * Checks that the ElasticSearch cluster is healthy and responding.
@@ -60,10 +60,18 @@ public class SearchHealthCheck extends HealthCheck {
             esClient -> {
               try {
                 SearchResponse response =
-                  esClient.search(new SearchRequest().indices(CONTENT_IDX).source(new SearchSourceBuilder().size(0).query(QueryBuilders.matchAllQuery())),
-                                  RequestOptions.DEFAULT);
+                    esClient.search(
+                        new SearchRequest()
+                            .indices(CONTENT_IDX)
+                            .source(
+                                new SearchSourceBuilder()
+                                    .size(0)
+                                    .query(QueryBuilders.matchAllQuery())),
+                        RequestOptions.DEFAULT);
                 if (response.getFailedShards() > 0) {
-                  Result.unhealthy("Some shards reported errors performing a search all operation %s", response.getShardFailures());
+                  Result.unhealthy(
+                      "Some shards reported errors performing a search all operation %s",
+                      response.getShardFailures());
                 }
               } catch (IOException ex) {
                 Result.unhealthy(ex);

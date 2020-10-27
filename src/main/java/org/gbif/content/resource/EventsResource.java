@@ -163,8 +163,12 @@ public class EventsResource {
   public String getEvent(@PathVariable("eventId") String eventId) {
     try {
       ICalendar iCal = new ICalendar();
-      iCal.addEvent(ConversionUtil.toVEvent(esClient.get(new GetRequest().index(configuration.getEsEventsIndex()).id(eventId), RequestOptions.DEFAULT),
-                                            configuration.getDefaultLocale()));
+      iCal.addEvent(
+          ConversionUtil.toVEvent(
+              esClient.get(
+                  new GetRequest().index(configuration.getEsEventsIndex()).id(eventId),
+                  RequestOptions.DEFAULT),
+              configuration.getDefaultLocale()));
       return Biweekly.write(iCal).go();
     } catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -316,16 +320,27 @@ public class EventsResource {
   /**
    * Executes the default search query.
    */
-  private SearchResponse executeQuery(String query, QueryBuilder filter, String dateSortField, String idxName){
+  private SearchResponse executeQuery(
+      String query, QueryBuilder filter, String dateSortField, String idxName) {
     try {
       BoolQueryBuilder queryBuilder =
-        QueryBuilders.boolQuery().filter(SEARCHABLE).must(query == null ? QueryBuilders.matchAllQuery() : QueryBuilders.wrapperQuery(query));
+          QueryBuilders.boolQuery()
+              .filter(SEARCHABLE)
+              .must(
+                  query == null
+                      ? QueryBuilders.matchAllQuery()
+                      : QueryBuilders.wrapperQuery(query));
       Optional.ofNullable(filter).ifPresent(queryBuilder::filter);
 
-      return esClient.search(new SearchRequest().indices(idxName)
-                               .source(new SearchSourceBuilder().query(queryBuilder)
-                                         .sort(dateSortField, SortOrder.DESC)
-                                         .size(DEFAULT_SIZE)), RequestOptions.DEFAULT);
+      return esClient.search(
+          new SearchRequest()
+              .indices(idxName)
+              .source(
+                  new SearchSourceBuilder()
+                      .query(queryBuilder)
+                      .sort(dateSortField, SortOrder.DESC)
+                      .size(DEFAULT_SIZE)),
+          RequestOptions.DEFAULT);
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
