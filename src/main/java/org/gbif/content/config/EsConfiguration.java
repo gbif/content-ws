@@ -43,13 +43,15 @@ public class EsConfiguration {
     try {
       URL urlHost = new URL(properties.getHost());
       HttpHost host = new HttpHost(urlHost.getHost(), urlHost.getPort(), urlHost.getProtocol());
-      return new RestHighLevelClient(RestClient.builder(host)
-                                       .setRequestConfigCallback(requestConfigBuilder ->
-                                                                   requestConfigBuilder
-                                                                     .setConnectTimeout(properties.getConnectionTimeOut())
-                                                                     .setSocketTimeout(properties.getSocketTimeOut())
-                                                                     .setConnectionRequestTimeout(properties.getConnectionRequestTimeOut()))
-                                       .setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS));
+      return new RestHighLevelClient(
+          RestClient.builder(host)
+              .setRequestConfigCallback(
+                  requestConfigBuilder ->
+                      requestConfigBuilder
+                          .setConnectTimeout(properties.getConnectionTimeOut())
+                          .setSocketTimeout(properties.getSocketTimeOut())
+                          .setConnectionRequestTimeout(properties.getConnectionRequestTimeOut()))
+              .setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS));
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }

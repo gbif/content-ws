@@ -66,7 +66,9 @@ public class SyncResource {
    * Full constructor: requires the configuration object and an ElasticSearch client.
    */
   public SyncResource(
-      JenkinsJobClient jenkinsJobClient, RestHighLevelClient searchIndex, ContentWsProperties properties) {
+      JenkinsJobClient jenkinsJobClient,
+      RestHighLevelClient searchIndex,
+      ContentWsProperties properties) {
     this.jenkinsJobClient = jenkinsJobClient;
     this.esClients = buildEsClients(properties, searchIndex);
   }
@@ -120,9 +122,13 @@ public class SyncResource {
    */
   private ResponseEntity<?> deleteDocument(WebHookRequest webHookRequest) {
     try {
-      DeleteResponse deleteResponse = esClients.get(webHookRequest.getEnv())
-        .delete(new DeleteRequest(getEsIdxName(webHookRequest.getContentTypeId()), webHookRequest.getId()),
-                RequestOptions.DEFAULT);
+      DeleteResponse deleteResponse =
+          esClients
+              .get(webHookRequest.getEnv())
+              .delete(
+                  new DeleteRequest(
+                      getEsIdxName(webHookRequest.getContentTypeId()), webHookRequest.getId()),
+                  RequestOptions.DEFAULT);
       LOG.info("Entry deleted");
 
       return ResponseEntity.status(deleteResponse.status().getStatus()).build();
