@@ -70,9 +70,7 @@ public class ConversionUtil {
         getNestedField(source, "primaryLink", "url", locale)
             .orElseGet(() -> altBaseLink + '/' + searchHit.getId()));
     entry.setPublishedDate(
-        DEFAULT_DATE_TIME_FORMATTER
-            .parseJoda((String) source.get("createdAt"))
-            .toDate());
+        DEFAULT_DATE_TIME_FORMATTER.parseJoda((String) source.get("createdAt")).toDate());
     return entry;
   }
 
