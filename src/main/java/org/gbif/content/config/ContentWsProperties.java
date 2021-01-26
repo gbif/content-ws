@@ -38,5 +38,4 @@ public class ContentWsProperties {
   private SynchronizationProperties synchronization;
 
   private ElasticsearchProperties elasticsearch;
-
 }

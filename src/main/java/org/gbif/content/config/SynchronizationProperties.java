@@ -17,9 +17,10 @@ package org.gbif.content.config;
 
 import java.util.Map;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
+import lombok.Data;
 
 /**
  * Configuration settings to synchronize Contentful data into ElasticSearch.
@@ -55,5 +56,4 @@ public class SynchronizationProperties {
   public ElasticsearchProperties getIndex(String env) {
     return indexes.get(env);
   }
-
 }
