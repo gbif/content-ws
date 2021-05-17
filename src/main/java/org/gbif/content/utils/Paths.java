@@ -22,6 +22,10 @@ public class Paths {
 
   public static final String SYNC_RESOURCE_PATH = "/content/sync";
 
+  public static final String MENDELEY_CRAWL = "/mendeley/crawl";
+
+  public static final String MENDELEY_CRAWL_START = "/mendeley/crawl/start";
+
   /**
    * Making constructor private.
    */
