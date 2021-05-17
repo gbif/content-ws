@@ -127,9 +127,7 @@ public class ConversionUtil {
                 description.setValue(
                     HtmlRenderer.builder().build().render(MARKDOWN_PARSER.parse(body))));
     entry.setDescription(description);
-    entry.setLink(
-        getNestedField(source, "primaryLink", "url", locale)
-            .orElseGet(() -> altBaseLink + '/' + searchHit.getId()));
+    entry.setLink(altBaseLink + '/' + searchHit.getId());
     entry.setPublishedDate(parseDate((String) source.get("createdAt")));
     return entry;
   }
@@ -137,27 +135,29 @@ public class ConversionUtil {
   /**
    * Transforms a SearchHit into a VEvent instance.
    */
-  public static VEvent toVEvent(SearchHit searchHit, String locale) {
+  public static VEvent toVEvent(SearchHit searchHit, String locale, String altBaseLink) {
     Map<String, Object> source = searchHit.getSourceAsMap();
     return toVEvent(
         Optional.ofNullable(source.get("id")).map(id -> (String) id).orElse(""),
         searchHit.getSourceAsMap(),
-        locale);
+        locale,
+        altBaseLink);
   }
 
   /**
    * Converts a ElasticSearch GetResponse into a VEvent instance to be used in an iCal feed.
    */
-  public static VEvent toVEvent(GetResponse getResponse, String locale) {
-    return toVEvent(getResponse.getId(), getResponse.getSource(), locale);
+  public static VEvent toVEvent(GetResponse getResponse, String locale, String altBaseLink) {
+    return toVEvent(getResponse.getId(), getResponse.getSource(), locale, altBaseLink);
   }
 
-  private static VEvent toVEvent(String id, Map<String, Object> source, String locale) {
+  private static VEvent toVEvent(String id, Map<String, Object> source, String locale, String altBaseLink) {
     VEvent vEvent = new VEvent();
     vEvent.setUid(id);
     getField(source, "title", locale).ifPresent(vEvent::setSummary);
     getField(source, "body", locale).ifPresent(vEvent::setDescription);
     getLinkUrl(source, "primaryLink", locale).ifPresent(vEvent::setUrl);
+    vEvent.setUrl(altBaseLink + '/' + id);
     getLocationField(source, "coordinates").ifPresent(vEvent::setLocation);
     getDateField(source, "start").ifPresent(vEvent::setDateStart);
     getDateField(source, "end").ifPresent(vEvent::setDateEnd);
