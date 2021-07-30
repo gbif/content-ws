@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import com.google.common.base.Strings;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.search.SearchHit;
 
+import com.google.common.base.Strings;
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -46,7 +46,6 @@ import static org.gbif.content.utils.SearchFieldsUtils.getDateField;
 import static org.gbif.content.utils.SearchFieldsUtils.getField;
 import static org.gbif.content.utils.SearchFieldsUtils.getLinkUrl;
 import static org.gbif.content.utils.SearchFieldsUtils.getLocationField;
-import static org.gbif.content.utils.SearchFieldsUtils.getNestedField;
 
 /**
  * Utility class to convert search results into RSS feed and iCal entries.
@@ -56,54 +55,62 @@ public class ConversionUtil {
   private static final Parser MARKDOWN_PARSER = Parser.builder().build();
 
   private static final DateTimeFormatter FORMATTER =
-    DateTimeFormatter.ofPattern(
-      "[yyyy-MM-dd'T'HH:mm:ssXXX][yyyy-MM-dd'T'HH:mmXXX][yyyy-MM-dd'T'HH:mm:ss.SSS XXX][yyyy-MM-dd'T'HH:mm:ss.SSSXXX]"
-      + "[yyyy-MM-dd'T'HH:mm:ss.SSSSSS][yyyy-MM-dd'T'HH:mm:ss.SSSSS][yyyy-MM-dd'T'HH:mm:ss.SSSS][yyyy-MM-dd'T'HH:mm:ss.SSS]"
-      + "[yyyy-MM-dd'T'HH:mm:ss][yyyy-MM-dd'T'HH:mm:ss XXX][yyyy-MM-dd'T'HH:mm:ssXXX][yyyy-MM-dd'T'HH:mm:ss]"
-      + "[yyyy-MM-dd'T'HH:mm][yyyy-MM-dd][yyyy-MM][yyyy]");
+      DateTimeFormatter.ofPattern(
+          "[yyyy-MM-dd'T'HH:mm:ssXXX][yyyy-MM-dd'T'HH:mmXXX][yyyy-MM-dd'T'HH:mm:ss.SSS XXX][yyyy-MM-dd'T'HH:mm:ss.SSSXXX]"
+              + "[yyyy-MM-dd'T'HH:mm:ss.SSSSSS][yyyy-MM-dd'T'HH:mm:ss.SSSSS][yyyy-MM-dd'T'HH:mm:ss.SSSS][yyyy-MM-dd'T'HH:mm:ss.SSS]"
+              + "[yyyy-MM-dd'T'HH:mm:ss][yyyy-MM-dd'T'HH:mm:ss XXX][yyyy-MM-dd'T'HH:mm:ssXXX][yyyy-MM-dd'T'HH:mm:ss]"
+              + "[yyyy-MM-dd'T'HH:mm][yyyy-MM-dd][yyyy-MM][yyyy]");
 
   static final Function<String, Date> STRING_TO_DATE =
-    dateAsString -> {
-      if (Strings.isNullOrEmpty(dateAsString)) {
-        return null;
-      }
+      dateAsString -> {
+        if (Strings.isNullOrEmpty(dateAsString)) {
+          return null;
+        }
 
-      boolean firstYear = false;
-      if (dateAsString.startsWith("0000")) {
-        firstYear = true;
-        dateAsString = dateAsString.replaceFirst("0000", "1970");
-      }
+        boolean firstYear = false;
+        if (dateAsString.startsWith("0000")) {
+          firstYear = true;
+          dateAsString = dateAsString.replaceFirst("0000", "1970");
+        }
 
-      // parse string
-      TemporalAccessor temporalAccessor = FORMATTER.parseBest(dateAsString,
-                                                              ZonedDateTime::from,
-                                                              LocalDateTime::from,
-                                                              LocalDate::from,
-                                                              YearMonth::from,
-                                                              Year::from);
-      Date dateParsed = null;
-      if (temporalAccessor instanceof ZonedDateTime) {
-        dateParsed = Date.from(((ZonedDateTime)temporalAccessor).toInstant());
-      } else if (temporalAccessor instanceof LocalDateTime) {
-        dateParsed = Date.from(((LocalDateTime)temporalAccessor).toInstant(ZoneOffset.UTC));
-      } else if (temporalAccessor instanceof LocalDate) {
-        dateParsed = Date.from((((LocalDate)temporalAccessor).atStartOfDay()).toInstant(ZoneOffset.UTC));
-      } else if (temporalAccessor instanceof YearMonth) {
-        dateParsed = Date.from((((YearMonth)temporalAccessor).atDay(1)).atStartOfDay().toInstant(ZoneOffset.UTC));
-      } else if (temporalAccessor instanceof Year) {
-        dateParsed = Date.from((((Year)temporalAccessor).atDay(1)).atStartOfDay().toInstant(ZoneOffset.UTC));
-      }
+        // parse string
+        TemporalAccessor temporalAccessor =
+            FORMATTER.parseBest(
+                dateAsString,
+                ZonedDateTime::from,
+                LocalDateTime::from,
+                LocalDate::from,
+                YearMonth::from,
+                Year::from);
+        Date dateParsed = null;
+        if (temporalAccessor instanceof ZonedDateTime) {
+          dateParsed = Date.from(((ZonedDateTime) temporalAccessor).toInstant());
+        } else if (temporalAccessor instanceof LocalDateTime) {
+          dateParsed = Date.from(((LocalDateTime) temporalAccessor).toInstant(ZoneOffset.UTC));
+        } else if (temporalAccessor instanceof LocalDate) {
+          dateParsed =
+              Date.from((((LocalDate) temporalAccessor).atStartOfDay()).toInstant(ZoneOffset.UTC));
+        } else if (temporalAccessor instanceof YearMonth) {
+          dateParsed =
+              Date.from(
+                  (((YearMonth) temporalAccessor).atDay(1))
+                      .atStartOfDay()
+                      .toInstant(ZoneOffset.UTC));
+        } else if (temporalAccessor instanceof Year) {
+          dateParsed =
+              Date.from(
+                  (((Year) temporalAccessor).atDay(1)).atStartOfDay().toInstant(ZoneOffset.UTC));
+        }
 
-      if (dateParsed != null && firstYear) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(dateParsed);
-        cal.set(Calendar.YEAR, 1);
-        return cal.getTime();
-      }
+        if (dateParsed != null && firstYear) {
+          Calendar cal = Calendar.getInstance();
+          cal.setTime(dateParsed);
+          cal.set(Calendar.YEAR, 1);
+          return cal.getTime();
+        }
 
-      return dateParsed;
-    };
-
+        return dateParsed;
+      };
 
   /**
    * Private constructor.
@@ -151,7 +158,8 @@ public class ConversionUtil {
     return toVEvent(getResponse.getId(), getResponse.getSource(), locale, altBaseLink);
   }
 
-  private static VEvent toVEvent(String id, Map<String, Object> source, String locale, String altBaseLink) {
+  private static VEvent toVEvent(
+      String id, Map<String, Object> source, String locale, String altBaseLink) {
     VEvent vEvent = new VEvent();
     vEvent.setUid(id);
     getField(source, "title", locale).ifPresent(vEvent::setSummary);
@@ -163,7 +171,6 @@ public class ConversionUtil {
     getDateField(source, "end").ifPresent(vEvent::setDateEnd);
     return vEvent;
   }
-
 
   public static Date parseDate(String date) {
     return STRING_TO_DATE.apply(date);

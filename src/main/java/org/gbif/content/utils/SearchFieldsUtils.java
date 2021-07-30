@@ -78,8 +78,7 @@ public class SearchFieldsUtils {
    * Extracts the field date value from the source map for a specific locale.
    */
   public static Optional<Date> getDateField(Map<String, Object> source, String field) {
-    return getField(source, field)
-        .map(ConversionUtil::parseDate);
+    return getField(source, field).map(ConversionUtil::parseDate);
   }
 
   /**
