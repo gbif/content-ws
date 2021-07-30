@@ -141,7 +141,9 @@ public class EventsResource {
         .forEach(
             searchHit ->
                 iCal.addEvent(
-                    ConversionUtil.toVEvent(searchHit, configuration.getDefaultLocale())));
+                    ConversionUtil.toVEvent(searchHit,
+                                            configuration.getDefaultLocale(),
+                                            configuration.getGbifPortalUrl() +  configuration.getEsEventsIndex())));
     return Biweekly.write(iCal).go();
   }
 
@@ -168,7 +170,8 @@ public class EventsResource {
               esClient.get(
                   new GetRequest().index(configuration.getEsEventsIndex()).id(eventId),
                   RequestOptions.DEFAULT),
-              configuration.getDefaultLocale()));
+              configuration.getDefaultLocale(),
+              configuration.getGbifPortalUrl() +  configuration.getEsEventsIndex()));
       return Biweekly.write(iCal).go();
     } catch (IOException ex) {
       throw new RuntimeException(ex);
