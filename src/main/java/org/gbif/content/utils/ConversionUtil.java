@@ -60,47 +60,55 @@ public class ConversionUtil {
       + "[yyyy-MM-dd'T'HH:mm][yyyy-MM-dd][yyyy-MM][yyyy]");
 
   static final Function<String, Date> STRING_TO_DATE =
-    dateAsString -> {
-      if (Strings.isNullOrEmpty(dateAsString)) {
-        return null;
-      }
+      dateAsString -> {
+        if (Strings.isNullOrEmpty(dateAsString)) {
+          return null;
+        }
 
-      boolean firstYear = false;
-      if (dateAsString.startsWith("0000")) {
-        firstYear = true;
-        dateAsString = dateAsString.replaceFirst("0000", "1970");
-      }
+        boolean firstYear = false;
+        if (dateAsString.startsWith("0000")) {
+          firstYear = true;
+          dateAsString = dateAsString.replaceFirst("0000", "1970");
+        }
 
-      // parse string
-      TemporalAccessor temporalAccessor = FORMATTER.parseBest(dateAsString,
-                                                              ZonedDateTime::from,
-                                                              LocalDateTime::from,
-                                                              LocalDate::from,
-                                                              YearMonth::from,
-                                                              Year::from);
-      Date dateParsed = null;
-      if (temporalAccessor instanceof ZonedDateTime) {
-        dateParsed = Date.from(((ZonedDateTime)temporalAccessor).toInstant());
-      } else if (temporalAccessor instanceof LocalDateTime) {
-        dateParsed = Date.from(((LocalDateTime)temporalAccessor).toInstant(ZoneOffset.UTC));
-      } else if (temporalAccessor instanceof LocalDate) {
-        dateParsed = Date.from((((LocalDate)temporalAccessor).atStartOfDay()).toInstant(ZoneOffset.UTC));
-      } else if (temporalAccessor instanceof YearMonth) {
-        dateParsed = Date.from((((YearMonth)temporalAccessor).atDay(1)).atStartOfDay().toInstant(ZoneOffset.UTC));
-      } else if (temporalAccessor instanceof Year) {
-        dateParsed = Date.from((((Year)temporalAccessor).atDay(1)).atStartOfDay().toInstant(ZoneOffset.UTC));
-      }
+        // parse string
+        TemporalAccessor temporalAccessor =
+            FORMATTER.parseBest(
+                dateAsString,
+                ZonedDateTime::from,
+                LocalDateTime::from,
+                LocalDate::from,
+                YearMonth::from,
+                Year::from);
+        Date dateParsed = null;
+        if (temporalAccessor instanceof ZonedDateTime) {
+          dateParsed = Date.from(((ZonedDateTime) temporalAccessor).toInstant());
+        } else if (temporalAccessor instanceof LocalDateTime) {
+          dateParsed = Date.from(((LocalDateTime) temporalAccessor).toInstant(ZoneOffset.UTC));
+        } else if (temporalAccessor instanceof LocalDate) {
+          dateParsed =
+              Date.from((((LocalDate) temporalAccessor).atStartOfDay()).toInstant(ZoneOffset.UTC));
+        } else if (temporalAccessor instanceof YearMonth) {
+          dateParsed =
+              Date.from(
+                  (((YearMonth) temporalAccessor).atDay(1))
+                      .atStartOfDay()
+                      .toInstant(ZoneOffset.UTC));
+        } else if (temporalAccessor instanceof Year) {
+          dateParsed =
+              Date.from(
+                  (((Year) temporalAccessor).atDay(1)).atStartOfDay().toInstant(ZoneOffset.UTC));
+        }
 
-      if (dateParsed != null && firstYear) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(dateParsed);
-        cal.set(Calendar.YEAR, 1);
-        return cal.getTime();
-      }
+        if (dateParsed != null && firstYear) {
+          Calendar cal = Calendar.getInstance();
+          cal.setTime(dateParsed);
+          cal.set(Calendar.YEAR, 1);
+          return cal.getTime();
+        }
 
-      return dateParsed;
-    };
-
+        return dateParsed;
+      };
 
   /**
    * Private constructor.
@@ -163,7 +171,6 @@ public class ConversionUtil {
     getDateField(source, "end").ifPresent(vEvent::setDateEnd);
     return vEvent;
   }
-
 
   public static Date parseDate(String date) {
     return STRING_TO_DATE.apply(date);

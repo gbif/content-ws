@@ -140,9 +140,10 @@ public class EventsResource {
         .forEach(
             searchHit ->
                 iCal.addEvent(
-                    ConversionUtil.toVEvent(searchHit,
-                                            configuration.getDefaultLocale(),
-                                            configuration.getGbifPortalUrl() +  configuration.getEsEventsIndex())));
+                    ConversionUtil.toVEvent(
+                        searchHit,
+                        configuration.getDefaultLocale(),
+                        configuration.getGbifPortalUrl() + configuration.getEsEventsIndex())));
     return Biweekly.write(iCal).go();
   }
 
