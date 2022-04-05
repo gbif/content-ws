@@ -164,18 +164,20 @@ public class EventsResource {
   @GetMapping(path = "events/{eventId}", produces = MEDIA_TYPE_ICAL)
   public ResponseEntity<String> getEvent(@PathVariable("eventId") String eventId) {
     try {
-      return
-      Optional.ofNullable( ConversionUtil.toVEvent(
-        esClient.get(
-          new GetRequest().index(configuration.getEsEventsIndex()).id(eventId),
-          RequestOptions.DEFAULT),
-        configuration.getDefaultLocale(),
-        configuration.getGbifPortalUrl() +  configuration.getEsEventsIndex()))
-        .map(event -> {
-          ICalendar iCal = new ICalendar();
-          iCal.addEvent(event);
-          return ResponseEntity.ok(Biweekly.write(iCal).go());
-        }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+      return Optional.ofNullable(
+              ConversionUtil.toVEvent(
+                  esClient.get(
+                      new GetRequest().index(configuration.getEsEventsIndex()).id(eventId),
+                      RequestOptions.DEFAULT),
+                  configuration.getDefaultLocale(),
+                  configuration.getGbifPortalUrl() + configuration.getEsEventsIndex()))
+          .map(
+              event -> {
+                ICalendar iCal = new ICalendar();
+                iCal.addEvent(event);
+                return ResponseEntity.ok(Biweekly.write(iCal).go());
+              })
+          .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
