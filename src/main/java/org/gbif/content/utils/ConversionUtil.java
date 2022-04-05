@@ -1,6 +1,4 @@
 /*
- * Copyright 2020 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,10 +27,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import com.google.common.base.Strings;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.search.SearchHit;
 
+import com.google.common.base.Strings;
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -46,7 +44,6 @@ import static org.gbif.content.utils.SearchFieldsUtils.getDateField;
 import static org.gbif.content.utils.SearchFieldsUtils.getField;
 import static org.gbif.content.utils.SearchFieldsUtils.getLinkUrl;
 import static org.gbif.content.utils.SearchFieldsUtils.getLocationField;
-import static org.gbif.content.utils.SearchFieldsUtils.getNestedField;
 
 /**
  * Utility class to convert search results into RSS feed and iCal entries.
@@ -57,7 +54,7 @@ public class ConversionUtil {
 
   private static final DateTimeFormatter FORMATTER =
     DateTimeFormatter.ofPattern(
-      "[yyyy-MM-dd'T'HH:mm:ssXXX][yyyy-MM-dd'T'HH:mmXXX][yyyy-MM-dd'T'HH:mm:ss.SSS XXX][yyyy-MM-dd'T'HH:mm:ss.SSSXXX]"
+      "[yyyy-MM-dd'T'HH:mm:ssXXX][yyyy-MM-dd'T'HH:mmXXX][yyyy-MM-dd'T'HH:mm:ss.SSS XXX][yyyy-MM-dd'T'HH:mm:ss.SSSXXX][yyyy-MM-dd'T'HH:mm:ssZ]"
       + "[yyyy-MM-dd'T'HH:mm:ss.SSSSSS][yyyy-MM-dd'T'HH:mm:ss.SSSSS][yyyy-MM-dd'T'HH:mm:ss.SSSS][yyyy-MM-dd'T'HH:mm:ss.SSS]"
       + "[yyyy-MM-dd'T'HH:mm:ss][yyyy-MM-dd'T'HH:mm:ss XXX][yyyy-MM-dd'T'HH:mm:ssXXX][yyyy-MM-dd'T'HH:mm:ss]"
       + "[yyyy-MM-dd'T'HH:mm][yyyy-MM-dd][yyyy-MM][yyyy]");
@@ -148,7 +145,10 @@ public class ConversionUtil {
    * Converts a ElasticSearch GetResponse into a VEvent instance to be used in an iCal feed.
    */
   public static VEvent toVEvent(GetResponse getResponse, String locale, String altBaseLink) {
-    return toVEvent(getResponse.getId(), getResponse.getSource(), locale, altBaseLink);
+    if (getResponse.isExists()) {
+      return toVEvent(getResponse.getId(), getResponse.getSource(), locale, altBaseLink);
+    }
+    return null;
   }
 
   private static VEvent toVEvent(String id, Map<String, Object> source, String locale, String altBaseLink) {

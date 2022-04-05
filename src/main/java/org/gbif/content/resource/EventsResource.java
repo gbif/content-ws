@@ -1,6 +1,4 @@
 /*
- * Copyright 2020 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -162,17 +161,20 @@ public class EventsResource {
    */
   @Timed
   @GetMapping(path = "events/{eventId}", produces = MEDIA_TYPE_ICAL)
-  public String getEvent(@PathVariable("eventId") String eventId) {
+  public ResponseEntity<String> getEvent(@PathVariable("eventId") String eventId) {
     try {
-      ICalendar iCal = new ICalendar();
-      iCal.addEvent(
-          ConversionUtil.toVEvent(
-              esClient.get(
-                  new GetRequest().index(configuration.getEsEventsIndex()).id(eventId),
-                  RequestOptions.DEFAULT),
-              configuration.getDefaultLocale(),
-              configuration.getGbifPortalUrl() +  configuration.getEsEventsIndex()));
-      return Biweekly.write(iCal).go();
+      return
+      Optional.ofNullable( ConversionUtil.toVEvent(
+        esClient.get(
+          new GetRequest().index(configuration.getEsEventsIndex()).id(eventId),
+          RequestOptions.DEFAULT),
+        configuration.getDefaultLocale(),
+        configuration.getGbifPortalUrl() +  configuration.getEsEventsIndex()))
+        .map(event -> {
+          ICalendar iCal = new ICalendar();
+          iCal.addEvent(event);
+          return ResponseEntity.ok(Biweekly.write(iCal).go());
+        }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
