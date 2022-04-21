@@ -19,12 +19,6 @@ import org.gbif.content.crawl.contentful.crawl.VocabularyTerms;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
-import com.contentful.java.cda.CDAClient;
-
-import com.contentful.java.cma.CMAClient;
-
-import com.contentful.java.cma.model.CMAContentType;
-
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.NodeSelector;
 import org.elasticsearch.client.RestClient;
@@ -34,11 +28,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.contentful.java.cda.CDAClient;
+import com.contentful.java.cma.CMAClient;
+
 @Configuration
 public class ContentWsConfiguration {
 
-  //3 Minutes
-  private static final int CONNECTION_TO =  3;
+  // 3 Minutes
+  private static final int CONNECTION_TO = 3;
 
   @Bean
   public RestHighLevelClient searchClient(ContentWsProperties properties) {
@@ -75,16 +72,16 @@ public class ContentWsConfiguration {
     return new ContentCrawlConfiguration.Contentful();
   }
 
-
   /**
    * @return a new instance of a Contentful CMAClient.
    */
   @Bean
   public CMAClient buildCmaClient(ContentCrawlConfiguration.Contentful configuration) {
     return new CMAClient.Builder()
-      .setSpaceId(configuration.getSpaceId())
-      .setEnvironmentId(configuration.getEnvironmentId())
-      .setAccessToken(configuration.getCmaToken()).build();
+        .setSpaceId(configuration.getSpaceId())
+        .setEnvironmentId(configuration.getEnvironmentId())
+        .setAccessToken(configuration.getCmaToken())
+        .build();
   }
 
   /**
@@ -92,36 +89,44 @@ public class ContentWsConfiguration {
    */
   @Bean
   public CDAClient cadPreviewClient(ContentCrawlConfiguration.Contentful configuration) {
-      CDAClient.Builder builder = CDAClient.builder();
-      return builder
+    CDAClient.Builder builder = CDAClient.builder();
+    return builder
         .setSpace(configuration.getSpaceId())
         .setToken(configuration.getCdaToken())
         .setEnvironment(configuration.getEnvironmentId())
         .preview()
-        .setCallFactory(builder.defaultCallFactoryBuilder()
-                               .readTimeout(CONNECTION_TO, TimeUnit.MINUTES)
-                               .retryOnConnectionFailure(true).build())
+        .setCallFactory(
+            builder
+                .defaultCallFactoryBuilder()
+                .readTimeout(CONNECTION_TO, TimeUnit.MINUTES)
+                .retryOnConnectionFailure(true)
+                .build())
         .build();
-
   }
 
   @Bean
-  public VocabularyTerms vocabularyTerms(ContentCrawlConfiguration.Contentful configuration, CMAClient cmaClient,
-  @Value("${contentful.preloadVocabularies:true}") boolean preLoad
-  ) {
-    VocabularyTerms vocabularyTerms =  new VocabularyTerms();
+  public VocabularyTerms vocabularyTerms(
+      ContentCrawlConfiguration.Contentful configuration,
+      CMAClient cmaClient,
+      @Value("${contentful.preloadVocabularies:true}") boolean preLoad) {
+    VocabularyTerms vocabularyTerms = new VocabularyTerms();
     if (preLoad) {
-      cmaClient.contentTypes().fetchAll(configuration.getSpaceId(), configuration.getEnvironmentId()).getItems().forEach(contentType -> {
-        if (configuration.getVocabularies().contains(contentType.getName())) {
-          //Keeps the country vocabulary ID for future use
-          if (contentType.getName().equals(configuration.getCountryVocabulary())) {
-            vocabularyTerms.loadCountryVocabulary(contentType);
-          } else {
-            //Loads vocabulary into memory
-            vocabularyTerms.loadVocabulary(contentType);
-          }
-        }
-      });
+      cmaClient
+          .contentTypes()
+          .fetchAll(configuration.getSpaceId(), configuration.getEnvironmentId())
+          .getItems()
+          .forEach(
+              contentType -> {
+                if (configuration.getVocabularies().contains(contentType.getName())) {
+                  // Keeps the country vocabulary ID for future use
+                  if (contentType.getName().equals(configuration.getCountryVocabulary())) {
+                    vocabularyTerms.loadCountryVocabulary(contentType);
+                  } else {
+                    // Loads vocabulary into memory
+                    vocabularyTerms.loadVocabulary(contentType);
+                  }
+                }
+              });
     }
     return vocabularyTerms;
   }

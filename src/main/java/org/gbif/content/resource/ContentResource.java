@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.content.resource;
 
 import org.gbif.content.crawl.contentful.crawl.EsDocBuilder;
@@ -6,12 +19,6 @@ import org.gbif.content.crawl.contentful.crawl.VocabularyTerms;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
-
-import com.contentful.java.cda.CDAClient;
-
-import com.contentful.java.cda.CDAEntry;
-
-import com.contentful.java.cda.CDAResourceNotFoundException;
 
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -28,6 +35,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.contentful.java.cda.CDAClient;
+import com.contentful.java.cda.CDAEntry;
+import com.contentful.java.cda.CDAResourceNotFoundException;
 
 @RequestMapping(value = "content", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
@@ -46,25 +57,37 @@ public class ContentResource {
   private final VocabularyTerms vocabularyTerms;
 
   @Autowired
-  public ContentResource(RestHighLevelClient esClient, CDAClient cdaPreviewClient, VocabularyTerms vocabularyTerms) {
+  public ContentResource(
+      RestHighLevelClient esClient, CDAClient cdaPreviewClient, VocabularyTerms vocabularyTerms) {
     this.esClient = esClient;
     this.cdaPreviewClient = cdaPreviewClient;
     this.vocabularyTerms = vocabularyTerms;
   }
 
   @GetMapping("{id}")
-  public ResponseEntity<Map<String,Object>> getContent(@PathVariable("id") String id, @RequestParam(value = "preview", defaultValue = "false") boolean preview) throws
-    IOException {
-      if (preview) {
-        try {
-          CDAEntry cdaEntry = cdaPreviewClient.fetch(CDAEntry.class).include(LEVELS).where(LOCALE_PARAM, ALL).one(id);
-          return ResponseEntity.ok(new EsDocBuilder(cdaEntry, vocabularyTerms, o -> {}).toEsDoc());
-        } catch (CDAResourceNotFoundException ex) {
-          return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyMap());
-        }
-      } else {
-        SearchResponse searchResponse = esClient.search(new SearchRequest().indices("content").source(new SearchSourceBuilder().query(QueryBuilders.termQuery("id", id)).size(1)), RequestOptions.DEFAULT);
-        return searchResponse.getHits().getHits().length > 0? ResponseEntity.ok(searchResponse.getHits().getHits()[0].getSourceAsMap()) : ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyMap());
+  public ResponseEntity<Map<String, Object>> getContent(
+      @PathVariable("id") String id,
+      @RequestParam(value = "preview", defaultValue = "false") boolean preview)
+      throws IOException {
+    if (preview) {
+      try {
+        CDAEntry cdaEntry =
+            cdaPreviewClient.fetch(CDAEntry.class).include(LEVELS).where(LOCALE_PARAM, ALL).one(id);
+        return ResponseEntity.ok(new EsDocBuilder(cdaEntry, vocabularyTerms, o -> {}).toEsDoc());
+      } catch (CDAResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyMap());
       }
+    } else {
+      SearchResponse searchResponse =
+          esClient.search(
+              new SearchRequest()
+                  .indices("content")
+                  .source(
+                      new SearchSourceBuilder().query(QueryBuilders.termQuery("id", id)).size(1)),
+              RequestOptions.DEFAULT);
+      return searchResponse.getHits().getHits().length > 0
+          ? ResponseEntity.ok(searchResponse.getHits().getHits()[0].getSourceAsMap())
+          : ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyMap());
+    }
   }
 }

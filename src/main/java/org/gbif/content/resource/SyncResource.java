@@ -13,8 +13,8 @@
  */
 package org.gbif.content.resource;
 
-import org.gbif.content.config.ContentWsProperties;
 import org.gbif.content.config.ContentWsConfiguration;
+import org.gbif.content.config.ContentWsProperties;
 import org.gbif.content.service.JenkinsJobClient;
 import org.gbif.content.service.WebHookRequest;
 import org.gbif.content.service.WebHookRequest.Topic;

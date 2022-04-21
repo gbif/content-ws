@@ -31,7 +31,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-@SpringBootApplication(exclude = {ElasticsearchAutoConfiguration.class, RabbitAutoConfiguration.class})
+@SpringBootApplication(
+    exclude = {ElasticsearchAutoConfiguration.class, RabbitAutoConfiguration.class})
 @EnableConfigurationProperties
 public class ContentWsApplication {
 
@@ -55,10 +56,13 @@ public class ContentWsApplication {
       CorsConfiguration configuration = new CorsConfiguration();
       configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type"));
       configuration.setAllowedOrigins(Collections.singletonList("*"));
-      configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "DELETE", "PUT", "OPTIONS"));
-      configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin",
-                                                    "Access-Control-Allow-Methods",
-                                                    "Access-Control-Allow-Headers"));
+      configuration.setAllowedMethods(
+          Arrays.asList("HEAD", "GET", "POST", "DELETE", "PUT", "OPTIONS"));
+      configuration.setExposedHeaders(
+          Arrays.asList(
+              "Access-Control-Allow-Origin",
+              "Access-Control-Allow-Methods",
+              "Access-Control-Allow-Headers"));
       UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
       source.registerCorsConfiguration("/**", configuration);
       return source;
