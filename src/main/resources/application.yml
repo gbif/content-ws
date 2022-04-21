@@ -2,16 +2,17 @@ spring:
   application.name: content-ws
 contentful:
   # A key for just the GBIF space, reading the published content
-  cdaToken: @cdaToken@
+  cdaToken: a
   # A personal access key from the systems account (all spaces).
-  cmaToken: @cmaToken@
-  spaceId: @spaceIdToken@
-  environmentId: @contentfulEnvirontmentId@
+  cmaToken: c
+  spaceId: s
+  environmentId: master
   indexBuild:
     #esIndexName: content type names are used as index name
-    esIndexAlias: @esContentAlias@
+    esIndexAlias: content
   countryVocabulary: "Vocabulary: Countries"
   newsContentType: "News"
+  preloadVocabularies: false
   vocabularies:
     - "Vocabulary: Audience"
     - "Vocabulary: Countries"

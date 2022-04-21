@@ -29,6 +29,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.NodeSelector;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -104,12 +105,13 @@ public class ContentWsConfiguration {
   }
 
   @Bean
-  public VocabularyTerms vocabularyTerms(ContentCrawlConfiguration.Contentful configuration, CMAClient cmaClient) {
+  public VocabularyTerms vocabularyTerms(ContentCrawlConfiguration.Contentful configuration, CMAClient cmaClient,
+  @Value("${contentful.preloadVocabularies:true}") boolean preLoad
+  ) {
     VocabularyTerms vocabularyTerms =  new VocabularyTerms();
-    cmaClient.contentTypes()
-      .fetchAll(configuration.getSpaceId(), configuration.getEnvironmentId())
-      .getItems().forEach(contentType -> {
-        if(configuration.getVocabularies().contains(contentType.getName())) {
+    if (preLoad) {
+      cmaClient.contentTypes().fetchAll(configuration.getSpaceId(), configuration.getEnvironmentId()).getItems().forEach(contentType -> {
+        if (configuration.getVocabularies().contains(contentType.getName())) {
           //Keeps the country vocabulary ID for future use
           if (contentType.getName().equals(configuration.getCountryVocabulary())) {
             vocabularyTerms.loadCountryVocabulary(contentType);
@@ -119,6 +121,7 @@ public class ContentWsConfiguration {
           }
         }
       });
+    }
     return vocabularyTerms;
   }
 }
