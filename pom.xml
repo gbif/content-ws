@@ -34,6 +34,9 @@
     <jdkLevel>1.8</jdkLevel>
     <main.basedir>${project.basedir}</main.basedir>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
+
+    <content-crawler.version>0.30-SNAPSHOT</content-crawler.version>
+
     <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
     <spring-cloud-zookeeper.version>2.2.0.RELEASE</spring-cloud-zookeeper.version>
     <zookeeper.version>3.4.14</zookeeper.version>
@@ -61,6 +64,11 @@
     <maven-core.version>3.3.9</maven-core.version>
     <maven-model.version>3.3.9</maven-model.version>
     <flexmark-all.version>0.27.0</flexmark-all.version>
+
+    <!-- Contentful SDK is used for crawling and building the index -->
+    <contentful-sdk.version>10.5.2</contentful-sdk.version>
+    <!-- Contentful Management SDK is used for backup procedures only -->
+    <cma-sdk.version>3.4.2</cma-sdk.version>
 
     <!-- Plugins -->
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
@@ -194,6 +202,12 @@
       <artifactId>lombok</artifactId>
       <version>${lombok.version}</version>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.gbif.content</groupId>
+      <artifactId>content-crawler</artifactId>
+      <version>${content-crawler.version}</version>
     </dependency>
 
     <!-- Spring dependencies -->
@@ -416,6 +430,18 @@
       <groupId>com.vladsch.flexmark</groupId>
       <artifactId>flexmark-all</artifactId>
       <version>${flexmark-all.version}</version>
+    </dependency>
+
+    <!-- Contentful -->
+    <dependency>
+      <groupId>com.contentful.java</groupId>
+      <artifactId>java-sdk</artifactId>
+      <version>${contentful-sdk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.contentful.java</groupId>
+      <artifactId>cma-sdk</artifactId>
+      <version>${cma-sdk.version}</version>
     </dependency>
 
     <!-- Test -->

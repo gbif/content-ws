@@ -1,13 +1,47 @@
 spring:
   application.name: content-ws
+contentful:
+  # A key for just the GBIF space, reading the published content
+  cdaToken: @cdaToken@
+  # A personal access key from the systems account (all spaces).
+  cmaToken: @cmaToken@
+  spaceId: @spaceIdToken@
+  environmentId: @contentfulEnvirontmentId@
+  indexBuild:
+    #esIndexName: content type names are used as index name
+    esIndexAlias: @esContentAlias@
+  countryVocabulary: "Vocabulary: Countries"
+  newsContentType: "News"
+  vocabularies:
+    - "Vocabulary: Audience"
+    - "Vocabulary: Countries"
+    - "Vocabulary: Purpose"
+    - "Vocabulary: Topic"
+  contentTypes:
+    - "News"
+    - "Article"
+    - "Call"
+    - "Data Use"
+    - "Event"
+    - "Network"
+    - "Organisation"
+    - "Participant"
+    - "Programme"
+    - "Project"
+    - "Tool"
+    - "Document"
+    - "Help"
+    - "Notification"
+    - "Navigation element"
+    - "Home page"
+    - "Composition"
 content:
+  elasticsearch:
+    host: http://elasticsearch:9200
   esNewsIndex: "news"
   esEventsIndex: "event"
   esDataUseIndex: "datause"
-  esProgrammeIndex: "program"
-
-  elasticsearch:
-    host: http://cms-search.gbif-dev.org:9200
+  gbifPortalUrl: https://www.gbif-dev.org/
 
   synchronization:
     token: ILoveMorten
@@ -24,5 +58,6 @@ content:
         host: localhost
         port: 9300
         cluster: content-cluster
+
 
 

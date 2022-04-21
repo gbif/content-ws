@@ -14,7 +14,7 @@
 package org.gbif.content.resource;
 
 import org.gbif.content.config.ContentWsProperties;
-import org.gbif.content.config.EsConfiguration;
+import org.gbif.content.config.ContentWsConfiguration;
 import org.gbif.content.service.JenkinsJobClient;
 import org.gbif.content.service.WebHookRequest;
 import org.gbif.content.service.WebHookRequest.Topic;
@@ -84,7 +84,7 @@ public class SyncResource {
                 e ->
                     e.getValue().equals(properties.getElasticsearch())
                         ? defaultClient
-                        : EsConfiguration.searchClient(e.getValue())));
+                        : ContentWsConfiguration.searchClient(e.getValue())));
   }
 
   /**

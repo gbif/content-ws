@@ -13,16 +13,62 @@
  */
 package org.gbif.content;
 
+
+import org.gbif.content.config.ContentWsConfiguration;
+import org.gbif.ws.security.NoAuthWebSecurityConfigurer;
+
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-@SpringBootApplication(exclude = {ElasticsearchAutoConfiguration.class})
+@SpringBootApplication(exclude = {ElasticsearchAutoConfiguration.class, RabbitAutoConfiguration.class})
 @EnableConfigurationProperties
 public class ContentWsApplication {
 
   public static void main(String[] args) {
     SpringApplication.run(ContentWsApplication.class, args);
+  }
+
+  @Configuration
+  @EnableWebSecurity
+  public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+      http.httpBasic().disable().csrf().disable().cors();
+      http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+      // CorsFilter only applies this if the origin header is present in the request
+      CorsConfiguration configuration = new CorsConfiguration();
+      configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type"));
+      configuration.setAllowedOrigins(Collections.singletonList("*"));
+      configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "DELETE", "PUT", "OPTIONS"));
+      configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin",
+                                                    "Access-Control-Allow-Methods",
+                                                    "Access-Control-Allow-Headers"));
+      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+      source.registerCorsConfiguration("/**", configuration);
+      return source;
+    }
   }
 }
