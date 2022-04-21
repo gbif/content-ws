@@ -33,6 +33,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ContentResource {
 
+  private static final int LEVELS = 2;
+
+  private static final String LOCALE_PARAM = "locale";
+
+  private static final String ALL = "*";
+
   private final RestHighLevelClient esClient;
 
   private final CDAClient cdaPreviewClient;
@@ -51,7 +57,7 @@ public class ContentResource {
     IOException {
       if (preview) {
         try {
-          CDAEntry cdaEntry = cdaPreviewClient.fetch(CDAEntry.class).one(id);
+          CDAEntry cdaEntry = cdaPreviewClient.fetch(CDAEntry.class).include(LEVELS).where(LOCALE_PARAM, ALL).one(id);
           return ResponseEntity.ok(new EsDocBuilder(cdaEntry, vocabularyTerms, o -> {}).toEsDoc());
         } catch (CDAResourceNotFoundException ex) {
           return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyMap());
