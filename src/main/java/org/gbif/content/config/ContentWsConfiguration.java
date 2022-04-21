@@ -97,6 +97,7 @@ public class ContentWsConfiguration {
         .setSpace(configuration.getSpaceId())
         .setToken(configuration.getCdaToken())
         .setEnvironment(configuration.getEnvironmentId())
+        .preview()
         .setCallFactory(builder.defaultCallFactoryBuilder()
                                .readTimeout(CONNECTION_TO, TimeUnit.MINUTES)
                                .retryOnConnectionFailure(true).build())
