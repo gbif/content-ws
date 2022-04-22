@@ -17,8 +17,8 @@ import org.gbif.content.crawl.contentful.crawl.EsDocBuilder;
 import org.gbif.content.crawl.contentful.crawl.VocabularyTerms;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -27,13 +27,11 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.contentful.java.cda.CDAClient;
@@ -50,6 +48,8 @@ public class ContentResource {
 
   private static final String ALL = "*";
 
+  private static final String CONTENT_ALIAS = "content";
+
   private final RestHighLevelClient esClient;
 
   private final CDAClient cdaPreviewClient;
@@ -64,30 +64,32 @@ public class ContentResource {
     this.vocabularyTerms = vocabularyTerms;
   }
 
+  /**
+   * Gets the content element from Elasticsearch.
+   */
   @GetMapping("{id}")
-  public ResponseEntity<Map<String, Object>> getContent(
-      @PathVariable("id") String id,
-      @RequestParam(value = "preview", defaultValue = "false") boolean preview)
-      throws IOException {
-    if (preview) {
-      try {
-        CDAEntry cdaEntry =
-            cdaPreviewClient.fetch(CDAEntry.class).include(LEVELS).where(LOCALE_PARAM, ALL).one(id);
-        return ResponseEntity.ok(new EsDocBuilder(cdaEntry, vocabularyTerms, o -> {}).toEsDoc());
-      } catch (CDAResourceNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyMap());
-      }
-    } else {
+  public ResponseEntity<Map<String, Object>> getContent(@PathVariable("id") String id) throws IOException {
       SearchResponse searchResponse =
           esClient.search(
               new SearchRequest()
-                  .indices("content")
-                  .source(
-                      new SearchSourceBuilder().query(QueryBuilders.termQuery("id", id)).size(1)),
-              RequestOptions.DEFAULT);
-      return searchResponse.getHits().getHits().length > 0
-          ? ResponseEntity.ok(searchResponse.getHits().getHits()[0].getSourceAsMap())
-          : ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyMap());
+                  .indices(CONTENT_ALIAS)
+                  .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("id", id)).size(1)),
+                          RequestOptions.DEFAULT);
+      return ResponseEntity.of(searchResponse.getHits().getHits().length > 0?
+                                 Optional.ofNullable(searchResponse.getHits().getHits()[0].getSourceAsMap()) : Optional.empty());
+  }
+
+  /**
+   * Builds a content response using the Contentful preview API.
+   */
+  @GetMapping("{id}/preview")
+  public ResponseEntity<Map<String, Object>> getContentPreview(@PathVariable("id") String id) {
+    try {
+      CDAEntry cdaEntry = cdaPreviewClient.fetch(CDAEntry.class).include(LEVELS).where(LOCALE_PARAM, ALL).one(id);
+      return ResponseEntity.ok(new EsDocBuilder(cdaEntry, vocabularyTerms, o -> {
+      }).toEsDoc());
+    } catch (CDAResourceNotFoundException ex) {
+      return ResponseEntity.of(Optional.empty());
     }
   }
 }
