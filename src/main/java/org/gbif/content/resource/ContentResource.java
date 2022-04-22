@@ -68,15 +68,18 @@ public class ContentResource {
    * Gets the content element from Elasticsearch.
    */
   @GetMapping("{id}")
-  public ResponseEntity<Map<String, Object>> getContent(@PathVariable("id") String id) throws IOException {
-      SearchResponse searchResponse =
-          esClient.search(
-              new SearchRequest()
-                  .indices(CONTENT_ALIAS)
-                  .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("id", id)).size(1)),
-                          RequestOptions.DEFAULT);
-      return ResponseEntity.of(searchResponse.getHits().getHits().length > 0?
-                                 Optional.ofNullable(searchResponse.getHits().getHits()[0].getSourceAsMap()) : Optional.empty());
+  public ResponseEntity<Map<String, Object>> getContent(@PathVariable("id") String id)
+      throws IOException {
+    SearchResponse searchResponse =
+        esClient.search(
+            new SearchRequest()
+                .indices(CONTENT_ALIAS)
+                .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("id", id)).size(1)),
+            RequestOptions.DEFAULT);
+    return ResponseEntity.of(
+        searchResponse.getHits().getHits().length > 0
+            ? Optional.ofNullable(searchResponse.getHits().getHits()[0].getSourceAsMap())
+            : Optional.empty());
   }
 
   /**
@@ -85,9 +88,9 @@ public class ContentResource {
   @GetMapping("{id}/preview")
   public ResponseEntity<Map<String, Object>> getContentPreview(@PathVariable("id") String id) {
     try {
-      CDAEntry cdaEntry = cdaPreviewClient.fetch(CDAEntry.class).include(LEVELS).where(LOCALE_PARAM, ALL).one(id);
-      return ResponseEntity.ok(new EsDocBuilder(cdaEntry, vocabularyTerms, o -> {
-      }).toEsDoc());
+      CDAEntry cdaEntry =
+          cdaPreviewClient.fetch(CDAEntry.class).include(LEVELS).where(LOCALE_PARAM, ALL).one(id);
+      return ResponseEntity.ok(new EsDocBuilder(cdaEntry, vocabularyTerms, o -> {}).toEsDoc());
     } catch (CDAResourceNotFoundException ex) {
       return ResponseEntity.of(Optional.empty());
     }
