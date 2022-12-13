@@ -29,6 +29,7 @@ import java.util.function.Function;
 
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.search.SearchHit;
+import org.jsoup.Jsoup;
 
 import com.google.common.base.Strings;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -123,7 +124,7 @@ public class ConversionUtil {
   public static SyndEntry toFeedEntry(SearchHit searchHit, String locale, String altBaseLink) {
     SyndEntry entry = new SyndEntryImpl();
     Map<String, Object> source = searchHit.getSourceAsMap();
-    getField(source, "title", locale).ifPresent(entry::setTitle);
+    getField(source, "title", locale).ifPresent(title -> entry.setTitle(HtmlRenderer.builder().build().render(MARKDOWN_PARSER.parse(title))));
     SyndContent description = new SyndContentImpl();
     description.setType("text/html");
     getField(source, "body", locale)
@@ -161,10 +162,11 @@ public class ConversionUtil {
 
   private static VEvent toVEvent(
       String id, Map<String, Object> source, String locale, String altBaseLink) {
+    HtmlToPlainText formatter = new HtmlToPlainText();
     VEvent vEvent = new VEvent();
     vEvent.setUid(id);
-    getField(source, "title", locale).ifPresent(vEvent::setSummary);
-    getField(source, "body", locale).ifPresent(vEvent::setDescription);
+    getField(source, "title", locale).ifPresent(title -> vEvent.setSummary(formatter.getPlainText(Jsoup.parse(HtmlRenderer.builder().build().render(MARKDOWN_PARSER.parse(title))))));
+    getField(source, "body", locale).ifPresent(body -> vEvent.setDescription(formatter.getPlainText(Jsoup.parse(HtmlRenderer.builder().build().render(MARKDOWN_PARSER.parse(body))))));
     getLinkUrl(source, "primaryLink", locale).ifPresent(vEvent::setUrl);
     vEvent.setUrl(altBaseLink + '/' + id);
     getLocationField(source, "coordinates").ifPresent(vEvent::setLocation);

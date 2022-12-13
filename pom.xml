@@ -64,6 +64,7 @@
     <maven-core.version>3.3.9</maven-core.version>
     <maven-model.version>3.3.9</maven-model.version>
     <flexmark-all.version>0.27.0</flexmark-all.version>
+    <jsoup.version>1.15.3</jsoup.version>
 
     <!-- Contentful SDK is used for crawling and building the index -->
     <contentful-sdk.version>10.5.2</contentful-sdk.version>
@@ -430,6 +431,11 @@
       <groupId>com.vladsch.flexmark</groupId>
       <artifactId>flexmark-all</artifactId>
       <version>${flexmark-all.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>${jsoup.version}</version>
     </dependency>
 
     <!-- Contentful -->
