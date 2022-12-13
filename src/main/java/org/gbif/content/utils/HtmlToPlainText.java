@@ -38,6 +38,8 @@ import org.jsoup.select.NodeVisitor;
  * where <i>url</i> is the URL to fetch, and <i>selector</i> is an optional CSS selector.
  *
  * @author Jonathan Hedley, jonathan@hedley.net
+ *
+ * COPIED HERE BECAUSE IT IS NOT DISTRIBUTED IN JSOUP ANYMORE
  */
 public class HtmlToPlainText {
   private static final String userAgent = "Mozilla/5.0 (jsoup)";
@@ -84,6 +86,7 @@ public class HtmlToPlainText {
     private StringBuilder accum = new StringBuilder(); // holds the accumulated text
 
     // hit when the node is first seen
+    @Override
     public void head(Node node, int depth) {
       String name = node.nodeName();
       if (node instanceof TextNode)
@@ -97,6 +100,7 @@ public class HtmlToPlainText {
     }
 
     // hit when all of the node's children (if any) have been visited
+    @Override
     public void tail(Node node, int depth) {
       String name = node.nodeName();
       if (StringUtil.in(name, "br", "dd", "dt", "p", "h1", "h2", "h3", "h4", "h5"))
