@@ -113,7 +113,7 @@ public class HtmlToPlainText {
       if (text.startsWith("\n"))
         width =
             0; // reset counter if starts with a newline. only from formats above, not in natural
-               // text
+      // text
       if (text.equals(" ")
           && (accum.length() == 0 || StringUtil.in(accum.substring(accum.length() - 1), " ", "\n")))
         return; // don't accumulate long runs of empty spaces
