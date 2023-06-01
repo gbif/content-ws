@@ -45,6 +45,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.codahale.metrics.annotation.Timed;
@@ -78,6 +79,8 @@ public class EventsResource {
    * Default page size for ElasticSearch
    */
   private static final int DEFAULT_SIZE = 10;
+
+  private static final int MAX_SIZE = 1_000;
 
   private static final QueryBuilder UPCOMING_EVENTS =
       QueryBuilders.rangeQuery(START_FIELD).gte("now/d").includeUpper(Boolean.FALSE);
@@ -133,9 +136,9 @@ public class EventsResource {
    */
   @Timed
   @GetMapping(path = "events/calendar/upcoming.ics", produces = MEDIA_TYPE_ICAL)
-  public String getUpcomingEventsICal() {
+  public String getUpcomingEventsICal(@RequestParam(value = "limit", required = false) Integer limit) {
     ICalendar iCal = new ICalendar();
-    executeQuery(UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex())
+    executeQuery(UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex(), limit)
         .getHits()
         .forEach(
             searchHit ->
@@ -152,9 +155,9 @@ public class EventsResource {
    */
   @Timed
   @GetMapping(path = "events/upcoming.xml", produces = MediaType.APPLICATION_ATOM_XML_VALUE)
-  public String getUpComingEvents() {
+  public String getUpComingEvents(@RequestParam(value = "limit", required = false) Integer limit) {
     return toXmlAtomFeed(
-        newEventsFeed(), UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex());
+        newEventsFeed(), UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex(), limit);
   }
 
   /**
@@ -188,8 +191,8 @@ public class EventsResource {
    */
   @Timed
   @GetMapping(path = "news/rss", produces = MediaType.APPLICATION_ATOM_XML_VALUE)
-  public String getNews() {
-    return toXmlAtomFeed(newNewsFeed(), null, CREATED_AT_FIELD, configuration.getEsNewsIndex());
+  public String getNews(@RequestParam(value = "limit", required = false) Integer limit) {
+    return toXmlAtomFeed(newNewsFeed(), null, CREATED_AT_FIELD, configuration.getEsNewsIndex(), limit);
   }
 
   /**
@@ -197,12 +200,13 @@ public class EventsResource {
    */
   @Timed
   @GetMapping(path = "news/rss/{gbifRegion}", produces = MediaType.APPLICATION_ATOM_XML_VALUE)
-  public String getNewsByRegion(@PathVariable("gbifRegion") String region) {
+  public String getNewsByRegion(@PathVariable("gbifRegion") String region, @RequestParam(value = "limit", required = false) Integer limit) {
     return toXmlAtomFeed(
         newNewsFeed(),
         QueryBuilders.termQuery(GBIF_REGION_FIELD, region),
         CREATED_AT_FIELD,
-        configuration.getEsNewsIndex());
+        configuration.getEsNewsIndex(),
+        limit);
   }
 
   /**
@@ -213,13 +217,14 @@ public class EventsResource {
       path = "news/rss/{acronym}/{language}",
       produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getProgramNews(
-      @PathVariable("acronym") String acronym, @PathVariable("language") String language) {
+      @PathVariable("acronym") String acronym, @PathVariable("language") String language, @RequestParam(value = "limit", required = false) Integer limit) {
     return toXmlAtomFeed(
         newNewsFeed(),
         programmeQuery(acronym),
         CREATED_AT_FIELD,
         configuration.getEsNewsIndex(),
-        getLocale(language));
+        getLocale(language),
+        limit);
   }
 
   /**
@@ -228,9 +233,9 @@ public class EventsResource {
   @Timed
   @GetMapping(path = "news/json/{acronym}/{language}", produces = MediaType.APPLICATION_JSON_VALUE)
   public List<SyndEntry> getProgrammeNewsJson(
-      @PathVariable("acronym") String acronym, @PathVariable("language") String language) {
+    @PathVariable("acronym") String acronym, @PathVariable("language") String language, @RequestParam(value = "limit", required = false) Integer limit) {
     return Arrays.stream(
-            executeQuery(programmeQuery(acronym), CREATED_AT_FIELD, configuration.getEsNewsIndex())
+            executeQuery(programmeQuery(acronym), CREATED_AT_FIELD, configuration.getEsNewsIndex(), limit)
                 .getHits()
                 .getHits())
         .map(
@@ -247,8 +252,8 @@ public class EventsResource {
    */
   @Timed
   @GetMapping(path = "uses/rss", produces = MediaType.APPLICATION_ATOM_XML_VALUE)
-  public String getDataUses() {
-    return toXmlAtomFeed(newNewsFeed(), null, CREATED_AT_FIELD, configuration.getEsDataUseIndex());
+  public String getDataUses(@RequestParam(value = "limit", required = false) Integer limit) {
+    return toXmlAtomFeed(newNewsFeed(), null, CREATED_AT_FIELD, configuration.getEsDataUseIndex(), limit);
   }
 
   /**
@@ -282,7 +287,7 @@ public class EventsResource {
         executeQuery(
             QueryBuilders.termQuery("acronym", acronym),
             CREATED_AT_FIELD,
-            configuration.getEsProgrammeIndex());
+            configuration.getEsProgrammeIndex(), 1);
     return Arrays.stream(response.getHits().getHits())
         .map(SearchHit::getId)
         .findFirst()
@@ -297,18 +302,18 @@ public class EventsResource {
    * Executes a query and translates the results into XML Atom Feeds.
    */
   private String toXmlAtomFeed(
-      SyndFeed feed, QueryBuilder filter, String dateSortField, String idxName) {
-    return toXmlAtomFeed(feed, filter, dateSortField, idxName, configuration.getDefaultLocale());
+      SyndFeed feed, QueryBuilder filter, String dateSortField, String idxName, Integer limit) {
+    return toXmlAtomFeed(feed, filter, dateSortField, idxName, configuration.getDefaultLocale(), limit);
   }
 
   /**
    * Executes a query and translates the results into XML Atom Feeds.
    */
   private String toXmlAtomFeed(
-      SyndFeed feed, QueryBuilder filter, String dateSortField, String idxName, String locale) {
+      SyndFeed feed, QueryBuilder filter, String dateSortField, String idxName, String locale, Integer limit) {
     try {
       feed.setEntries(
-          Arrays.stream(executeQuery(filter, dateSortField, idxName).getHits().getHits())
+          Arrays.stream(executeQuery(filter, dateSortField, idxName, limit).getHits().getHits())
               .map(
                   searchHit ->
                       ConversionUtil.toFeedEntry(
@@ -329,7 +334,7 @@ public class EventsResource {
    * Executes the default search query.
    */
   private SearchResponse executeQuery(
-      String query, QueryBuilder filter, String dateSortField, String idxName) {
+      String query, QueryBuilder filter, String dateSortField, String idxName, Integer limit) {
     try {
       BoolQueryBuilder queryBuilder =
           QueryBuilders.boolQuery()
@@ -347,17 +352,21 @@ public class EventsResource {
                   new SearchSourceBuilder()
                       .query(queryBuilder)
                       .sort(dateSortField, SortOrder.DESC)
-                      .size(DEFAULT_SIZE)),
+                      .size(getLimit(limit))),
           RequestOptions.DEFAULT);
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
   }
 
+  private int getLimit(Integer limit) {
+    return Math.min(Optional.ofNullable(limit).orElse(DEFAULT_SIZE), MAX_SIZE);
+  }
+
   /**
    * Executes the default search query.
    */
-  private SearchResponse executeQuery(QueryBuilder filter, String dateSortField, String idxName) {
-    return executeQuery(null, filter, dateSortField, idxName);
+  private SearchResponse executeQuery(QueryBuilder filter, String dateSortField, String idxName, Integer limit) {
+    return executeQuery(null, filter, dateSortField, idxName, limit);
   }
 }
