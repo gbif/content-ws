@@ -85,21 +85,21 @@ public class SearchFieldsUtils {
   public static Optional<String> getLinkUrl(
       Map<String, Object> source, String field, String locale) {
     return Optional.ofNullable(source.get(field))
-        .map(link -> {
-          if (link instanceof String) {
-            return (String)link;
-          } else if (link instanceof Map) {
-            Map<String, Object> linkMap = (Map<String, Object>)link;
-            Object url = linkMap.get("url");
-            if(url instanceof String) {
-              return (String)url;
-            } else if(url instanceof Map) {
-              Map<String, Object> urlMap = (Map<String, Object>)url;
-              return (String)urlMap.get(locale);
-            }
-
-          }
-          return null;
-        });
+        .map(
+            link -> {
+              if (link instanceof String) {
+                return (String) link;
+              } else if (link instanceof Map) {
+                Map<String, Object> linkMap = (Map<String, Object>) link;
+                Object url = linkMap.get("url");
+                if (url instanceof String) {
+                  return (String) url;
+                } else if (url instanceof Map) {
+                  Map<String, Object> urlMap = (Map<String, Object>) url;
+                  return (String) urlMap.get(locale);
+                }
+              }
+              return null;
+            });
   }
 }

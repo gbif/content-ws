@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>content-ws</artifactId>
-  <version>1.10-SNAPSHOT</version>
+  <version>1.11-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>GBIF Content WS</name>
