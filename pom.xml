@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>content-ws</artifactId>
-  <version>1.12-SNAPSHOT</version>
+  <version>1.12</version>
   <packaging>jar</packaging>
 
   <name>GBIF Content WS</name>
@@ -20,7 +20,7 @@
     <connection>scm:git:git@github.com:gbif/content-ws.git</connection>
     <url>https://github.com/gbif/content-ws</url>
     <developerConnection>scm:git:git@github.com:gbif/content-ws.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>content-ws-1.12</tag>
   </scm>
 
   <distributionManagement>
