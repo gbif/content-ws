@@ -73,17 +73,20 @@ public class ContentResource {
 
   @Autowired
   public ContentResource(
-    RestHighLevelClient esClient, CDAClient cdaPreviewClient, VocabularyTerms vocabularyTerms, ContentCrawlConfiguration.Contentful configuration,
-    CMAClient cmaClient
-    ) {
+      RestHighLevelClient esClient,
+      CDAClient cdaPreviewClient,
+      VocabularyTerms vocabularyTerms,
+      ContentCrawlConfiguration.Contentful configuration,
+      CMAClient cmaClient) {
     this.esClient = esClient;
     this.cdaPreviewClient = cdaPreviewClient;
     this.vocabularyTerms = vocabularyTerms;
     this.configuration = configuration;
     this.cmaClient = cmaClient;
-    this.tagFields = configuration.getContentTypes().stream()
-                      .map(contentType -> ElasticSearchUtils.toFieldNameFormat(contentType) + "Tag")
-                      .collect(Collectors.toSet());
+    this.tagFields =
+        configuration.getContentTypes().stream()
+            .map(contentType -> ElasticSearchUtils.toFieldNameFormat(contentType) + "Tag")
+            .collect(Collectors.toSet());
   }
 
   private String getProjectContentId() {
@@ -94,11 +97,13 @@ public class ContentResource {
   }
 
   private String lookUpProjectContentId() {
-    return cmaClient.contentTypes().fetchAll().getItems()
-            .stream()
-            .filter(cmaContentType -> cmaContentType.getName().equalsIgnoreCase(configuration.getProjectContentType()))
-            .findFirst()
-            .map(CMAContentType::getId).orElseThrow(() -> new RuntimeException("Project Content Type not Found"));
+    return cmaClient.contentTypes().fetchAll().getItems().stream()
+        .filter(
+            cmaContentType ->
+                cmaContentType.getName().equalsIgnoreCase(configuration.getProjectContentType()))
+        .findFirst()
+        .map(CMAContentType::getId)
+        .orElseThrow(() -> new RuntimeException("Project Content Type not Found"));
   }
 
   /**
@@ -110,24 +115,25 @@ public class ContentResource {
   }
 
   @SneakyThrows
-  private Optional<Map<String,Object>> getEsDoc(String id) {
+  private Optional<Map<String, Object>> getEsDoc(String id) {
     SearchResponse searchResponse =
-      esClient.search(
-        new SearchRequest()
-          .indices(CONTENT_ALIAS)
-          .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("id", id)).size(1)),
-        RequestOptions.DEFAULT);
-    return searchResponse.getHits().getHits().length > 0?
-            Optional.ofNullable(searchResponse.getHits().getHits()[0].getSourceAsMap()) : Optional.empty();
+        esClient.search(
+            new SearchRequest()
+                .indices(CONTENT_ALIAS)
+                .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("id", id)).size(1)),
+            RequestOptions.DEFAULT);
+    return searchResponse.getHits().getHits().length > 0
+        ? Optional.ofNullable(searchResponse.getHits().getHits()[0].getSourceAsMap())
+        : Optional.empty();
   }
 
   /**
    * Get the tags fields of a es document.
    */
-  private Map<String, Object> getTagFields(Map<String,Object> sourceMap) {
+  private Map<String, Object> getTagFields(Map<String, Object> sourceMap) {
     return sourceMap.entrySet().stream()
-            .filter(entry -> tagFields.contains(entry.getKey()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        .filter(entry -> tagFields.contains(entry.getKey()))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   /**
@@ -138,7 +144,8 @@ public class ContentResource {
     try {
       CDAEntry cdaEntry =
           cdaPreviewClient.fetch(CDAEntry.class).include(LEVELS).where(LOCALE_PARAM, ALL).one(id);
-      Map<String,Object> esDoc = new EsDocBuilder(cdaEntry, vocabularyTerms, getProjectContentId(), o -> {}).toEsDoc();
+      Map<String, Object> esDoc =
+          new EsDocBuilder(cdaEntry, vocabularyTerms, getProjectContentId(), o -> {}).toEsDoc();
       getEsDoc(id).map(this::getTagFields).ifPresent(esDoc::putAll);
       return ResponseEntity.ok(esDoc);
     } catch (CDAResourceNotFoundException ex) {
