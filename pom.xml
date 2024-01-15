@@ -35,7 +35,7 @@
     <main.basedir>${project.basedir}</main.basedir>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
 
-    <content-crawler.version>0.36</content-crawler.version>
+    <content-crawler.version>0.37-SNAPSHOT</content-crawler.version>
 
     <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
     <spring-cloud-zookeeper.version>2.2.0.RELEASE</spring-cloud-zookeeper.version>
