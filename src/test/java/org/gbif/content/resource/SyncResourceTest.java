@@ -13,6 +13,8 @@
  */
 package org.gbif.content.resource;
 
+import jakarta.servlet.Filter;
+
 import org.gbif.content.ContentWsApplication;
 import org.gbif.content.config.ContentWsProperties;
 import org.gbif.content.security.SyncAuthenticationFilter;
@@ -28,7 +30,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -52,7 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@EnableAutoConfiguration(exclude = ElasticsearchAutoConfiguration.class)
+@EnableAutoConfiguration()
 public class SyncResourceTest {
 
   private MockMvc mockMvc;
@@ -66,9 +67,10 @@ public class SyncResourceTest {
   @BeforeEach
   public void setup() {
     MockitoAnnotations.initMocks(this);
+    SyncAuthenticationFilter syncAuthenticationFilter = new SyncAuthenticationFilter(properties.getSynchronization().getToken());
     this.mockMvc =
         MockMvcBuilders.standaloneSetup(new SyncResource(jenkinsJobMock(), searchIndex, properties))
-            .addFilters(new SyncAuthenticationFilter(properties.getSynchronization().getToken()))
+            .addFilters(syncAuthenticationFilter)
             .build();
   }
 
