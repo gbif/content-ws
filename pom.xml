@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>56</version>
+    <version>58-SNAPSHOT</version>
   </parent>
 
   <artifactId>content-ws</artifactId>
@@ -31,7 +31,7 @@
   </distributionManagement>
 
   <properties>
-    <jdkLevel>1.8</jdkLevel>
+    <jdkLevel>17</jdkLevel>
     <main.basedir>${project.basedir}</main.basedir>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
 
@@ -55,7 +55,7 @@
     <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
 
     <!-- Tools-->
-    <lombok.version>1.18.10</lombok.version>
+    <lombok.version>1.18.32</lombok.version>
 
     <!-- laziness: rely on transient dependencies from DW -->
     <dropwizard.version>0.9.2</dropwizard.version>
