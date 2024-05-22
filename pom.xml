@@ -32,17 +32,21 @@
 
   <properties>
     <jdkLevel>17</jdkLevel>
+    <java.version>17</java.version>
     <main.basedir>${project.basedir}</main.basedir>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
 
-    <content-crawler.version>0.39</content-crawler.version>
+    <content-crawler.version>0.40-SNAPSHOT</content-crawler.version>
 
-    <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
-    <spring-cloud-zookeeper.version>2.2.0.RELEASE</spring-cloud-zookeeper.version>
+    <spring-boot.version>3.2.5</spring-boot.version>
+    <spring.version>6.1.6</spring.version>
+    <spring-cloud-zookeeper.version>4.1.1</spring-cloud-zookeeper.version>
     <zookeeper.version>3.8.1</zookeeper.version>
     <curator.version>5.5.0</curator.version>
-    <slf4j.version>1.7.18</slf4j.version>
-    <logback.version>1.2.3</logback.version>
+    <slf4j.version>2.0.7</slf4j.version>
+    <logback.version>1.4.14</logback.version>
+    <junit.version>5.10.2</junit.version>
+    <mockito.version>5.7.0</mockito.version>
     <janino-logback.version>2.5.10</janino-logback.version>
     <logstash-logback-encoder.version>4.11</logstash-logback-encoder.version>
     <log4j.version>2.8</log4j.version>
@@ -52,15 +56,11 @@
     <biweekly.version>0.6.1</biweekly.version>
     <elasticsearch.version>7.10.0</elasticsearch.version>
     <rome.version>1.0</rome.version>
-    <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
+    <spring-boot-admin.version>2.3.0</spring-boot-admin.version>
 
     <!-- Tools-->
     <lombok.version>1.18.32</lombok.version>
 
-    <!-- laziness: rely on transient dependencies from DW -->
-    <dropwizard.version>0.9.2</dropwizard.version>
-    <dropwizard.metrics-healthchecks.version>3.1.2</dropwizard.metrics-healthchecks.version>
-    <metrics-annotation.version>3.1.2</metrics-annotation.version>
     <maven-core.version>3.3.9</maven-core.version>
     <maven-model.version>3.3.9</maven-model.version>
     <flexmark-all.version>0.27.0</flexmark-all.version>
@@ -181,6 +181,20 @@
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
+        <executions>
+          <execution>
+            <id>list-dependencies</id>
+            <goals>
+              <goal>list</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -231,7 +245,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+      <artifactId>spring-cloud-starter-zookeeper-all</artifactId>
       <version>${spring-cloud-zookeeper.version}</version>
       <exclusions>
         <exclusion>
@@ -254,11 +268,15 @@
           <groupId>org.springframework.cloud</groupId>
           <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </exclusion>
+        <exclusion>
+          <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
+          <groupId>org.springframework.cloud</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
+      <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
       <version>${spring-cloud-zookeeper.version}</version>
     </dependency>
     <dependency>
@@ -275,36 +293,6 @@
       <groupId>net.sf.biweekly</groupId>
       <artifactId>biweekly</artifactId>
       <version>${biweekly.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-core</artifactId>
-      <version>${dropwizard.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-jersey</artifactId>
-      <version>${dropwizard.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-lifecycle</artifactId>
-      <version>${dropwizard.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-metrics</artifactId>
-      <version>${dropwizard.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-annotation</artifactId>
-      <version>${metrics-annotation.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-healthchecks</artifactId>
-      <version>${dropwizard.metrics-healthchecks.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -454,41 +442,31 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-test-autoconfigure</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
+      <version>${spring-boot.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

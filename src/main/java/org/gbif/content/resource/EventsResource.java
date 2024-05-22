@@ -48,7 +48,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.codahale.metrics.annotation.Timed;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
@@ -134,7 +133,6 @@ public class EventsResource {
   /**
    * Upcoming events in iCal format.
    */
-  @Timed
   @GetMapping(path = "events/calendar/upcoming.ics", produces = MEDIA_TYPE_ICAL)
   public String getUpcomingEventsICal(
       @RequestParam(value = "limit", required = false) Integer limit) {
@@ -154,7 +152,6 @@ public class EventsResource {
   /**
    * Upcoming events RSS feed.
    */
-  @Timed
   @GetMapping(path = "events/upcoming.xml", produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getUpComingEvents(@RequestParam(value = "limit", required = false) Integer limit) {
     return toXmlAtomFeed(
@@ -164,7 +161,6 @@ public class EventsResource {
   /**
    * Single event RSS feed in Atom format.
    */
-  @Timed
   @GetMapping(path = "events/{eventId}", produces = MEDIA_TYPE_ICAL)
   public ResponseEntity<String> getEvent(@PathVariable("eventId") String eventId) {
     try {
@@ -190,7 +186,6 @@ public class EventsResource {
   /**
    * News RSS feeds.
    */
-  @Timed
   @GetMapping(path = "news/rss", produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getNews(@RequestParam(value = "limit", required = false) Integer limit) {
     return toXmlAtomFeed(
@@ -200,7 +195,6 @@ public class EventsResource {
   /**
    * New RSS feed for GBIF region.
    */
-  @Timed
   @GetMapping(path = "news/rss/{gbifRegion}", produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getNewsByRegion(
       @PathVariable("gbifRegion") String region,
@@ -216,7 +210,6 @@ public class EventsResource {
   /**
    * News RSS feed for a program and language.
    */
-  @Timed
   @GetMapping(
       path = "news/rss/{acronym}/{language}",
       produces = MediaType.APPLICATION_ATOM_XML_VALUE)
@@ -236,7 +229,6 @@ public class EventsResource {
   /**
    * JSON News for a program and language.
    */
-  @Timed
   @GetMapping(path = "news/json/{acronym}/{language}", produces = MediaType.APPLICATION_JSON_VALUE)
   public List<SyndEntry> getProgrammeNewsJson(
       @PathVariable("acronym") String acronym,
@@ -262,7 +254,6 @@ public class EventsResource {
   /**
    * Data uses RSS feed.
    */
-  @Timed
   @GetMapping(path = "uses/rss", produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getDataUses(@RequestParam(value = "limit", required = false) Integer limit) {
     return toXmlAtomFeed(
