@@ -13,7 +13,6 @@
  */
 package org.gbif.content.resource;
 
-import jakarta.servlet.Filter;
 
 import org.gbif.content.ContentWsApplication;
 import org.gbif.content.config.ContentWsProperties;
@@ -32,6 +31,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.zookeeper.serviceregistry.ZookeeperAutoServiceRegistrationAutoConfiguration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -53,7 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@EnableAutoConfiguration()
+@EnableAutoConfiguration(exclude = {ZookeeperAutoServiceRegistrationAutoConfiguration.class})
 public class SyncResourceTest {
 
   private MockMvc mockMvc;
@@ -67,10 +67,9 @@ public class SyncResourceTest {
   @BeforeEach
   public void setup() {
     MockitoAnnotations.initMocks(this);
-    SyncAuthenticationFilter syncAuthenticationFilter = new SyncAuthenticationFilter(properties.getSynchronization().getToken());
     this.mockMvc =
         MockMvcBuilders.standaloneSetup(new SyncResource(jenkinsJobMock(), searchIndex, properties))
-            .addFilters(syncAuthenticationFilter)
+            .addFilters(new SyncAuthenticationFilter(properties.getSynchronization().getToken()))
             .build();
   }
 

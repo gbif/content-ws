@@ -17,11 +17,11 @@ import org.gbif.content.service.WebHookRequest;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 
 import com.google.common.io.Resources;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;

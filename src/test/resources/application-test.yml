@@ -15,3 +15,12 @@ content:
 
       env2:
         host: http://localhost:9200
+spring:
+  cloud:
+    discovery:
+      enabled: false
+    config:
+      enabled: false
+      discovery:
+        enabled: false
+

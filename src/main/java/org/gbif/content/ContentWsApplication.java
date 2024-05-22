@@ -16,6 +16,7 @@ package org.gbif.content;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +29,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 
 @SpringBootApplication(
-    exclude = {RabbitAutoConfiguration.class})
+    exclude = {RabbitAutoConfiguration.class, ElasticsearchRestClientAutoConfiguration.class})
 @EnableConfigurationProperties
 public class ContentWsApplication {
 
