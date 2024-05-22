@@ -31,30 +31,28 @@
   </distributionManagement>
 
   <properties>
+    <jdkLevel>17</jdkLevel>
     <main.basedir>${project.basedir}</main.basedir>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
 
     <content-crawler.version>0.39</content-crawler.version>
 
-    <java.version>17</java.version>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <spring-boot.version>3.2.5</spring-boot.version>
-    <spring-cloud-zookeeper.version>4.0.1</spring-cloud-zookeeper.version>
-    <spring-cloud-openfeign.version>4.1.1</spring-cloud-openfeign.version>
-    <zookeeper.version>3.4.14</zookeeper.version>
+    <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
+    <spring-cloud-zookeeper.version>2.2.0.RELEASE</spring-cloud-zookeeper.version>
+    <zookeeper.version>3.8.1</zookeeper.version>
+    <curator.version>5.5.0</curator.version>
     <slf4j.version>1.7.18</slf4j.version>
-    <logback.version>1.5.0</logback.version>
+    <logback.version>1.2.3</logback.version>
     <janino-logback.version>2.5.10</janino-logback.version>
-    <logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
+    <logstash-logback-encoder.version>4.11</logstash-logback-encoder.version>
     <log4j.version>2.8</log4j.version>
     <logstash-encoder.version>4.11</logstash-encoder.version>
-    <guava.version>20.0</guava.version>
+    <guava.version>19.0</guava.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
     <biweekly.version>0.6.1</biweekly.version>
     <elasticsearch.version>7.10.0</elasticsearch.version>
     <rome.version>1.0</rome.version>
-    <spring-boot-admin.version>2.3.0</spring-boot-admin.version>
+    <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
 
     <!-- Tools-->
     <lombok.version>1.18.32</lombok.version>
@@ -63,7 +61,6 @@
     <dropwizard.version>0.9.2</dropwizard.version>
     <dropwizard.metrics-healthchecks.version>3.1.2</dropwizard.metrics-healthchecks.version>
     <metrics-annotation.version>3.1.2</metrics-annotation.version>
-    <curator.version>2.9.1</curator.version>
     <maven-core.version>3.3.9</maven-core.version>
     <maven-model.version>3.3.9</maven-model.version>
     <flexmark-all.version>0.27.0</flexmark-all.version>
@@ -194,13 +191,6 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
         <version>${spring-boot.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-dependencies</artifactId>
-        <version>2022.0.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -479,7 +469,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>6.1.6</version>
       <scope>test</scope>
     </dependency>
     <dependency>
