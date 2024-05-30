@@ -16,8 +16,8 @@ package org.gbif.content.resource;
 import java.io.IOException;
 import java.io.InputStream;
 
-import jakarta.servlet.ReadListener;
-import jakarta.servlet.ServletInputStream;
+import javax.servlet.ReadListener;
+import javax.servlet.ServletInputStream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 

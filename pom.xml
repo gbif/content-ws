@@ -31,32 +31,29 @@
   </distributionManagement>
 
   <properties>
-    <jdkLevel>17</jdkLevel>
-    <java.version>17</java.version>
+    <jdkLevel>11</jdkLevel>
+    <java.version>11</java.version>
     <main.basedir>${project.basedir}</main.basedir>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
 
-    <content-crawler.version>0.40-SNAPSHOT</content-crawler.version>
+    <content-crawler.version>0.39</content-crawler.version>
 
-    <spring-boot.version>3.2.5</spring-boot.version>
-    <spring.version>6.1.6</spring.version>
-    <spring-cloud-zookeeper.version>4.1.1</spring-cloud-zookeeper.version>
-    <zookeeper.version>3.8.1</zookeeper.version>
+    <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
+    <spring-cloud-zookeeper.version>2.2.0.RELEASE</spring-cloud-zookeeper.version>
+    <zookeeper.version>3.4.14</zookeeper.version>
     <curator.version>5.5.0</curator.version>
-    <slf4j.version>2.0.7</slf4j.version>
-    <logback.version>1.4.14</logback.version>
-    <junit.version>5.10.2</junit.version>
-    <mockito.version>5.7.0</mockito.version>
+    <slf4j.version>1.7.30</slf4j.version>
+    <logback.version>1.2.3</logback.version>
     <janino-logback.version>2.5.10</janino-logback.version>
     <logstash-logback-encoder.version>4.11</logstash-logback-encoder.version>
     <log4j.version>2.8</log4j.version>
-    <logstash-encoder.version>4.11</logstash-encoder.version>
+    <logstash-encoder.version>6.6</logstash-encoder.version>
     <guava.version>19.0</guava.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
     <biweekly.version>0.6.1</biweekly.version>
     <elasticsearch.version>7.10.0</elasticsearch.version>
     <rome.version>1.0</rome.version>
-    <spring-boot-admin.version>2.3.0</spring-boot-admin.version>
+    <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
 
     <!-- Tools-->
     <lombok.version>1.18.32</lombok.version>
@@ -245,7 +242,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-zookeeper-all</artifactId>
+      <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
       <version>${spring-cloud-zookeeper.version}</version>
       <exclusions>
         <exclusion>
@@ -276,7 +273,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+      <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
       <version>${spring-cloud-zookeeper.version}</version>
     </dependency>
     <dependency>
@@ -452,31 +449,41 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <version>${spring-boot.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-test-autoconfigure</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
-      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

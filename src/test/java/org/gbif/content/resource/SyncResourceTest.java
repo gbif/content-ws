@@ -13,7 +13,6 @@
  */
 package org.gbif.content.resource;
 
-
 import org.gbif.content.ContentWsApplication;
 import org.gbif.content.config.ContentWsProperties;
 import org.gbif.content.security.SyncAuthenticationFilter;
@@ -29,9 +28,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.zookeeper.serviceregistry.ZookeeperAutoServiceRegistrationAutoConfiguration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -53,7 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@EnableAutoConfiguration(exclude = {ZookeeperAutoServiceRegistrationAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = ElasticsearchAutoConfiguration.class)
 public class SyncResourceTest {
 
   private MockMvc mockMvc;
