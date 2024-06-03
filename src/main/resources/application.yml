@@ -38,7 +38,7 @@ contentful:
     - "Composition"
 content:
   elasticsearch:
-    host: http://elasticsearch:9200
+    host: http://cms-search.gbif-dev.org:9200/
   esNewsIndex: "news"
   esEventsIndex: "event"
   esDataUseIndex: "datause"
@@ -51,14 +51,12 @@ content:
     repository: snapshots
     indexes:
       env:
-        host: localhost
+        host: http://localhost
         port: 9300
         cluster: content-cluster
 
       env2:
-        host: localhost
+        host: http://localhost
         port: 9300
+
         cluster: content-cluster
-
-
-

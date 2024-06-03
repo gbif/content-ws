@@ -36,7 +36,7 @@
     <main.basedir>${project.basedir}</main.basedir>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
 
-    <content-crawler.version>0.39</content-crawler.version>
+    <content-crawler.version>0.40-SNAPSHOT</content-crawler.version>
 
     <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
     <spring-cloud-zookeeper.version>2.2.0.RELEASE</spring-cloud-zookeeper.version>
@@ -51,7 +51,7 @@
     <guava.version>19.0</guava.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
     <biweekly.version>0.6.1</biweekly.version>
-    <elasticsearch.version>7.10.0</elasticsearch.version>
+    <elasticsearch.version>7.9.1</elasticsearch.version>
     <rome.version>1.0</rome.version>
     <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
 
