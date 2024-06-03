@@ -41,7 +41,7 @@
     <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
     <spring-cloud-zookeeper.version>2.2.0.RELEASE</spring-cloud-zookeeper.version>
     <zookeeper.version>3.4.14</zookeeper.version>
-    <curator.version>5.5.0</curator.version>
+    <curator.version>2.9.1</curator.version>
     <slf4j.version>1.7.30</slf4j.version>
     <logback.version>1.2.3</logback.version>
     <janino-logback.version>2.5.10</janino-logback.version>
