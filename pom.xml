@@ -38,8 +38,9 @@
 
     <content-crawler.version>0.40-SNAPSHOT</content-crawler.version>
 
-    <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
-    <spring-cloud-zookeeper.version>2.2.0.RELEASE</spring-cloud-zookeeper.version>
+    <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
+    <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
+    <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
     <zookeeper.version>3.8.1</zookeeper.version>
     <curator.version>5.5.0</curator.version>
     <slf4j.version>1.7.30</slf4j.version>
@@ -47,13 +48,11 @@
     <janino-logback.version>2.5.10</janino-logback.version>
     <logstash-logback-encoder.version>4.11</logstash-logback-encoder.version>
     <log4j.version>2.8</log4j.version>
-    <logstash-encoder.version>6.6</logstash-encoder.version>
     <guava.version>19.0</guava.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
     <biweekly.version>0.6.1</biweekly.version>
     <elasticsearch.version>7.9.1</elasticsearch.version>
     <rome.version>1.0</rome.version>
-    <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
 
     <!-- Tools-->
     <lombok.version>1.18.32</lombok.version>
@@ -225,20 +224,8 @@
     <!-- Spring dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-      <optional>true</optional>
+      <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -266,10 +253,15 @@
           <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </exclusion>
         <exclusion>
-          <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
+          <artifactId>spring-cloud-netflix-hystrix</artifactId>
           <groupId>org.springframework.cloud</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
+      <version>${spring-cloud-zookeeper.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -453,21 +445,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-test-autoconfigure</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

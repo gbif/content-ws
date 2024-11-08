@@ -27,8 +27,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.actuate.autoconfigure.elasticsearch.ElasticSearchRestHealthContributorAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -52,7 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@EnableAutoConfiguration(exclude = ElasticsearchAutoConfiguration.class)
+@EnableAutoConfiguration(exclude = ElasticSearchRestHealthContributorAutoConfiguration.class)
 public class SyncResourceTest {
 
   private MockMvc mockMvc;

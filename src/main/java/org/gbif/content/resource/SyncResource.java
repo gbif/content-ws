@@ -26,6 +26,8 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -37,8 +39,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Resource class that provides RSS and iCal feeds for events and news.

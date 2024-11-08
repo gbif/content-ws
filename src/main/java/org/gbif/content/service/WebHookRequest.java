@@ -20,10 +20,10 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Class to capture the used pieces of information when WebHoox request is received.

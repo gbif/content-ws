@@ -23,4 +23,6 @@ spring:
       enabled: false
       discovery:
         enabled: false
+    compatibility-verifier:
+      enabled: false
 

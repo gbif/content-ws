@@ -19,7 +19,6 @@ import java.util.Collections;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +31,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @SpringBootApplication(
-    exclude = {ElasticsearchAutoConfiguration.class, RabbitAutoConfiguration.class})
+    exclude = {RabbitAutoConfiguration.class})
 @EnableConfigurationProperties
 public class ContentWsApplication {
 
