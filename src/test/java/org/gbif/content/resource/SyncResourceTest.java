@@ -19,18 +19,11 @@ import org.gbif.content.security.SyncAuthenticationFilter;
 import org.gbif.content.service.JenkinsJobClient;
 import org.gbif.content.service.WebHookRequest;
 import org.gbif.content.utils.Paths;
-import org.gbif.ws.remoteauth.RemoteAuthClient;
 
 import org.elasticsearch.client.RestHighLevelClient;
-
-import org.gbif.ws.server.filter.HttpServletRequestWrapperFilter;
-
-import org.gbif.ws.server.filter.RequestHeaderParamUpdateFilter;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,8 +31,6 @@ import org.springframework.boot.actuate.autoconfigure.elasticsearch.ElasticSearc
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -57,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
-    classes = {ContentWsApplication.class, SyncResourceTest.TestConfiguration.class},
+    classes = {ContentWsApplication.class},
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -127,23 +118,5 @@ public class SyncResourceTest {
                     WebHookRequest.CONTENTFUL_TOPIC_HEADER,
                     WebHookRequest.Topic.EntryPublish.getValue()))
         .andExpect(status().isAccepted());
-  }
-
-  @Configuration
-  public static class TestConfiguration {
-    @Bean
-    public RemoteAuthClient remoteAuthClient() {
-      return Mockito.mock(RemoteAuthClient.class);
-    }
-
-    @Bean
-    public HttpServletRequestWrapperFilter httpServletRequestWrapperFilter() {
-      return new HttpServletRequestWrapperFilter(false);
-    }
-
-    @Bean
-    public RequestHeaderParamUpdateFilter requestHeaderParamUpdateFilter() {
-      return new RequestHeaderParamUpdateFilter();
-    }
   }
 }
