@@ -39,9 +39,6 @@
     <content-crawler.version>0.40-SNAPSHOT</content-crawler.version>
     <gbif-common-ws.version>1.28-SNAPSHOT</gbif-common-ws.version>
 
-    <!-- Required by content-crawler-->
-    <jcommander.version>1.47</jcommander.version>
-
     <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
     <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
     <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
@@ -252,14 +249,6 @@
           <artifactId>guava</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-
-    <!-- Required by content-crawler-->
-    <dependency>
-      <groupId>com.beust</groupId>
-      <artifactId>jcommander</artifactId>
-      <version>${jcommander.version}</version>
-      <scope>runtime</scope>
     </dependency>
 
     <!-- Spring dependencies -->
