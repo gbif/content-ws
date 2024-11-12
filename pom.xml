@@ -92,41 +92,6 @@
     </testResources>
 
     <plugins>
-      <!-- shade a fat jar for dropwizard -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <configuration>
-          <createDependencyReducedPom>true</createDependencyReducedPom>
-          <filters>
-            <filter>
-              <artifact>*:*</artifact>
-              <excludes>
-                <exclude>META-INF/*.SF</exclude>
-                <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>
-              </excludes>
-            </filter>
-          </filters>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>org.gbif.content.ContentWsApplication</mainClass>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -243,12 +208,17 @@
     <!-- Spring dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+      <version>${spring-boot.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
       <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-zookeeper-all</artifactId>
+      <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
       <version>${spring-cloud-zookeeper.version}</version>
       <exclusions>
         <exclusion>
@@ -271,38 +241,12 @@
           <groupId>org.springframework.cloud</groupId>
           <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </exclusion>
-        <exclusion>
-          <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
-          <groupId>org.springframework.cloud</groupId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+      <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
       <version>${spring-cloud-zookeeper.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>spring-cloud-starter-netflix-archaius</artifactId>
-          <groupId>org.springframework.cloud</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
-          <groupId>org.springframework.cloud</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>spring-cloud-netflix-hystrix</artifactId>
-          <groupId>org.springframework.cloud</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>spring-cloud-starter-loadbalancer</artifactId>
-          <groupId>org.springframework.cloud</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>spring-cloud-starter</artifactId>
-          <groupId>org.springframework.cloud</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -312,11 +256,6 @@
       <groupId>de.codecentric</groupId>
       <artifactId>spring-boot-admin-starter-client</artifactId>
       <version>${spring-boot-admin.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter</artifactId>
-      <version>${spring-cloud-starter.version}</version>
     </dependency>
 
     <dependency>
