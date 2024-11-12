@@ -289,6 +289,14 @@
           <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
           <groupId>org.springframework.cloud</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>spring-cloud-netflix-hystrix</artifactId>
+          <groupId>org.springframework.cloud</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+          <groupId>org.springframework.cloud</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
