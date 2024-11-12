@@ -52,7 +52,7 @@
     <guava.version>19.0</guava.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
     <biweekly.version>0.6.1</biweekly.version>
-    <elasticsearch.version>7.9.1</elasticsearch.version>
+    <elasticsearch.version>7.10.0</elasticsearch.version>
     <rome.version>1.0</rome.version>
 
     <!-- Tools-->
@@ -181,6 +181,18 @@
     </plugins>
   </build>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -227,10 +239,6 @@
     <!-- Spring dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
       <version>${spring-boot.version}</version>
     </dependency>
@@ -264,11 +272,6 @@
           <groupId>org.springframework.cloud</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
-      <version>${spring-cloud-zookeeper.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
