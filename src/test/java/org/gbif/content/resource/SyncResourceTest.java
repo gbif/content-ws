@@ -63,7 +63,6 @@ public class SyncResourceTest {
 
   @Autowired private ContentWsProperties properties;
 
-
   @BeforeEach
   public void setup() {
     MockitoAnnotations.initMocks(this);

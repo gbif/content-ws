@@ -13,8 +13,6 @@
  */
 package org.gbif.content;
 
-
-
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -32,9 +30,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-
-@SpringBootApplication(
-    exclude = {RabbitAutoConfiguration.class})
+@SpringBootApplication(exclude = {RabbitAutoConfiguration.class})
 @EnableConfigurationProperties
 public class ContentWsApplication {
 
@@ -51,14 +47,14 @@ public class ContentWsApplication {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
       http.httpBasic()
-        .disable()
-        .csrf()
-        .disable()
-        .cors()
-        .and()
-        .authorizeRequests()
-        .anyRequest()
-        .permitAll();
+          .disable()
+          .csrf()
+          .disable()
+          .cors()
+          .and()
+          .authorizeRequests()
+          .anyRequest()
+          .permitAll();
 
       http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
@@ -70,12 +66,12 @@ public class ContentWsApplication {
       configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type"));
       configuration.setAllowedOrigins(Collections.singletonList("*"));
       configuration.setAllowedMethods(
-        Arrays.asList("HEAD", "GET", "POST", "DELETE", "PUT", "OPTIONS"));
+          Arrays.asList("HEAD", "GET", "POST", "DELETE", "PUT", "OPTIONS"));
       configuration.setExposedHeaders(
-        Arrays.asList(
-          "Access-Control-Allow-Origin",
-          "Access-Control-Allow-Methods",
-          "Access-Control-Allow-Headers"));
+          Arrays.asList(
+              "Access-Control-Allow-Origin",
+              "Access-Control-Allow-Methods",
+              "Access-Control-Allow-Headers"));
       UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
       source.registerCorsConfiguration("/**", configuration);
       return source;
