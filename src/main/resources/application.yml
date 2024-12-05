@@ -58,7 +58,5 @@ content:
       env2:
         host: localhost
         port: 9300
+
         cluster: content-cluster
-
-
-

@@ -13,13 +13,14 @@
  */
 package org.gbif.content;
 
+
+
 import java.util.Arrays;
 import java.util.Collections;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,8 +32,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+
 @SpringBootApplication(
-    exclude = {ElasticsearchAutoConfiguration.class, RabbitAutoConfiguration.class})
+    exclude = {RabbitAutoConfiguration.class})
 @EnableConfigurationProperties
 public class ContentWsApplication {
 
@@ -44,9 +46,20 @@ public class ContentWsApplication {
   @EnableWebSecurity
   public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
+    public WebSecurityConfigurer() {}
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      http.httpBasic().disable().csrf().disable().cors();
+      http.httpBasic()
+        .disable()
+        .csrf()
+        .disable()
+        .cors()
+        .and()
+        .authorizeRequests()
+        .anyRequest()
+        .permitAll();
+
       http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
@@ -57,12 +70,12 @@ public class ContentWsApplication {
       configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type"));
       configuration.setAllowedOrigins(Collections.singletonList("*"));
       configuration.setAllowedMethods(
-          Arrays.asList("HEAD", "GET", "POST", "DELETE", "PUT", "OPTIONS"));
+        Arrays.asList("HEAD", "GET", "POST", "DELETE", "PUT", "OPTIONS"));
       configuration.setExposedHeaders(
-          Arrays.asList(
-              "Access-Control-Allow-Origin",
-              "Access-Control-Allow-Methods",
-              "Access-Control-Allow-Headers"));
+        Arrays.asList(
+          "Access-Control-Allow-Origin",
+          "Access-Control-Allow-Methods",
+          "Access-Control-Allow-Headers"));
       UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
       source.registerCorsConfiguration("/**", configuration);
       return source;

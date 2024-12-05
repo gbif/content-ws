@@ -40,8 +40,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.codahale.metrics.annotation.Timed;
-
 /**
  * Resource class that provides RSS and iCal feeds for events and news.
  */
@@ -91,7 +89,6 @@ public class SyncResource {
    * Synchronization WebHook.
    * This service listens notification from Contentful WebHooks to syncronize the content of ElasticSearch indices.
    */
-  @Timed
   @PostMapping(consumes = CONTENTFUL_CONTENT_TYPE)
   public ResponseEntity<?> sync(HttpServletRequest request) {
     WebHookRequest webHookRequest = WebHookRequest.fromRequest(request);

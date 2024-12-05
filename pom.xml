@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>56</version>
+    <version>59</version>
   </parent>
 
   <artifactId>content-ws</artifactId>
@@ -31,36 +31,33 @@
   </distributionManagement>
 
   <properties>
-    <jdkLevel>1.8</jdkLevel>
+    <jdkLevel>11</jdkLevel>
+    <java.version>11</java.version>
     <main.basedir>${project.basedir}</main.basedir>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
 
-    <content-crawler.version>0.39</content-crawler.version>
+    <content-crawler.version>1.0.0</content-crawler.version>
+    <gbif-common-ws.version>2.0.3</gbif-common-ws.version>
 
-    <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
-    <spring-cloud-zookeeper.version>2.2.0.RELEASE</spring-cloud-zookeeper.version>
-    <zookeeper.version>3.4.14</zookeeper.version>
-    <slf4j.version>1.7.18</slf4j.version>
+    <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
+    <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
+    <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
+    <spring-cloud-starter.version>2.2.9.RELEASE</spring-cloud-starter.version>
+    <zookeeper.version>3.8.1</zookeeper.version>
+    <curator.version>5.5.0</curator.version>
+    <slf4j.version>1.7.30</slf4j.version>
     <logback.version>1.2.3</logback.version>
     <janino-logback.version>2.5.10</janino-logback.version>
     <logstash-logback-encoder.version>4.11</logstash-logback-encoder.version>
-    <log4j.version>2.8</log4j.version>
-    <logstash-encoder.version>4.11</logstash-encoder.version>
     <guava.version>19.0</guava.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
     <biweekly.version>0.6.1</biweekly.version>
     <elasticsearch.version>7.10.0</elasticsearch.version>
     <rome.version>1.0</rome.version>
-    <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
 
     <!-- Tools-->
-    <lombok.version>1.18.10</lombok.version>
+    <lombok.version>1.18.32</lombok.version>
 
-    <!-- laziness: rely on transient dependencies from DW -->
-    <dropwizard.version>0.9.2</dropwizard.version>
-    <dropwizard.metrics-healthchecks.version>3.1.2</dropwizard.metrics-healthchecks.version>
-    <metrics-annotation.version>3.1.2</metrics-annotation.version>
-    <curator.version>2.9.1</curator.version>
     <maven-core.version>3.3.9</maven-core.version>
     <maven-model.version>3.3.9</maven-model.version>
     <flexmark-all.version>0.27.0</flexmark-all.version>
@@ -95,41 +92,6 @@
     </testResources>
 
     <plugins>
-      <!-- shade a fat jar for dropwizard -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <configuration>
-          <createDependencyReducedPom>true</createDependencyReducedPom>
-          <filters>
-            <filter>
-              <artifact>*:*</artifact>
-              <excludes>
-                <exclude>META-INF/*.SF</exclude>
-                <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>
-              </excludes>
-            </filter>
-          </filters>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>org.gbif.content.ContentWsApplication</mainClass>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -186,7 +148,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <!-- Spring dependencies -->
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
@@ -209,25 +170,51 @@
       <groupId>org.gbif.content</groupId>
       <artifactId>content-crawler</artifactId>
       <version>${content-crawler.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.gbif</groupId>
+          <artifactId>gbif-common-ws</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-web</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-validation</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-common-ws</artifactId>
+      <version>${gbif-common-ws.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>commons-logging</artifactId>
+          <groupId>commons-logging</groupId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-netflix-ribbon</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Spring dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
+      <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-      <optional>true</optional>
+      <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -277,44 +264,14 @@
       <version>${biweekly.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-core</artifactId>
-      <version>${dropwizard.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-jersey</artifactId>
-      <version>${dropwizard.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-lifecycle</artifactId>
-      <version>${dropwizard.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-metrics</artifactId>
-      <version>${dropwizard.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-annotation</artifactId>
-      <version>${metrics-annotation.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-healthchecks</artifactId>
-      <version>${dropwizard.metrics-healthchecks.version}</version>
-    </dependency>
-    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-high-level-client</artifactId>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
       <version>${elasticsearch.version}</version>
     </dependency>
     <dependency>
@@ -323,13 +280,29 @@
       <version>${elasticsearch.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.elasticsearch.client</groupId>
+      <artifactId>elasticsearch-rest-high-level-client</artifactId>
+      <version>${elasticsearch.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.elasticsearch.client</groupId>
+      <artifactId>elasticsearch-rest-client-sniffer</artifactId>
+      <version>${elasticsearch.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>commons-logging</artifactId>
+          <groupId>commons-logging</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>org.elasticsearch</groupId>
       <artifactId>elasticsearch-core</artifactId>
       <version>${elasticsearch.version}</version>
     </dependency>
     <dependency>
       <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
+      <artifactId>elasticsearch-x-content</artifactId>
       <version>${elasticsearch.version}</version>
     </dependency>
 
@@ -361,11 +334,19 @@
       <version>${slf4j.version}</version>
     </dependency>
     <dependency>
-      <!-- Need the Log4J 2 bridge, not the SLF4J bridge -->
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-to-slf4j</artifactId>
-      <version>${log4j.version}</version>
-      <scope>runtime</scope>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>rome</groupId>
@@ -379,6 +360,10 @@
       <artifactId>zookeeper</artifactId>
       <version>${zookeeper.version}</version>
       <exclusions>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>
@@ -397,6 +382,10 @@
         <exclusion>
           <groupId>log4j</groupId>
           <artifactId>log4j</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.zookeeper</groupId>
+          <artifactId>zookeeper</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -431,6 +420,12 @@
       <groupId>com.vladsch.flexmark</groupId>
       <artifactId>flexmark-all</artifactId>
       <version>${flexmark-all.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>commons-logging</artifactId>
+          <groupId>commons-logging</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jsoup</groupId>
@@ -455,21 +450,12 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-test-autoconfigure</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -485,6 +471,10 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
