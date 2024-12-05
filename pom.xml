@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>59-SNAPSHOT</version>
+    <version>59</version>
   </parent>
 
   <artifactId>content-ws</artifactId>
@@ -36,8 +36,8 @@
     <main.basedir>${project.basedir}</main.basedir>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
 
-    <content-crawler.version>0.40-SNAPSHOT</content-crawler.version>
-    <gbif-common-ws.version>1.28-SNAPSHOT</gbif-common-ws.version>
+    <content-crawler.version>1.0.0</content-crawler.version>
+    <gbif-common-ws.version>2.0.3</gbif-common-ws.version>
 
     <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
     <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
