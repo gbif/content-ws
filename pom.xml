@@ -46,7 +46,7 @@
     <zookeeper.version>3.8.1</zookeeper.version>
     <curator.version>5.5.0</curator.version>
     <slf4j.version>1.7.30</slf4j.version>
-    <logback.version>1.2.3</logback.version>
+    <logback.version>1.3.15</logback.version>
     <janino-logback.version>2.5.10</janino-logback.version>
     <logstash-logback-encoder.version>4.11</logstash-logback-encoder.version>
     <guava.version>19.0</guava.version>
