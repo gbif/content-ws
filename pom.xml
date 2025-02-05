@@ -44,7 +44,7 @@
     <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
     <spring-cloud-starter.version>2.2.9.RELEASE</spring-cloud-starter.version>
     <zookeeper.version>3.8.1</zookeeper.version>
-    <curator.version>5.5.0</curator.version>
+    <curator-framework.version>5.5.0-disable-connectstr-updates</curator-framework.version>
     <slf4j.version>1.7.30</slf4j.version>
     <logback.version>1.2.3</logback.version>
     <janino-logback.version>2.5.10</janino-logback.version>
