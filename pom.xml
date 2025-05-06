@@ -55,6 +55,7 @@
     <biweekly.version>0.6.1</biweekly.version>
     <elasticsearch.version>7.10.0</elasticsearch.version>
     <rome.version>1.0</rome.version>
+    <micrometer.version>1.12.2</micrometer.version>
 
     <!-- Tools-->
     <lombok.version>1.18.32</lombok.version>
@@ -353,6 +354,12 @@
       <groupId>rome</groupId>
       <artifactId>rome</artifactId>
       <version>${rome.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+      <version>${micrometer.version}</version>
+      <scope>runtime</scope>
     </dependency>
 
     <!-- Curator for talking to Zookeeper, for lifecycle -->
