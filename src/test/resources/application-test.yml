@@ -5,16 +5,12 @@ content:
   elasticsearch:
     host: http://localhost:9200
   synchronization:
-    token: ILoveMorten
-    command: contentful-crawl
-    jenkinsJobUrl: http://builds.gbif.org/job/run-content-crawler/buildWithParameters
-    repository: snapshots
-    indexes:
-      env:
-        host: http://localhost:9200
-
-      env2:
-        host: http://localhost:9200
+    synchronization:
+      token: "ILoveMorten"
+      command: "contentful-crawl"
+      jenkinsJobUrl: "http://builds.gbif.org/job/run-content-crawler/buildWithParameters"
+      environments:
+        dev: { "repository": "snapshots", "index": { "host": "http://localhost", "port": "9300", "cluster": "content-cluster" } }
 spring:
   cloud:
     discovery:

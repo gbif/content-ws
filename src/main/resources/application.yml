@@ -45,18 +45,8 @@ content:
   gbifPortalUrl: https://www.gbif-dev.org/
 
   synchronization:
-    token: ILoveMorten
-    command: contentful-crawl
-    jenkinsJobUrl: http://builds.gbif.org/job/run-content-crawler/buildWithParameters
-    repository: snapshots
-    indexes:
-      env:
-        host: localhost
-        port: 9300
-        cluster: content-cluster
-
-      env2:
-        host: localhost
-        port: 9300
-
-        cluster: content-cluster
+    token: "ILoveMorten"
+    command: "contentful-crawl"
+    jenkinsJobUrl: "http://builds.gbif.org/job/run-content-crawler/buildWithParameters"
+    environments:
+      dev: { "repository": "snapshots", "index": { "host": "http://localhost", "port": "9300", "cluster": "content-cluster" } }

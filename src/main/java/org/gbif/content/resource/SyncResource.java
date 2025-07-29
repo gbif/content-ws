@@ -15,6 +15,7 @@ package org.gbif.content.resource;
 
 import org.gbif.content.config.ContentWsConfiguration;
 import org.gbif.content.config.ContentWsProperties;
+import org.gbif.content.config.SynchronizationProperties;
 import org.gbif.content.service.JenkinsJobClient;
 import org.gbif.content.service.WebHookRequest;
 import org.gbif.content.service.WebHookRequest.Topic;
@@ -53,7 +54,6 @@ public class SyncResource {
       "application/vnd.contentful.management.v1+json";
   // Used to map indices names
   private static final Pattern REPLACEMENTS = Pattern.compile(":\\s+|\\s+");
-  private static final String ES_TYPE = "content";
 
   private final JenkinsJobClient jenkinsJobClient;
   private final Map<String, RestHighLevelClient> esClients;
@@ -75,14 +75,14 @@ public class SyncResource {
    */
   private static Map<String, RestHighLevelClient> buildEsClients(
       ContentWsProperties properties, RestHighLevelClient defaultClient) {
-    return properties.getSynchronization().getIndexes().entrySet().stream()
+    return properties.getSynchronization().getEnvironments().entrySet().stream()
         .collect(
             Collectors.toMap(
-                Map.Entry::getKey,
+              Map.Entry::getKey,
                 e ->
-                    e.getValue().equals(properties.getElasticsearch())
+                    e.getValue().getIndex().equals(properties.getElasticsearch())
                         ? defaultClient
-                        : ContentWsConfiguration.searchClient(e.getValue())));
+                        : ContentWsConfiguration.searchClient(e.getValue().getIndex())));
   }
 
   /**

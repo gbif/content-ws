@@ -13,6 +13,7 @@
  */
 package org.gbif.content.config;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -32,7 +33,7 @@ public class SynchronizationProperties {
    * URL to the Jenkins job that runs a full syncronization.
    */
   private String jenkinsJobUrl =
-      "https://builds.gbif.org/job/run-content-crawler/buildWithParameters";
+    "https://builds.gbif.org/job/run-content-crawler/buildWithParameters";
 
   /**
    * Jenkins job security token.
@@ -44,14 +45,18 @@ public class SynchronizationProperties {
    */
   private String command = "contentful-crawl";
 
-  /**
-   * Command parameter to set the Nexus repository.
-   */
-  private String repository = "snapshots";
 
-  private Map<String, ElasticsearchProperties> indexes;
+  private Map<String, EnvironmentConfig> environments;
 
-  public ElasticsearchProperties getIndex(String env) {
-    return indexes.get(env);
+  @Data
+  public static class EnvironmentConfig {
+
+    /**
+     * Command parameter to set the Nexus repository.
+     */
+    private String repository = "snapshots";
+
+    private ElasticsearchProperties index;
+
   }
 }
