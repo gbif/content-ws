@@ -31,39 +31,39 @@
   </distributionManagement>
 
   <properties>
-    <jdkLevel>11</jdkLevel>
-    <java.version>11</java.version>
+    <jdkLevel>17</jdkLevel>
+    <java.version>17</java.version>
     <main.basedir>${project.basedir}</main.basedir>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
 
-    <content-crawler.version>1.0.0</content-crawler.version>
+    <content-crawler.version>1.0.1-SNAPSHOT</content-crawler.version>
     <gbif-common-ws.version>2.0.3</gbif-common-ws.version>
 
-    <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
-    <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
-    <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
-    <spring-cloud-starter.version>2.2.9.RELEASE</spring-cloud-starter.version>
+    <spring-boot.version>3.2.8</spring-boot.version>
+    <spring-boot-admin.version>3.2.3</spring-boot-admin.version>
+    <spring-cloud-zookeeper.version>4.1.0</spring-cloud-zookeeper.version>
+    <spring-cloud-starter.version>2023.0.0</spring-cloud-starter.version>
     <zookeeper.version>3.8.1</zookeeper.version>
     <curator.version>5.5.0</curator.version>
     <curator-framework.version>5.5.0-disable-connectstr-updates</curator-framework.version>
-    <slf4j.version>1.7.30</slf4j.version>
-    <logback.version>1.2.3</logback.version>
+    <slf4j.version>2.0.9</slf4j.version>
+    <logback.version>1.4.11</logback.version>
     <janino-logback.version>2.5.10</janino-logback.version>
-    <logstash-logback-encoder.version>4.11</logstash-logback-encoder.version>
-    <guava.version>19.0</guava.version>
+    <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
+    <guava.version>32.1.3-jre</guava.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
-    <biweekly.version>0.6.1</biweekly.version>
-    <elasticsearch.version>7.10.0</elasticsearch.version>
+    <biweekly.version>0.6.7</biweekly.version>
+    <elasticsearch.version>9.0.0</elasticsearch.version>
     <rome.version>1.0</rome.version>
-    <micrometer.version>1.12.2</micrometer.version>
+    <micrometer.version>1.12.0</micrometer.version>
 
     <!-- Tools-->
     <lombok.version>1.18.32</lombok.version>
 
-    <maven-core.version>3.3.9</maven-core.version>
-    <maven-model.version>3.3.9</maven-model.version>
-    <flexmark-all.version>0.27.0</flexmark-all.version>
-    <jsoup.version>1.15.3</jsoup.version>
+    <maven-core.version>3.9.5</maven-core.version>
+    <maven-model.version>3.9.5</maven-model.version>
+    <flexmark-all.version>0.64.8</flexmark-all.version>
+    <jsoup.version>1.17.2</jsoup.version>
 
     <!-- Contentful SDK is used for crawling and building the index -->
     <contentful-sdk.version>10.5.2</contentful-sdk.version>
@@ -72,6 +72,7 @@
 
     <!-- Plugins -->
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
+    <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
   </properties>
 
   <repositories>
@@ -141,6 +142,22 @@
         </configuration>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
@@ -219,6 +236,10 @@
       <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
       <version>${spring-cloud-zookeeper.version}</version>
@@ -271,41 +292,25 @@
       <version>${guava.version}</version>
     </dependency>
 
+    <!-- Elasticsearch 9.x dependencies -->
     <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
+      <groupId>co.elastic.clients</groupId>
+      <artifactId>elasticsearch-java</artifactId>
       <version>${elasticsearch.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-client</artifactId>
-      <version>${elasticsearch.version}</version>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-high-level-client</artifactId>
-      <version>${elasticsearch.version}</version>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
+      <version>2.0.1</version>
     </dependency>
     <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-client-sniffer</artifactId>
-      <version>${elasticsearch.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-logging</artifactId>
-          <groupId>commons-logging</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch-core</artifactId>
-      <version>${elasticsearch.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch-x-content</artifactId>
-      <version>${elasticsearch.version}</version>
+      <groupId>org.eclipse.parsson</groupId>
+      <artifactId>jakarta.json</artifactId>
+      <version>1.1.2</version>
     </dependency>
 
     <dependency>
