@@ -1,5 +1,16 @@
 spring:
   application.name: content-ws
+  cloud:
+    zookeeper:
+      enabled: false
+      discovery:
+        enabled: false
+    config:
+      enabled: false
+      discovery:
+        enabled: false
+    discovery:
+      enabled: false
 contentful:
   # A key for just the GBIF space, reading the published content
   cdaToken: a
@@ -38,7 +49,7 @@ contentful:
     - "Composition"
 content:
   elasticsearch:
-    host: http://elasticsearch:9200
+    host: http://localhost:9200
   esNewsIndex: "news"
   esEventsIndex: "event"
   esDataUseIndex: "datause"

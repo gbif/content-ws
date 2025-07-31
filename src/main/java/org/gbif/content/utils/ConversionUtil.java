@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.search.SearchHit;
+import co.elastic.clients.elasticsearch.core.GetResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import org.jsoup.Jsoup;
 
 import com.google.common.base.Strings;
@@ -82,23 +82,23 @@ public class ConversionUtil {
                 YearMonth::from,
                 Year::from);
         Date dateParsed = null;
-        if (temporalAccessor instanceof ZonedDateTime) {
-          dateParsed = Date.from(((ZonedDateTime) temporalAccessor).toInstant());
-        } else if (temporalAccessor instanceof LocalDateTime) {
-          dateParsed = Date.from(((LocalDateTime) temporalAccessor).toInstant(ZoneOffset.UTC));
-        } else if (temporalAccessor instanceof LocalDate) {
+        if (temporalAccessor instanceof ZonedDateTime zonedDateTime) {
+          dateParsed = Date.from((zonedDateTime).toInstant());
+        } else if (temporalAccessor instanceof LocalDateTime localDateTime) {
+          dateParsed = Date.from((localDateTime).toInstant(ZoneOffset.UTC));
+        } else if (temporalAccessor instanceof LocalDate localDate) {
           dateParsed =
-              Date.from((((LocalDate) temporalAccessor).atStartOfDay()).toInstant(ZoneOffset.UTC));
-        } else if (temporalAccessor instanceof YearMonth) {
+              Date.from(((localDate).atStartOfDay()).toInstant(ZoneOffset.UTC));
+        } else if (temporalAccessor instanceof YearMonth yearMonth) {
           dateParsed =
               Date.from(
-                  (((YearMonth) temporalAccessor).atDay(1))
+                  ((yearMonth).atDay(1))
                       .atStartOfDay()
                       .toInstant(ZoneOffset.UTC));
-        } else if (temporalAccessor instanceof Year) {
+        } else if (temporalAccessor instanceof Year year) {
           dateParsed =
               Date.from(
-                  (((Year) temporalAccessor).atDay(1)).atStartOfDay().toInstant(ZoneOffset.UTC));
+                  ((year).atDay(1)).atStartOfDay().toInstant(ZoneOffset.UTC));
         }
 
         if (dateParsed != null && firstYear) {
@@ -121,9 +121,9 @@ public class ConversionUtil {
   /**
    * Transforms a SearchHit into a SyndEntry instance.
    */
-  public static SyndEntry toFeedEntry(SearchHit searchHit, String locale, String altBaseLink) {
+  public static SyndEntry toFeedEntry(Hit<Map> searchHit, String locale, String altBaseLink) {
     SyndEntry entry = new SyndEntryImpl();
-    Map<String, Object> source = searchHit.getSourceAsMap();
+    Map<String, Object> source = (Map<String, Object>) searchHit.source();
     getField(source, "title", locale)
         .ifPresent(
             title ->
@@ -137,7 +137,7 @@ public class ConversionUtil {
                 description.setValue(
                     HtmlRenderer.builder().build().render(MARKDOWN_PARSER.parse(body))));
     entry.setDescription(description);
-    entry.setLink(altBaseLink + '/' + searchHit.getId());
+    entry.setLink(altBaseLink + '/' + searchHit.id());
     entry.setPublishedDate(parseDate((String) source.get("createdAt")));
     return entry;
   }
@@ -145,11 +145,11 @@ public class ConversionUtil {
   /**
    * Transforms a SearchHit into a VEvent instance.
    */
-  public static VEvent toVEvent(SearchHit searchHit, String locale, String altBaseLink) {
-    Map<String, Object> source = searchHit.getSourceAsMap();
+  public static VEvent toVEvent(Hit<Map> searchHit, String locale, String altBaseLink) {
+    Map<String, Object> source = (Map<String, Object>) searchHit.source();
     return toVEvent(
         Optional.ofNullable(source.get("id")).map(id -> (String) id).orElse(""),
-        searchHit.getSourceAsMap(),
+        searchHit.source(),
         locale,
         altBaseLink);
   }
@@ -157,37 +157,38 @@ public class ConversionUtil {
   /**
    * Converts a ElasticSearch GetResponse into a VEvent instance to be used in an iCal feed.
    */
-  public static VEvent toVEvent(GetResponse getResponse, String locale, String altBaseLink) {
-    if (getResponse.isExists()) {
-      return toVEvent(getResponse.getId(), getResponse.getSource(), locale, altBaseLink);
+  public static VEvent toVEvent(GetResponse<Map> getResponse, String locale, String altBaseLink) {
+    if (getResponse.found()) {
+      return toVEvent(getResponse.id(), getResponse.source(), locale, altBaseLink);
     }
     return null;
   }
 
   private static VEvent toVEvent(
-      String id, Map<String, Object> source, String locale, String altBaseLink) {
+      String id, Map source, String locale, String altBaseLink) {
     HtmlToPlainText formatter = new HtmlToPlainText();
     VEvent vEvent = new VEvent();
     vEvent.setUid(id);
-    getField(source, "title", locale)
+    Map<String, Object> sourceMap = (Map<String, Object>) source;
+    getField(sourceMap, "title", locale)
         .ifPresent(
             title ->
                 vEvent.setSummary(
                     formatter.getPlainText(
                         Jsoup.parse(
                             HtmlRenderer.builder().build().render(MARKDOWN_PARSER.parse(title))))));
-    getField(source, "body", locale)
+    getField(sourceMap, "body", locale)
         .ifPresent(
             body ->
                 vEvent.setDescription(
                     formatter.getPlainText(
                         Jsoup.parse(
                             HtmlRenderer.builder().build().render(MARKDOWN_PARSER.parse(body))))));
-    getLinkUrl(source, "primaryLink", locale).ifPresent(vEvent::setUrl);
+    getLinkUrl(sourceMap, "primaryLink", locale).ifPresent(vEvent::setUrl);
     vEvent.setUrl(altBaseLink + '/' + id);
-    getLocationField(source, "coordinates").ifPresent(vEvent::setLocation);
-    getDateField(source, "start").ifPresent(vEvent::setDateStart);
-    getDateField(source, "end").ifPresent(vEvent::setDateEnd);
+    getLocationField(sourceMap, "coordinates").ifPresent(vEvent::setLocation);
+    getDateField(sourceMap, "start").ifPresent(vEvent::setDateStart);
+    getDateField(sourceMap, "end").ifPresent(vEvent::setDateEnd);
     return vEvent;
   }
 

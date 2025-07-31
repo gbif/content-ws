@@ -19,10 +19,12 @@ import org.gbif.content.crawl.contentful.crawl.VocabularyTerms;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import org.apache.http.HttpHost;
-import org.elasticsearch.client.NodeSelector;
 import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -38,7 +40,7 @@ public class ContentWsConfiguration {
   private static final int CONNECTION_TO = 3;
 
   @Bean
-  public RestHighLevelClient searchClient(ContentWsProperties properties) {
+  public ElasticsearchClient searchClient(ContentWsProperties properties) {
     return searchClient(properties.getElasticsearch());
   }
 
@@ -48,19 +50,22 @@ public class ContentWsConfiguration {
     return new ContentWsProperties();
   }
 
-  public static RestHighLevelClient searchClient(ElasticsearchProperties properties) {
+  public static ElasticsearchClient searchClient(ElasticsearchProperties properties) {
     try {
       URL urlHost = new URL(properties.getHost());
       HttpHost host = new HttpHost(urlHost.getHost(), urlHost.getPort(), urlHost.getProtocol());
-      return new RestHighLevelClient(
-          RestClient.builder(host)
-              .setRequestConfigCallback(
-                  requestConfigBuilder ->
-                      requestConfigBuilder
-                          .setConnectTimeout(properties.getConnectionTimeOut())
-                          .setSocketTimeout(properties.getSocketTimeOut())
-                          .setConnectionRequestTimeout(properties.getConnectionRequestTimeOut()))
-              .setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS));
+      
+      RestClient restClient = RestClient.builder(host)
+          .setRequestConfigCallback(
+              requestConfigBuilder ->
+                  requestConfigBuilder
+                      .setConnectTimeout(properties.getConnectionTimeOut())
+                      .setSocketTimeout(properties.getSocketTimeOut())
+                      .setConnectionRequestTimeout(properties.getConnectionRequestTimeOut()))
+          .build();
+      
+      ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+      return new ElasticsearchClient(transport);
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }

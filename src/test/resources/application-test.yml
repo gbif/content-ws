@@ -13,6 +13,10 @@ content:
         dev: { "repository": "snapshots", "index": { "host": "http://localhost", "port": "9300", "cluster": "content-cluster" } }
 spring:
   cloud:
+    zookeeper:
+      enabled: false
+      discovery:
+        enabled: false
     discovery:
       enabled: false
     config:

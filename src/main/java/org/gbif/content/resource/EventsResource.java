@@ -13,30 +13,31 @@
  */
 package org.gbif.content.resource;
 
+import co.elastic.clients.elasticsearch.core.search.Hit;
+
 import org.gbif.content.config.ContentWsProperties;
 import org.gbif.content.exception.WebApplicationException;
 import org.gbif.content.utils.ConversionUtil;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.Locale;
+import java.util.Map;
 
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.util.LocaleUtils;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.GetRequest;
+import co.elastic.clients.elasticsearch.core.GetResponse;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch._types.query_dsl.DateRangeQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -81,15 +82,15 @@ public class EventsResource {
 
   private static final int MAX_SIZE = 1_000;
 
-  private static final QueryBuilder UPCOMING_EVENTS =
-      QueryBuilders.rangeQuery(START_FIELD).gte("now/d").includeUpper(Boolean.FALSE);
+  private static final Query UPCOMING_EVENTS =
+    Query.of(q -> q.range(r -> r.date(DateRangeQuery.of(d -> d.field(START_FIELD).gte("now/d")))));
 
-  private static final QueryBuilder SEARCHABLE =
-      QueryBuilders.termQuery("searchable", Boolean.TRUE);
+  private static final Query SEARCHABLE =
+      Query.of(q -> q.term(t -> t.field("searchable").value(true)));
 
   private static final String MEDIA_TYPE_ICAL = "text/iCal";
 
-  private final RestHighLevelClient esClient;
+  private final ElasticsearchClient esClient;
 
   private final ContentWsProperties configuration;
 
@@ -125,7 +126,7 @@ public class EventsResource {
    * @param esClient      ElasticSearch client
    * @param configuration configuration settings
    */
-  public EventsResource(RestHighLevelClient esClient, ContentWsProperties configuration) {
+  public EventsResource(ElasticsearchClient esClient, ContentWsProperties configuration) {
     this.esClient = esClient;
     this.configuration = configuration;
   }
@@ -138,7 +139,8 @@ public class EventsResource {
       @RequestParam(value = "limit", required = false) Integer limit) {
     ICalendar iCal = new ICalendar();
     executeQuery(UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex(), limit)
-        .getHits()
+        .hits()
+        .hits()
         .forEach(
             searchHit ->
                 iCal.addEvent(
@@ -164,11 +166,13 @@ public class EventsResource {
   @GetMapping(path = "events/{eventId}", produces = MEDIA_TYPE_ICAL)
   public ResponseEntity<String> getEvent(@PathVariable("eventId") String eventId) {
     try {
+      GetResponse<Map> response = esClient.get(
+          GetRequest.of(g -> g.index(configuration.getEsEventsIndex()).id(eventId)),
+          Map.class);
+
       return Optional.ofNullable(
               ConversionUtil.toVEvent(
-                  esClient.get(
-                      new GetRequest().index(configuration.getEsEventsIndex()).id(eventId),
-                      RequestOptions.DEFAULT),
+                  response,
                   configuration.getDefaultLocale(),
                   configuration.getGbifPortalUrl() + configuration.getEsEventsIndex()))
           .map(
@@ -201,7 +205,7 @@ public class EventsResource {
       @RequestParam(value = "limit", required = false) Integer limit) {
     return toXmlAtomFeed(
         newNewsFeed(),
-        QueryBuilders.termQuery(GBIF_REGION_FIELD, region),
+        Query.of(q -> q.term(t -> t.field(GBIF_REGION_FIELD).value(region))),
         CREATED_AT_FIELD,
         configuration.getEsNewsIndex(),
         limit);
@@ -219,7 +223,7 @@ public class EventsResource {
       @RequestParam(value = "limit", required = false) Integer limit) {
     return toXmlAtomFeed(
         newNewsFeed(),
-        programmeQuery(acronym),
+        Query.of(q -> q.term(t -> t.field("programmeTag").value(findProgrammeId(acronym)))),
         CREATED_AT_FIELD,
         configuration.getEsNewsIndex(),
         getLocale(language),
@@ -234,21 +238,21 @@ public class EventsResource {
       @PathVariable("acronym") String acronym,
       @PathVariable("language") String language,
       @RequestParam(value = "limit", required = false) Integer limit) {
-    return Arrays.stream(
-            executeQuery(
-                    programmeQuery(acronym),
-                    CREATED_AT_FIELD,
-                    configuration.getEsNewsIndex(),
-                    limit)
-                .getHits()
-                .getHits())
+    return executeQuery(
+            Query.of(q -> q.term(t -> t.field("programmeTag").value(findProgrammeId(acronym)))),
+            CREATED_AT_FIELD,
+            configuration.getEsNewsIndex(),
+            limit)
+        .hits()
+        .hits()
+        .stream()
         .map(
             searchHit ->
                 ConversionUtil.toFeedEntry(
                     searchHit,
                     getLocale(language),
                     configuration.getGbifPortalUrl() + configuration.getEsNewsIndex()))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   /**
@@ -267,7 +271,10 @@ public class EventsResource {
     try {
       Optional<String> optLanguage = Optional.ofNullable(language);
       optLanguage.ifPresent(
-          languageLocale -> LocaleUtils.parse(HYPHEN.matcher(language).replaceAll("_")));
+          languageLocale -> {
+            String localeStr = HYPHEN.matcher(language).replaceAll("_");
+            Locale.forLanguageTag(localeStr);
+          });
       return optLanguage.orElse(configuration.getDefaultLocale());
     } catch (IllegalArgumentException ex) {
       LOG.error("Error generating locale", ex);
@@ -279,22 +286,25 @@ public class EventsResource {
   /**
    * Builds a programme:id query builder.
    */
-  private QueryBuilder programmeQuery(String acronym) {
-    return QueryBuilders.termQuery("programmeTag", findProgrammeId(acronym));
+  private Query programmeQuery(String acronym) {
+    return Query.of(q -> q.term(t -> t
+      .field("programmeTag")
+      .value(findProgrammeId(acronym))
+    ));
   }
 
   /**
    * Finds the programme id by its acronym.
    */
   private String findProgrammeId(String acronym) {
-    SearchResponse response =
+    SearchResponse<Map> response =
         executeQuery(
-            QueryBuilders.termQuery("acronym", acronym),
+            Query.of(q -> q.term(t -> t.field("acronym").value(acronym))),
             CREATED_AT_FIELD,
             configuration.getEsProgrammeIndex(),
             1);
-    return Arrays.stream(response.getHits().getHits())
-        .map(SearchHit::getId)
+    return response.hits().hits().stream()
+        .map(Hit::id)
         .findFirst()
         .orElseThrow(
             () ->
@@ -307,7 +317,7 @@ public class EventsResource {
    * Executes a query and translates the results into XML Atom Feeds.
    */
   private String toXmlAtomFeed(
-      SyndFeed feed, QueryBuilder filter, String dateSortField, String idxName, Integer limit) {
+      SyndFeed feed, Query filter, String dateSortField, String idxName, Integer limit) {
     return toXmlAtomFeed(
         feed, filter, dateSortField, idxName, configuration.getDefaultLocale(), limit);
   }
@@ -317,19 +327,19 @@ public class EventsResource {
    */
   private String toXmlAtomFeed(
       SyndFeed feed,
-      QueryBuilder filter,
+      Query filter,
       String dateSortField,
       String idxName,
       String locale,
       Integer limit) {
     try {
       feed.setEntries(
-          Arrays.stream(executeQuery(filter, dateSortField, idxName, limit).getHits().getHits())
+          executeQuery(filter, dateSortField, idxName, limit).hits().hits().stream()
               .map(
                   searchHit ->
                       ConversionUtil.toFeedEntry(
                           searchHit, locale, configuration.getGbifPortalUrl() + idxName))
-              .collect(Collectors.toList()));
+              .toList());
       StringWriter writer = new StringWriter();
       new SyndFeedOutput().output(feed, writer);
       return writer.toString();
@@ -344,27 +354,26 @@ public class EventsResource {
   /**
    * Executes the default search query.
    */
-  private SearchResponse executeQuery(
-      String query, QueryBuilder filter, String dateSortField, String idxName, Integer limit) {
+  private SearchResponse<Map> executeQuery(
+      String query, Query filter, String dateSortField, String idxName, Integer limit) {
     try {
-      BoolQueryBuilder queryBuilder =
-          QueryBuilders.boolQuery()
-              .filter(SEARCHABLE)
-              .must(
-                  query == null
-                      ? QueryBuilders.matchAllQuery()
-                      : QueryBuilders.wrapperQuery(query));
-      Optional.ofNullable(filter).ifPresent(queryBuilder::filter);
+      BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder()
+          .filter(SEARCHABLE);
+
+      if (query == null) {
+        boolQueryBuilder.must(MatchAllQuery.of(m -> m));
+      } else {
+        boolQueryBuilder.must(Query.of(q -> q.wrapper(w -> w.query(query))));
+      }
+      Optional.ofNullable(filter).ifPresent(boolQueryBuilder::filter);
 
       return esClient.search(
-          new SearchRequest()
-              .indices(idxName)
-              .source(
-                  new SearchSourceBuilder()
-                      .query(queryBuilder)
-                      .sort(dateSortField, SortOrder.DESC)
-                      .size(getLimit(limit))),
-          RequestOptions.DEFAULT);
+          SearchRequest.of(s -> s
+              .index(idxName)
+              .query(boolQueryBuilder.build())
+              .sort(sort -> sort.field(f -> f.field(dateSortField).order(SortOrder.Desc)))
+              .size(getLimit(limit))),
+          Map.class);
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
@@ -377,8 +386,8 @@ public class EventsResource {
   /**
    * Executes the default search query.
    */
-  private SearchResponse executeQuery(
-      QueryBuilder filter, String dateSortField, String idxName, Integer limit) {
+  private SearchResponse<Map> executeQuery(
+      Query filter, String dateSortField, String idxName, Integer limit) {
     return executeQuery(null, filter, dateSortField, idxName, limit);
   }
 }
