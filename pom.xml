@@ -65,9 +65,10 @@
     <jsoup.version>1.15.3</jsoup.version>
 
     <!-- Contentful SDK is used for crawling and building the index -->
-    <contentful-sdk.version>10.5.2</contentful-sdk.version>
+    <contentful-sdk.version>10.5.17</contentful-sdk.version>
     <!-- Contentful Management SDK is used for backup procedures only -->
-    <cma-sdk.version>3.4.2</cma-sdk.version>
+    <cma-sdk.version>3.4.22</cma-sdk.version>
+
 
     <!-- Plugins -->
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
