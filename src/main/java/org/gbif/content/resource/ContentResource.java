@@ -13,6 +13,12 @@
  */
 package org.gbif.content.resource;
 
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+
+import io.github.resilience4j.retry.annotation.Retry;
+
 import org.gbif.content.crawl.conf.ContentCrawlConfiguration;
 import org.gbif.content.crawl.contentful.crawl.EsDocBuilder;
 import org.gbif.content.crawl.contentful.crawl.VocabularyTerms;
@@ -142,8 +148,7 @@ public class ContentResource {
   @GetMapping("{id}/preview")
   public ResponseEntity<Map<String, Object>> getContentPreview(@PathVariable("id") String id) {
     try {
-      CDAEntry cdaEntry =
-          cdaPreviewClient.fetch(CDAEntry.class).include(LEVELS).where(LOCALE_PARAM, ALL).one(id);
+      CDAEntry cdaEntry = fetchEntry(cdaPreviewClient, id, LEVELS, LOCALE_PARAM, ALL);
       Map<String, Object> esDoc =
           new EsDocBuilder(cdaEntry, vocabularyTerms, getProjectContentId(), o -> {}).toEsDoc();
       getEsDoc(id).map(this::getTagFields).ifPresent(esDoc::putAll);
@@ -151,5 +156,11 @@ public class ContentResource {
     } catch (CDAResourceNotFoundException ex) {
       return ResponseEntity.of(Optional.empty());
     }
+  }
+
+  @RateLimiter(name = "contentfulApi")
+  @Retry(name = "contentfulApiRetry")
+  public CDAEntry fetchEntry(CDAClient cdaPreviewClient, String id, int levels, String localeParam, String all) {
+    return cdaPreviewClient.fetch(CDAEntry.class).include(levels).where(localeParam, all).one(id);
   }
 }

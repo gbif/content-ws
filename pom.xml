@@ -43,6 +43,7 @@
     <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
     <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
     <spring-cloud-starter.version>2.2.9.RELEASE</spring-cloud-starter.version>
+    <resilience4j-spring-boot2.version>1.7.1</resilience4j-spring-boot2.version>
     <zookeeper.version>3.8.1</zookeeper.version>
     <curator.version>5.5.0</curator.version>
     <curator-framework.version>5.5.0-disable-connectstr-updates</curator-framework.version>
@@ -258,6 +259,26 @@
       <groupId>de.codecentric</groupId>
       <artifactId>spring-boot-admin-starter-client</artifactId>
       <version>${spring-boot-admin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-spring-boot2</artifactId>
+      <version>${resilience4j-spring-boot2.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-spring-boot2</artifactId>
+      <version>${resilience4j-spring-boot2.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-micrometer</artifactId>
+      <version>${resilience4j-spring-boot2.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-ratelimiter</artifactId>
+      <version>${resilience4j-spring-boot2.version}</version>
     </dependency>
 
     <dependency>
