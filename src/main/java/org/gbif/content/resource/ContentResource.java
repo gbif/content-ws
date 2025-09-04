@@ -13,12 +13,6 @@
  */
 package org.gbif.content.resource;
 
-import io.github.resilience4j.bulkhead.annotation.Bulkhead;
-
-import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
-
-import io.github.resilience4j.retry.annotation.Retry;
-
 import org.gbif.content.crawl.conf.ContentCrawlConfiguration;
 import org.gbif.content.crawl.contentful.crawl.EsDocBuilder;
 import org.gbif.content.crawl.contentful.crawl.VocabularyTerms;
@@ -49,6 +43,8 @@ import com.contentful.java.cda.CDAResourceNotFoundException;
 import com.contentful.java.cma.CMAClient;
 import com.contentful.java.cma.model.CMAContentType;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.SneakyThrows;
 
 @RequestMapping(value = "content", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -160,7 +156,8 @@ public class ContentResource {
 
   @RateLimiter(name = "contentfulApi")
   @Retry(name = "contentfulApiRetry")
-  public CDAEntry fetchEntry(CDAClient cdaPreviewClient, String id, int levels, String localeParam, String all) {
+  public CDAEntry fetchEntry(
+      CDAClient cdaPreviewClient, String id, int levels, String localeParam, String all) {
     return cdaPreviewClient.fetch(CDAEntry.class).include(levels).where(localeParam, all).one(id);
   }
 }
