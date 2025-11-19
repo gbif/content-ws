@@ -40,8 +40,14 @@ public class ContentWsConfiguration {
   private static final int CONNECTION_TO = 3;
 
   @Bean
-  public ElasticsearchClient searchClient(ContentWsProperties properties) {
-    return searchClient(properties.getElasticsearch());
+  public RestClient elasticsearchRestClient(ContentWsProperties properties) {
+    return buildRestClient(properties.getElasticsearch());
+  }
+
+  @Bean
+  public ElasticsearchClient searchClient(RestClient elasticsearchRestClient) {
+    ElasticsearchTransport transport = new RestClientTransport(elasticsearchRestClient, new JacksonJsonpMapper());
+    return new ElasticsearchClient(transport);
   }
 
   @ConfigurationProperties(prefix = "content")
@@ -50,12 +56,12 @@ public class ContentWsConfiguration {
     return new ContentWsProperties();
   }
 
-  public static ElasticsearchClient searchClient(ElasticsearchProperties properties) {
+  public static RestClient buildRestClient(ElasticsearchProperties properties) {
     try {
       URL urlHost = new URL(properties.getHost());
       HttpHost host = new HttpHost(urlHost.getHost(), urlHost.getPort(), urlHost.getProtocol());
       
-      RestClient restClient = RestClient.builder(host)
+      return RestClient.builder(host)
           .setRequestConfigCallback(
               requestConfigBuilder ->
                   requestConfigBuilder
@@ -63,12 +69,15 @@ public class ContentWsConfiguration {
                       .setSocketTimeout(properties.getSocketTimeOut())
                       .setConnectionRequestTimeout(properties.getConnectionRequestTimeOut()))
           .build();
-      
-      ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
-      return new ElasticsearchClient(transport);
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  public static ElasticsearchClient searchClient(ElasticsearchProperties properties) {
+    RestClient restClient = buildRestClient(properties);
+    ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+    return new ElasticsearchClient(transport);
   }
 
   @ConfigurationProperties(prefix = "contentful")
