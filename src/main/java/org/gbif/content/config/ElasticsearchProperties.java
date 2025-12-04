@@ -13,6 +13,9 @@
  */
 package org.gbif.content.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Data;
 
 /**
@@ -21,7 +24,7 @@ import lombok.Data;
 @Data
 public class ElasticsearchProperties {
 
-  private String host = "http://localhost:9200";
+  private List<String> hosts = new ArrayList<>(List.of("http://localhost:9200"));
 
   private int connectionTimeOut = 180_000;
 

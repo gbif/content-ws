@@ -76,10 +76,13 @@ public class SyncResource {
         .collect(
             Collectors.toMap(
               Map.Entry::getKey,
-                e ->
-                    e.getValue().getIndex().equals(properties.getElasticsearch())
-                        ? defaultClient
-                        : ContentWsConfiguration.searchClient(e.getValue().getIndex())));
+                e -> {
+                  var index = e.getValue().getIndex();
+                  if (index == null || index.equals(properties.getElasticsearch())) {
+                    return defaultClient;
+                  }
+                  return ContentWsConfiguration.searchClient(index);
+                }));
   }
 
   /**
