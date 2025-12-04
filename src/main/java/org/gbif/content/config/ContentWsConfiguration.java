@@ -17,6 +17,8 @@ import org.gbif.content.crawl.conf.ContentCrawlConfiguration;
 import org.gbif.content.crawl.contentful.crawl.VocabularyTerms;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -58,10 +60,14 @@ public class ContentWsConfiguration {
 
   public static RestClient buildRestClient(ElasticsearchProperties properties) {
     try {
-      URL urlHost = new URL(properties.getHost());
-      HttpHost host = new HttpHost(urlHost.getHost(), urlHost.getPort(), urlHost.getProtocol());
+      List<HttpHost> httpHosts = new ArrayList<>();
+      for (String hostUrl : properties.getHosts()) {
+        URL urlHost = new URL(hostUrl);
+        HttpHost host = new HttpHost(urlHost.getHost(), urlHost.getPort(), urlHost.getProtocol());
+        httpHosts.add(host);
+      }
       
-      return RestClient.builder(host)
+      return RestClient.builder(httpHosts.toArray(new HttpHost[0]))
           .setRequestConfigCallback(
               requestConfigBuilder ->
                   requestConfigBuilder

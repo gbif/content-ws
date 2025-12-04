@@ -3,14 +3,19 @@ content:
   esEventsIndex: "event"
   esDataUseIndex: "datause"
   elasticsearch:
-    host: http://localhost:9200
+    hosts:
+      - http://localhost:9200
   synchronization:
-    synchronization:
-      token: "ILoveMorten"
-      command: "contentful-crawl"
-      jenkinsJobUrl: "http://builds.gbif.org/job/run-content-crawler/buildWithParameters"
-      environments:
-        dev: { "repository": "snapshots", "index": { "host": "http://localhost", "port": "9300", "cluster": "content-cluster" } }
+    token: "ILoveMorten"
+    command: "contentful-crawl"
+    jenkinsJobUrl: "http://builds.gbif.org/job/run-content-crawler/buildWithParameters"
+    environments:
+      dev:
+        repository: "snapshots"
+        index:
+          hosts:
+            - http://localhost:9300
+
 spring:
   cloud:
     zookeeper:
