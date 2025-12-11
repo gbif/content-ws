@@ -21,6 +21,7 @@ import org.gbif.content.service.WebHookRequest.Topic;
 import org.gbif.content.utils.Paths;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -72,7 +73,11 @@ public class SyncResource {
    */
   private static Map<String, ElasticsearchClient> buildEsClients(
       ContentWsProperties properties, ElasticsearchClient defaultClient) {
-    return properties.getSynchronization().getEnvironments().entrySet().stream()
+    var synchronization = properties.getSynchronization();
+    if (synchronization == null || synchronization.getEnvironments() == null) {
+      return Collections.emptyMap();
+    }
+    return synchronization.getEnvironments().entrySet().stream()
         .collect(
             Collectors.toMap(
               Map.Entry::getKey,
