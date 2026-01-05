@@ -39,6 +39,8 @@ import com.contentful.java.cda.CDAResourceNotFoundException;
 import com.contentful.java.cma.CMAClient;
 import com.contentful.java.cma.model.CMAContentType;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.SneakyThrows;
 
 @RequestMapping(value = "content", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -140,8 +142,7 @@ public class ContentResource {
   @GetMapping("{id}/preview")
   public ResponseEntity<Map<String, Object>> getContentPreview(@PathVariable("id") String id) {
     try {
-      CDAEntry cdaEntry =
-          cdaPreviewClient.fetch(CDAEntry.class).include(LEVELS).where(LOCALE_PARAM, ALL).one(id);
+      CDAEntry cdaEntry = fetchEntry(cdaPreviewClient, id, LEVELS, LOCALE_PARAM, ALL);
       Map<String, Object> esDoc =
           new EsDocBuilder(cdaEntry, vocabularyTerms, getProjectContentId(), o -> {}).toEsDoc();
       getEsDoc(id).map(this::getTagFields).ifPresent(esDoc::putAll);
@@ -149,5 +150,12 @@ public class ContentResource {
     } catch (CDAResourceNotFoundException ex) {
       return ResponseEntity.of(Optional.empty());
     }
+  }
+
+  @RateLimiter(name = "contentfulApi")
+  @Retry(name = "contentfulApiRetry")
+  public CDAEntry fetchEntry(
+      CDAClient cdaPreviewClient, String id, int levels, String localeParam, String all) {
+    return cdaPreviewClient.fetch(CDAEntry.class).include(levels).where(localeParam, all).one(id);
   }
 }
