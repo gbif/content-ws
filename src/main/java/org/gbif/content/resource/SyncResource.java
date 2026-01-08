@@ -21,17 +21,16 @@ import org.gbif.content.service.WebHookRequest.Topic;
 import org.gbif.content.utils.Paths;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -53,17 +52,16 @@ public class SyncResource {
       "application/vnd.contentful.management.v1+json";
   // Used to map indices names
   private static final Pattern REPLACEMENTS = Pattern.compile(":\\s+|\\s+");
-  private static final String ES_TYPE = "content";
 
   private final JenkinsJobClient jenkinsJobClient;
-  private final Map<String, RestHighLevelClient> esClients;
+  private final Map<String, ElasticsearchClient> esClients;
 
   /**
    * Full constructor: requires the configuration object and an ElasticSearch client.
    */
   public SyncResource(
       JenkinsJobClient jenkinsJobClient,
-      RestHighLevelClient searchIndex,
+      ElasticsearchClient searchIndex,
       ContentWsProperties properties) {
     this.jenkinsJobClient = jenkinsJobClient;
     this.esClients = buildEsClients(properties, searchIndex);
@@ -73,16 +71,23 @@ public class SyncResource {
    * Builds the ElasticSearch clients used for the synchronization service.
    * The default client if the same ElasticSearch server is configured as a sync index
    */
-  private static Map<String, RestHighLevelClient> buildEsClients(
-      ContentWsProperties properties, RestHighLevelClient defaultClient) {
-    return properties.getSynchronization().getIndexes().entrySet().stream()
+  private static Map<String, ElasticsearchClient> buildEsClients(
+      ContentWsProperties properties, ElasticsearchClient defaultClient) {
+    var synchronization = properties.getSynchronization();
+    if (synchronization == null || synchronization.getEnvironments() == null) {
+      return Collections.emptyMap();
+    }
+    return synchronization.getEnvironments().entrySet().stream()
         .collect(
             Collectors.toMap(
-                Map.Entry::getKey,
-                e ->
-                    e.getValue().equals(properties.getElasticsearch())
-                        ? defaultClient
-                        : ContentWsConfiguration.searchClient(e.getValue())));
+              Map.Entry::getKey,
+                e -> {
+                  var index = e.getValue().getIndex();
+                  if (index == null || index.equals(properties.getElasticsearch())) {
+                    return defaultClient;
+                  }
+                  return ContentWsConfiguration.searchClient(index);
+                }));
   }
 
   /**
@@ -120,13 +125,16 @@ public class SyncResource {
       DeleteResponse deleteResponse =
           esClients
               .get(webHookRequest.getEnv())
-              .delete(
-                  new DeleteRequest(
-                      getEsIdxName(webHookRequest.getContentTypeId()), webHookRequest.getId()),
-                  RequestOptions.DEFAULT);
+              .delete(d -> d
+                  .index(getEsIdxName(webHookRequest.getContentTypeId()))
+                  .id(webHookRequest.getId()));
       LOG.info("Entry deleted");
 
-      return ResponseEntity.status(deleteResponse.status().getStatus()).build();
+      if (deleteResponse.result().jsonValue().equalsIgnoreCase("deleted")) {
+        return ResponseEntity.ok().build();
+      } else {
+        return ResponseEntity.notFound().build();
+      }
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }

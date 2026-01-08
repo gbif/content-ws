@@ -23,12 +23,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +55,7 @@ public class ContentResource {
 
   private static final String CONTENT_ALIAS = "content";
 
-  private final RestHighLevelClient esClient;
+  private final ElasticsearchClient esClient;
 
   private final CDAClient cdaPreviewClient;
 
@@ -75,7 +71,7 @@ public class ContentResource {
 
   @Autowired
   public ContentResource(
-      RestHighLevelClient esClient,
+      ElasticsearchClient esClient,
       CDAClient cdaPreviewClient,
       VocabularyTerms vocabularyTerms,
       ContentCrawlConfiguration.Contentful configuration,
@@ -118,19 +114,21 @@ public class ContentResource {
 
   @SneakyThrows
   private Optional<Map<String, Object>> getEsDoc(String id) {
-    SearchResponse searchResponse =
+    SearchResponse<Map> searchResponse =
         esClient.search(
-            new SearchRequest()
-                .indices(CONTENT_ALIAS)
-                .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("id", id)).size(1)),
-            RequestOptions.DEFAULT);
-    return searchResponse.getHits().getHits().length > 0
-        ? Optional.ofNullable(searchResponse.getHits().getHits()[0].getSourceAsMap())
+            s -> s
+                .index(CONTENT_ALIAS)
+                .query(q -> q.term(t -> t.field("id").value(v -> v.stringValue(id))))
+                .size(1),
+            Map.class);
+
+    return !searchResponse.hits().hits().isEmpty()
+        ? Optional.ofNullable(searchResponse.hits().hits().get(0).source())
         : Optional.empty();
   }
 
   /**
-   * Get the tags fields of a es document.
+   * Get the tags fields of an es document.
    */
   private Map<String, Object> getTagFields(Map<String, Object> sourceMap) {
     return sourceMap.entrySet().stream()

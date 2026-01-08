@@ -13,32 +13,30 @@
  */
 package org.gbif.content.resource;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+
 import org.gbif.content.ContentWsApplication;
 import org.gbif.content.config.ContentWsProperties;
-import org.gbif.content.security.SyncAuthenticationFilter;
 import org.gbif.content.service.JenkinsJobClient;
 import org.gbif.content.service.WebHookRequest;
 import org.gbif.content.utils.Paths;
 
-import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.actuate.autoconfigure.elasticsearch.ElasticSearchRestHealthContributorAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,33 +50,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@EnableAutoConfiguration(exclude = ElasticSearchRestHealthContributorAutoConfiguration.class)
+@EnableAutoConfiguration(exclude = {
+    ElasticsearchRestClientAutoConfiguration.class
+})
 public class SyncResourceTest {
 
+  @Autowired
   private MockMvc mockMvc;
 
-  @Autowired
+  @MockBean
   @Qualifier("searchClient")
-  private RestHighLevelClient searchIndex;
+  private ElasticsearchClient searchIndex;
 
   @Autowired private ContentWsProperties properties;
 
+  @MockBean
+  private JenkinsJobClient jenkinsJobClient;
+
   @BeforeEach
   public void setup() {
-    MockitoAnnotations.initMocks(this);
-    this.mockMvc =
-        MockMvcBuilders.standaloneSetup(new SyncResource(jenkinsJobMock(), searchIndex, properties))
-            .addFilters(new SyncAuthenticationFilter(properties.getSynchronization().getToken()))
-            .build();
-  }
-
-  /**
-   * Creates a mock instance of URL that doesn't trigger any remote call.
-   */
-  private static JenkinsJobClient jenkinsJobMock() {
-    JenkinsJobClient jenkinsJobClient = mock(JenkinsJobClient.class);
     when(jenkinsJobClient.execute("dev")).thenReturn(ResponseEntity.accepted().build());
-    return jenkinsJobClient;
   }
 
   /**

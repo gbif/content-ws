@@ -76,10 +76,12 @@ public class JenkinsJobClient {
    */
   public URL buildJenkinsJobUrl(String environment)
       throws URISyntaxException, MalformedURLException {
+    SynchronizationProperties.EnvironmentConfig envConfig = syncProperties.getEnvironments().get(environment);
+        syncProperties.getEnvironments().get(environment);
     return new URIBuilder(syncProperties.getJenkinsJobUrl())
         .addParameter(TOKEN_PARAM, syncProperties.getToken())
         .addParameter(CMD_PARAM, syncProperties.getCommand())
-        .addParameter(REPOSITORY_PARAM, syncProperties.getRepository())
+        .addParameter(REPOSITORY_PARAM, envConfig.getRepository())
         .addParameter(ENV_PARAM, environment)
         .build()
         .toURL();

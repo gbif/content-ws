@@ -50,19 +50,9 @@
       "sourceType": "org.gbif.content.config.ContentWsProperties"
     },
     {
-      "name": "content.elasticSearch.host",
-      "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.ElasticSearchProperties"
-    },
-    {
-      "name": "content.elasticSearch.port",
-      "type": "java.lang.Integer",
-      "sourceType": "org.gbif.content.config.ElasticSearchProperties"
-    },
-    {
-      "name": "content.elasticSearch.cluster",
-      "type": "java.lang.String",
-      "sourceType": "org.gbif.content.config.ElasticSearchProperties"
+      "name": "content.elasticSearch.hosts",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "org.gbif.content.config.ElasticsearchProperties"
     },
     {
       "name": "content.synchronization.jenkinsJobUrl",
