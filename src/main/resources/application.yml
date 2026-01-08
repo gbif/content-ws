@@ -59,5 +59,7 @@ content:
     token: "ILoveMorten"
     command: "contentful-crawl"
     jenkinsJobUrl: "http://builds.gbif.org/job/run-content-crawler/buildWithParameters"
+    version: "LATEST"
+    classifier: "shaded"
     environments:
       dev: { "repository": "snapshots", "index": { "host": "http://localhost", "port": "9300", "cluster": "content-cluster" } }

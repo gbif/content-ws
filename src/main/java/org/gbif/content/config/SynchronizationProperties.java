@@ -45,6 +45,15 @@ public class SynchronizationProperties {
    */
   private String command = "contentful-crawl";
 
+  /**
+   * Classifier parameter of the Jenkins sync job.
+   */
+  private String classifier = "";
+
+  /**
+   * Version parameter of the Jenkins sync job.
+   */
+  private String version = "latest";
 
   private Map<String, EnvironmentConfig> environments;
 

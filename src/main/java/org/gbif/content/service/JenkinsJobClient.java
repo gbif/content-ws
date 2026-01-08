@@ -37,6 +37,8 @@ public class JenkinsJobClient {
   public static final String ENV_PARAM = "environment";
   public static final String CMD_PARAM = "command";
   public static final String REPOSITORY_PARAM = "repository";
+  public static final String VERSION_PARAM = "version";
+  public static final String CLASSIFIER_PARAM = "classifier";
 
   private final SynchronizationProperties syncProperties;
 
@@ -83,6 +85,8 @@ public class JenkinsJobClient {
         .addParameter(CMD_PARAM, syncProperties.getCommand())
         .addParameter(REPOSITORY_PARAM, envConfig.getRepository())
         .addParameter(ENV_PARAM, environment)
+        .addParameter(CLASSIFIER_PARAM, syncProperties.getClassifier())
+        .addParameter(VERSION_PARAM, syncProperties.getVersion())
         .build()
         .toURL();
   }
