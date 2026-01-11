@@ -124,11 +124,7 @@ public class ConversionUtil {
   public static SyndEntry toFeedEntry(Hit<Map> searchHit, String locale, String altBaseLink) {
     SyndEntry entry = new SyndEntryImpl();
     Map<String, Object> source = (Map<String, Object>) searchHit.source();
-    getField(source, "title", locale)
-        .ifPresent(
-            title ->
-                entry.setTitle(
-                    HtmlRenderer.builder().build().render(MARKDOWN_PARSER.parse(title))));
+    getField(source, "title", locale).ifPresent(entry::setTitle);
     SyndContent description = new SyndContentImpl();
     description.setType("text/html");
     getField(source, "body", locale)
