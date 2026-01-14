@@ -36,7 +36,7 @@
     <main.basedir>${project.basedir}</main.basedir>
     <start-class>org.gbif.content.ContentWsApplication</start-class>
 
-    <content-crawler.version>1.0.1</content-crawler.version>
+    <content-crawler.version>1.0.2</content-crawler.version>
     <gbif-common-ws.version>2.1.1</gbif-common-ws.version>
 
     <spring-boot.version>3.5.8</spring-boot.version>
