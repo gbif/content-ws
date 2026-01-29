@@ -48,7 +48,7 @@ public class SynchronizationProperties {
   /**
    * Classifier parameter of the Jenkins sync job.
    */
-  private String classifier = "";
+  private String classifier = "shaded";
 
   /**
    * Version parameter of the Jenkins sync job.
