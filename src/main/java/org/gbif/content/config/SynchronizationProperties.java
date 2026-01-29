@@ -53,7 +53,7 @@ public class SynchronizationProperties {
   /**
    * Version parameter of the Jenkins sync job.
    */
-  private String version = "latest";
+  private String version = "LATEST";
 
   private Map<String, EnvironmentConfig> environments;
 
