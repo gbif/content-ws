@@ -47,7 +47,7 @@
     <resilience4j-spring-boot2.version>1.7.1</resilience4j-spring-boot2.version>
     <curator-framework.version>5.5.0-disable-connectstr-updates</curator-framework.version>
     <slf4j.version>2.0.17</slf4j.version>
-    <logback.version>1.5.21</logback.version>
+    <logback.version>1.5.25</logback.version>
     <janino-logback.version>3.0.8</janino-logback.version>
     <logstash-logback-encoder.version>8.1</logstash-logback-encoder.version>
     <guava.version>33.5.0-jre</guava.version>
