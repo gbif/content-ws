@@ -119,6 +119,17 @@ public class ConversionUtil {
   }
 
   /**
+   * Collapses whitespace and newlines for iCal text properties. Leading/trailing newlines in
+   * SUMMARY/DESCRIPTION break some calendar clients (e.g. macOS Calendar).
+   */
+  static String sanitizeIcalText(String text) {
+    if (Strings.isNullOrEmpty(text)) {
+      return text;
+    }
+    return text.trim().replaceAll("\\s+", " ");
+  }
+
+  /**
    * Transforms a SearchHit into a SyndEntry instance.
    */
   public static SyndEntry toFeedEntry(Hit<Map> searchHit, String locale, String altBaseLink) {
@@ -170,16 +181,22 @@ public class ConversionUtil {
         .ifPresent(
             title ->
                 vEvent.setSummary(
-                    formatter.getPlainText(
-                        Jsoup.parse(
-                            HtmlRenderer.builder().build().render(MARKDOWN_PARSER.parse(title))))));
+                    sanitizeIcalText(
+                        formatter.getPlainText(
+                            Jsoup.parse(
+                                HtmlRenderer.builder()
+                                    .build()
+                                    .render(MARKDOWN_PARSER.parse(title)))))));
     getField(sourceMap, "body", locale)
         .ifPresent(
             body ->
                 vEvent.setDescription(
-                    formatter.getPlainText(
-                        Jsoup.parse(
-                            HtmlRenderer.builder().build().render(MARKDOWN_PARSER.parse(body))))));
+                    sanitizeIcalText(
+                        formatter.getPlainText(
+                            Jsoup.parse(
+                                HtmlRenderer.builder()
+                                    .build()
+                                    .render(MARKDOWN_PARSER.parse(body)))))));
     getLinkUrl(sourceMap, "primaryLink", locale).ifPresent(vEvent::setUrl);
     vEvent.setUrl(altBaseLink + '/' + id);
     getLocationField(sourceMap, "coordinates").ifPresent(vEvent::setLocation);
