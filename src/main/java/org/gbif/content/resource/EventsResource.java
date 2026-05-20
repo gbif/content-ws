@@ -21,6 +21,7 @@ import org.gbif.content.utils.ConversionUtil;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -142,12 +143,20 @@ public class EventsResource {
         .hits()
         .hits()
         .forEach(
-            searchHit ->
+            searchHit -> {
+              try {
                 iCal.addEvent(
                     ConversionUtil.toVEvent(
                         searchHit,
                         configuration.getDefaultLocale(),
-                        configuration.getGbifPortalUrl() + configuration.getEsEventsIndex())));
+                        configuration.getGbifPortalUrl() + configuration.getEsEventsIndex()));
+              } catch (DateTimeParseException ex) {
+                LOG.warn(
+                    "Skipping event {} in calendar feed due to unparsable date: {}",
+                    searchHit.id(),
+                    ex.getMessage());
+              }
+            });
     return Biweekly.write(iCal).go();
   }
 
