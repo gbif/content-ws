@@ -52,4 +52,14 @@ class ConversionUtilTest {
   void parseDateRejectsUnknownFormat() {
     assertThrows(DateTimeParseException.class, () -> ConversionUtil.parseDate("not-a-date"));
   }
+
+  @Test
+  void sanitizeIcalTextTrimsAndCollapsesNewlines() {
+    assertEquals(
+        "10th International Barcode of life",
+        ConversionUtil.sanitizeIcalText("\n10th International Barcode of life\n"));
+    assertEquals(
+        "First paragraph. Second paragraph.",
+        ConversionUtil.sanitizeIcalText("First paragraph.\n\nSecond paragraph.\n"));
+  }
 }
