@@ -81,7 +81,10 @@ public class EventsResource {
    */
   private static final int DEFAULT_SIZE = 10;
 
-  private static final int MAX_SIZE = 1_000;
+  /**
+   * Default page size for iCal feeds
+   */
+  private static final int CALENDAR_DEFAULT_SIZE = 30;
 
   private static final Query UPCOMING_EVENTS =
     Query.of(q -> q.range(r -> r.date(DateRangeQuery.of(d -> d.field(START_FIELD).gte("now/d")))));
@@ -140,7 +143,13 @@ public class EventsResource {
   public String getUpcomingEventsICal(
       @RequestParam(value = "limit", required = false) Integer limit) {
     ICalendar iCal = new ICalendar();
-    executeQuery(UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex(), limit)
+    executeQuery(
+            UPCOMING_EVENTS,
+            START_FIELD,
+            configuration.getEsEventsIndex(),
+            limit,
+            CALENDAR_DEFAULT_SIZE,
+            SortOrder.Asc)
         .hits()
         .hits()
         .forEach(
@@ -167,7 +176,12 @@ public class EventsResource {
   @GetMapping(path = "events/upcoming.xml", produces = MediaType.APPLICATION_ATOM_XML_VALUE)
   public String getUpComingEvents(@RequestParam(value = "limit", required = false) Integer limit) {
     return toXmlAtomFeed(
-        newEventsFeed(), UPCOMING_EVENTS, START_FIELD, configuration.getEsEventsIndex(), limit);
+        newEventsFeed(),
+        UPCOMING_EVENTS,
+        START_FIELD,
+        configuration.getEsEventsIndex(),
+        limit,
+        SortOrder.Asc);
   }
 
   /**
@@ -329,7 +343,18 @@ public class EventsResource {
   private String toXmlAtomFeed(
       SyndFeed feed, Query filter, String dateSortField, String idxName, Integer limit) {
     return toXmlAtomFeed(
-        feed, filter, dateSortField, idxName, configuration.getDefaultLocale(), limit);
+        feed, filter, dateSortField, idxName, configuration.getDefaultLocale(), limit, SortOrder.Desc);
+  }
+
+  private String toXmlAtomFeed(
+      SyndFeed feed,
+      Query filter,
+      String dateSortField,
+      String idxName,
+      Integer limit,
+      SortOrder sortOrder) {
+    return toXmlAtomFeed(
+        feed, filter, dateSortField, idxName, configuration.getDefaultLocale(), limit, sortOrder);
   }
 
   /**
@@ -342,9 +367,20 @@ public class EventsResource {
       String idxName,
       String locale,
       Integer limit) {
+    return toXmlAtomFeed(feed, filter, dateSortField, idxName, locale, limit, SortOrder.Desc);
+  }
+
+  private String toXmlAtomFeed(
+      SyndFeed feed,
+      Query filter,
+      String dateSortField,
+      String idxName,
+      String locale,
+      Integer limit,
+      SortOrder sortOrder) {
     try {
       feed.setEntries(
-          executeQuery(filter, dateSortField, idxName, limit).hits().hits().stream()
+          executeQuery(filter, dateSortField, idxName, limit, sortOrder).hits().hits().stream()
               .map(
                   searchHit ->
                       ConversionUtil.toFeedEntry(
@@ -361,11 +397,38 @@ public class EventsResource {
     }
   }
 
-  /**
-   * Executes the default search query.
-   */
   private SearchResponse<Map> executeQuery(
-      String query, Query filter, String dateSortField, String idxName, Integer limit) {
+      Query filter, String dateSortField, String idxName, Integer limit) {
+    return executeQuery(filter, dateSortField, idxName, limit, DEFAULT_SIZE, SortOrder.Desc);
+  }
+
+  private SearchResponse<Map> executeQuery(
+      Query filter,
+      String dateSortField,
+      String idxName,
+      Integer limit,
+      SortOrder sortOrder) {
+    return executeQuery(filter, dateSortField, idxName, limit, DEFAULT_SIZE, sortOrder);
+  }
+
+  private SearchResponse<Map> executeQuery(
+      Query filter,
+      String dateSortField,
+      String idxName,
+      Integer limit,
+      int defaultSize,
+      SortOrder sortOrder) {
+    return executeQuery(null, filter, dateSortField, idxName, limit, defaultSize, sortOrder);
+  }
+
+  private SearchResponse<Map> executeQuery(
+      String query,
+      Query filter,
+      String dateSortField,
+      String idxName,
+      Integer limit,
+      int defaultSize,
+      SortOrder sortOrder) {
     try {
       BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder()
           .filter(SEARCHABLE);
@@ -381,23 +444,11 @@ public class EventsResource {
           SearchRequest.of(s -> s
               .index(idxName)
               .query(boolQueryBuilder.build())
-              .sort(sort -> sort.field(f -> f.field(dateSortField).order(SortOrder.Desc)))
-              .size(getLimit(limit))),
+              .sort(sort -> sort.field(f -> f.field(dateSortField).order(sortOrder)))
+              .size(Optional.ofNullable(limit).orElse(defaultSize))),
           Map.class);
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
-  }
-
-  private int getLimit(Integer limit) {
-    return Math.min(Optional.ofNullable(limit).orElse(DEFAULT_SIZE), MAX_SIZE);
-  }
-
-  /**
-   * Executes the default search query.
-   */
-  private SearchResponse<Map> executeQuery(
-      Query filter, String dateSortField, String idxName, Integer limit) {
-    return executeQuery(null, filter, dateSortField, idxName, limit);
   }
 }
