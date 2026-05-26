@@ -89,7 +89,8 @@ public class EventsResource {
   private static final Query SEARCHABLE =
       Query.of(q -> q.term(t -> t.field("searchable").value(true)));
 
-  private static final String MEDIA_TYPE_ICAL = "text/iCal";
+  /** RFC 5545 registered media type */
+  private static final String MEDIA_TYPE_CAL = "text/calendar";
 
   private final ElasticsearchClient esClient;
 
@@ -135,7 +136,7 @@ public class EventsResource {
   /**
    * Upcoming events in iCal format.
    */
-  @GetMapping(path = "events/calendar/upcoming.ics", produces = MEDIA_TYPE_ICAL)
+  @GetMapping(path = "events/calendar/upcoming.ics", produces = MEDIA_TYPE_CAL)
   public String getUpcomingEventsICal(
       @RequestParam(value = "limit", required = false) Integer limit) {
     ICalendar iCal = new ICalendar();
@@ -172,7 +173,7 @@ public class EventsResource {
   /**
    * Single event RSS feed in Atom format.
    */
-  @GetMapping(path = "events/{eventId}", produces = MEDIA_TYPE_ICAL)
+  @GetMapping(path = "events/{eventId}", produces = MEDIA_TYPE_CAL)
   public ResponseEntity<String> getEvent(@PathVariable("eventId") String eventId) {
     try {
       GetResponse<Map> response = esClient.get(
