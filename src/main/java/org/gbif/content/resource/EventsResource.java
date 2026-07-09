@@ -187,7 +187,9 @@ public class EventsResource {
   /**
    * Single event RSS feed in Atom format.
    */
-  @GetMapping(path = "events/{eventId}", produces = MEDIA_TYPE_CAL)
+  @GetMapping(
+      path = {"events/{eventId}", "events/{eventId}.ics"},
+      produces = MEDIA_TYPE_CAL)
   public ResponseEntity<String> getEvent(@PathVariable("eventId") String eventId) {
     try {
       GetResponse<Map> response = esClient.get(
